@@ -1,5 +1,5 @@
 {
-  "name": "react-forminate",
+  "name": "@panahi-projects/react-forminate",
   "version": "1.0.0",
   "description": "React.js + Typescript package that creates dynamic UI forms based on the JSON schema",
   "type": "module",
@@ -22,6 +22,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@panahi-projects"
+  },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",
     "@storybook/addon-essentials": "^8.6.9",
