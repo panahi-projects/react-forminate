@@ -12,12 +12,17 @@
   "scripts": {
     "build": "tsc && vite build",
     "format": "prettier --write --parser typescript '**/*.{ts,tsx}'",
-    "lint": "eslint . --ext .ts,.tsx --ignore-path .gitignore --fix"
+    "lint": "eslint . --ext .ts,.tsx --ignore-path .gitignore --fix",
+    "test": "vitest run",
+    "test-watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.12",
     "@types/react": "^19.0.12",
     "@typescript-eslint/eslint-plugin": "^8.27.0",
@@ -28,11 +33,13 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^0.11.6",
+    "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
     "styled-components": "^6.1.16",
     "typescript": "^5.8.2",
     "vite": "^6.2.3",
-    "vite-plugin-dts": "^4.5.3"
+    "vite-plugin-dts": "^4.5.3",
+    "vitest": "^3.0.9"
   },
   "peerDependencies": {
     "react": "^19.0.0"
