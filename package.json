@@ -1,5 +1,5 @@
 {
-  "name": "@panahi-projects/react-forminate",
+  "name": "react-forminate",
   "version": "1.0.0",
   "description": "React.js + Typescript package that creates dynamic UI forms based on the JSON schema",
   "type": "module",
