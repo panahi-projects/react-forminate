@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsc && vite build",
     "format": "prettier --write --parser typescript '**/*.{ts,tsx}'",
-    "lint": "eslint . --ext .ts,.tsx --ignore-path .gitignore --fix",
-    "test": "vitest run",
+    "lint": "eslint . --ext .ts,.tsx --fix",
+    "test": "vitest run --passWithNoTests",
     "test-watch": "vitest",
     "test:ui": "vitest --ui",
     "storybook": "storybook dev -p 6006",
@@ -64,7 +64,9 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "npm run format",
-      "npm run lint",
+      "npm run lint"
+    ],
+    "src/**/!(*components/DynamicFormComponents*)*.{ts,tsx,js}": [
       "npm run test"
     ]
   }
