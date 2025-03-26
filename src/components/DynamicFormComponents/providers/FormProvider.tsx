@@ -35,7 +35,7 @@ export const FormProvider: React.FC<{
     return dependencies;
   };
 
-  const [dependencies, setDependencies] = useState<Record<string, string>>(
+  const [dependencies] = useState<Record<string, string>>(
     initialDependencies(formSchema.fields)
   );
 
