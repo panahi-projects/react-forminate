@@ -1,6 +1,6 @@
 {
   "name": "react-forminate",
-  "version": "1.0.4-beta.1",
+  "version": "1.0.4-beta.2",
   "description": "React.js + Typescript package that creates dynamic UI forms based on the JSON schema",
   "type": "module",
   "main": "dist/index.cjs.js",
