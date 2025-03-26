@@ -18,7 +18,8 @@ export const FormProvider: React.FC<{
     const dependencies: Record<string, string> = {};
 
     const traverseFields = (fields: any[]) => {
-      fields.forEach((field) => {
+      if (!fields || fields.length === 0) return;
+      fields?.forEach((field) => {
         // Check if the current field has a dependency
         if (field.dynamicOptions && field.dynamicOptions.dependsOn) {
           dependencies[field.id] = field.dynamicOptions.dependsOn;
@@ -125,7 +126,8 @@ export const FormProvider: React.FC<{
     const newErrors: Record<string, string> = {};
 
     const validateFieldRecursive = (fields: any[]) => {
-      fields.forEach((field) => {
+      if (!fields || fields.length === 0) return;
+      fields?.forEach((field) => {
         if (field.type === "group" && field.fields) {
           validateFieldRecursive(field.fields);
         } else if (

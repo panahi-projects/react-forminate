@@ -19,6 +19,7 @@ export interface BaseField {
     condition: string;
     value: string;
   };
+  fields?: any[];
 }
 
 export interface TextField extends BaseField {

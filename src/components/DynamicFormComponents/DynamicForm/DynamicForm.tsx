@@ -45,7 +45,9 @@ const FormContent: React.FC<DynamicFormProps> = ({
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-white"></div>
         </div>
       )}
-      <DynamicFormField {...formData} />
+      {formData.fields.map((field: any) => (
+        <DynamicFormField key={field.id} {...field} />
+      ))}
       <div className="flex justify-end mt-4">
         <button
           type="submit"
