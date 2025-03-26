@@ -1,28 +1,24 @@
-name: Publish Package
+name: Publish Package on NPM & GitHub
 
 on:
   push:
     branches:
       - main
     tags:
-      - "v*" # Triggers when you push a version tag like v1.0.3
+      - "v*"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        registry: ["npm", "github"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Setup Node.js for NPM
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: ${{ matrix.registry == 'npm' && 'https://registry.npmjs.org/' || 'https://npm.pkg.github.com/' }}
-          scope: "@panahi-projects"
+          registry-url: "https://registry.npmjs.org/"
 
       - name: Install dependencies
         run: npm install
@@ -30,12 +26,7 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Publish to ${{ matrix.registry }}
-        run: |
-          if [ "${{ matrix.registry }}" == "https://npm.pkg.github.com/" ]; then
-            npm set name @panahi-projects/react-forminate
-          fi
-          npm publish --access public
+      - name: Publish to NPM
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
