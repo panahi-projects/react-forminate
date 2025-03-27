@@ -79,5 +79,9 @@
     "src/**/!(*components/DynamicFormComponents*)*.{ts,tsx,js}": [
       "npm run test"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panahi-projects/react-forminate"
   }
 }
