@@ -1,5 +1,6 @@
 import { FormProvider, useForm } from "../providers/FormProvider";
 import { DynamicFormField } from "../DynamicFormField";
+import "../global.css";
 
 interface DynamicFormProps {
   formData: any;

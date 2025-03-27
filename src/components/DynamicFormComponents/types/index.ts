@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface FormContextType {
   values: Record<string, any>;
   errors: Record<string, string>;
@@ -20,14 +22,20 @@ export interface BaseField {
     value: string;
   };
   fields?: any[];
+  className?: string;
+  containerClassName?: string;
+  defaultValue?: any;
+  styles?: React.CSSProperties;
+  containerStyles?: React.CSSProperties;
 }
 
 export interface TextField extends BaseField {
-  type: "text" | "number" | "email";
+  type: "text" | "number" | "email" | "password";
   validation?: {
     min?: number;
     max?: number;
   };
+  placeholder?: string;
 }
 
 export interface DateField extends BaseField {

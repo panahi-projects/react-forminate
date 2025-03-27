@@ -8,6 +8,10 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   label,
   options,
   required,
+  containerClassName = "",
+  containerStyles = {},
+  className = "",
+  styles = {},
 }) => {
   const { values, setValue, errors, validateField } = useForm();
 
@@ -22,18 +26,26 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   };
 
   return (
-    <FieldWrapper id={id} label={label} required={required} error={errors[id]}>
+    <FieldWrapper
+      id={id}
+      label={label}
+      required={required}
+      error={errors[id]}
+      className={containerClassName}
+      styles={containerStyles}
+    >
       {options?.map((option) => (
-        <label key={option} className="inline-flex items-center mt-1 mr-4">
+        <label key={option}>
           <input
             type="checkbox"
             name={id}
             value={option}
             checked={values[id]?.includes(option) || false}
             onChange={() => handleChange(option)}
-            className="form-checkbox"
+            className={className}
+            style={styles}
           />
-          <span className="ml-2">{option}</span>
+          <span>{option}</span>
         </label>
       ))}
     </FieldWrapper>

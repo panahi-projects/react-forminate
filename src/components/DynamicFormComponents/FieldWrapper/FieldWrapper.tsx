@@ -7,22 +7,23 @@ interface FieldWrapperProps {
   error?: string;
   className?: string; // Allows adding custom styles
   children: ReactNode;
+  styles?: React.CSSProperties;
 }
 
 const FieldWrapper: React.FC<FieldWrapperProps> = memo(
-  ({ id, label, required, error, className = "", children }) => {
+  ({ id, label, required, error, className = "", children, styles }) => {
     return (
-      <div className={`field-container mb-4 ${className}`}>
+      <div className={`field-container ${className}`} style={styles}>
         {label && (
           <label
             htmlFor={id}
             className="block text-sm font-medium text-gray-700"
           >
-            {label} {required && <span className="text-red-500">*</span>}
+            {label} {required && <span className="red-star-validation">*</span>}
           </label>
         )}
         {children}
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        {error && <p className="red-star-validation">{error}</p>}
       </div>
     );
   }

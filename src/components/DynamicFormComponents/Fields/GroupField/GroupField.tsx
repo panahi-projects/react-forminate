@@ -5,12 +5,23 @@ interface GroupFieldProps {
   id: string;
   label: string;
   fields?: any[];
+  className?: string;
+  styles?: React.CSSProperties;
+  legendClassName?: string;
+  legendStyles?: React.CSSProperties;
 }
 
-const GroupField: React.FC<GroupFieldProps> = ({ label, fields }) => {
+const GroupField: React.FC<GroupFieldProps> = ({
+  label,
+  fields,
+  className = "",
+  styles = {},
+  legendClassName = "",
+  legendStyles = {},
+}) => {
   return (
-    <fieldset className="mb-6 border border-border p-4 rounded-lg shadow-sm">
-      <legend className="text-sm dark:text-primary-foreground text-secondary/55 font-semibold px-2">
+    <fieldset className={className} style={styles}>
+      <legend className={legendClassName} style={legendStyles}>
         {label}
       </legend>
       {fields &&
