@@ -20,8 +20,18 @@
     "build-storybook": "storybook build",
     "prepare": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "react",
+    "form",
+    "dynamic-form",
+    "form-builder",
+    "validation",
+    "form-generator"
+  ],
+  "author": {
+    "name": "Saeed Panahi",
+    "email": "panahi.projects@gmail.com"
+  },
   "license": "ISC",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
