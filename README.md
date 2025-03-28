@@ -28,9 +28,7 @@ You can use react-forminate in different ways. Here are two examples:
 #### Example 1: Basic Usage
 
 ```ts
-"use client";
-import { FormProvider, useForm } from "react-forminate";
-import DynamicFormField from "./DynamicFormField";
+import {DynamicForm, FormProvider, useForm } from "react-forminate";
 
 const formData = {
   id: "my_form",
