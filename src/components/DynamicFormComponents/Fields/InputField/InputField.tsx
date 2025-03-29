@@ -10,8 +10,11 @@ const InputField: React.FC<TextField> = ({
   required,
   className = "",
   placeholder = "",
+  styles = {},
   containerClassName = "",
   containerStyles = {},
+  labelClassName = "",
+  labelStyles = {},
 }) => {
   const { values, setValue, errors, validateField } = useForm();
 
@@ -27,6 +30,8 @@ const InputField: React.FC<TextField> = ({
       error={errors[id]}
       className={containerClassName}
       styles={containerStyles}
+      labelClassName={labelClassName}
+      labelStyles={labelStyles}
     >
       <input
         id={id}
@@ -35,6 +40,7 @@ const InputField: React.FC<TextField> = ({
         onChange={handleChange}
         className={className}
         placeholder={placeholder}
+        style={styles}
       />
     </FieldWrapper>
   );

@@ -12,6 +12,8 @@ const SelectField: React.FC<SelectFieldType> = ({
   styles = {},
   containerClassName = "",
   containerStyles = {},
+  labelClassName = "",
+  labelStyles = {},
 }) => {
   const { values, setValue, errors, validateField, dynamicOptions } = useForm();
   const [dynamicValues, setDynamicValues] = useState<string[]>(
@@ -37,6 +39,8 @@ const SelectField: React.FC<SelectFieldType> = ({
       error={errors[id]}
       className={containerClassName}
       styles={containerStyles}
+      labelClassName={labelClassName}
+      labelStyles={labelStyles}
     >
       <select
         id={id}

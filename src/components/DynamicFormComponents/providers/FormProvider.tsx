@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { FormContextType } from "../types";
+import { FormContextType, FormDataCollection } from "../types";
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{
   children: React.ReactNode;
-  formSchema: any;
+  formSchema: FormDataCollection;
 }> = ({ children, formSchema }) => {
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});

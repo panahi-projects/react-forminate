@@ -11,6 +11,8 @@ const DatePickerField: React.FC<DateField> = ({
   styles = {},
   containerClassName = "",
   containerStyles = {},
+  labelClassName = "",
+  labelStyles = {},
 }) => {
   const { values, setValue, errors, validateField } = useForm();
 
@@ -27,6 +29,8 @@ const DatePickerField: React.FC<DateField> = ({
       error={errors[id]}
       className={containerClassName}
       styles={containerStyles}
+      labelClassName={labelClassName}
+      labelStyles={labelStyles}
     >
       <input
         id={id}

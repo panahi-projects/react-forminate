@@ -1,12 +1,27 @@
 import { FormProvider, useForm } from "../providers/FormProvider";
 import { DynamicFormField } from "../DynamicFormField";
-import "../global.css";
+import { FormDataCollection } from "../types";
+import styled from "styled-components";
 
 interface DynamicFormProps {
-  formData: any;
+  formData: FormDataCollection;
   onSubmit?: (values: any, isValid: boolean) => void;
   isLoading?: boolean;
 }
+
+const StyledSubmitButton = styled.button`
+  background-color: #0457aa; /* Green */
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 12px 0;
+`;
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData,
@@ -42,21 +57,17 @@ const FormContent: React.FC<DynamicFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="relative">
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-white"></div>
+        <div>
+          <div></div>
         </div>
       )}
       {formData.fields.map((field: any) => (
         <DynamicFormField key={field.id} {...field} />
       ))}
-      <div className="flex justify-end mt-4">
-        <button
-          type="submit"
-          className="bg-primary rounded-md text-white py-2 px-6 w-full sm:w-auto"
-          disabled={isLoading}
-        >
+      <div>
+        <StyledSubmitButton type="submit" disabled={isLoading}>
           {isLoading ? "Submitting..." : "Submit"}
-        </button>
+        </StyledSubmitButton>
       </div>
     </form>
   );

@@ -14,8 +14,8 @@ export interface FormContextType {
 export interface BaseField {
   id: string;
   label: string;
-  required?: boolean;
   type: string;
+  required?: boolean;
   visibility?: {
     dependsOn: string;
     condition: string;
@@ -27,6 +27,8 @@ export interface BaseField {
   defaultValue?: any;
   styles?: React.CSSProperties;
   containerStyles?: React.CSSProperties;
+  labelClassName?: string;
+  labelStyles?: React.CSSProperties;
 }
 
 export interface TextField extends BaseField {
@@ -85,3 +87,9 @@ export type FormField =
   | CheckboxField
   | GroupField
   | ConditionalField;
+
+export interface FormDataCollection {
+  formId: string;
+  title: string;
+  fields: FormField[];
+}

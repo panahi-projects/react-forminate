@@ -2,6 +2,8 @@
 
 A dynamic form generator for React and Next.js, allowing you to define complex forms using JSON-like structures with built-in validation and grouped fields.
 
+⚠️ **This library is under development and some parts of it may still be incomplete.**
+
 ## Features
 
 - 🚀 **Dynamic Form Rendering**: Define forms using a JSON-like structure.
@@ -171,3 +173,5 @@ Fields support built-in validation. Example:
 #### License
 
 MIT
+
+**⚠️ ATTENTION: This library is under development and some parts of it may still be incomplete. Please support us on this journey and I would appreciate it if you could install it on your project and send me any bugs so that I can fix them.**
