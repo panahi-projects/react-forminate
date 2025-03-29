@@ -12,6 +12,8 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   containerStyles = {},
   className = "",
   styles = {},
+  labelClassName = "",
+  labelStyles = {},
 }) => {
   const { values, setValue, errors, validateField } = useForm();
 
@@ -33,6 +35,8 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
       error={errors[id]}
       className={containerClassName}
       styles={containerStyles}
+      labelClassName={labelClassName}
+      labelStyles={labelStyles}
     >
       {options?.map((option) => (
         <label key={option}>

@@ -12,6 +12,8 @@ const RadioField: React.FC<RadioFieldType> = ({
   styles = {},
   containerClassName = "",
   containerStyles = {},
+  labelClassName = "",
+  labelStyles = {},
 }) => {
   const { values, setValue, errors, validateField, shouldShowField } =
     useForm();
@@ -32,6 +34,8 @@ const RadioField: React.FC<RadioFieldType> = ({
       error={errors[id]}
       className={containerClassName}
       styles={containerStyles}
+      labelClassName={labelClassName}
+      labelStyles={labelStyles}
     >
       {availableOptions &&
         availableOptions.map((option: string) => (
