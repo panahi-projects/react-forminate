@@ -1,17 +1,31 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { FormContextType, FormDataCollection } from "../types";
+import {
+  FormContextType,
+  FormDataCollection,
+  FormField,
+  FormProviderProps,
+} from "../types";
 
-const FormContext = createContext<FormContextType | undefined>(undefined);
+export const FormContext = createContext<FormContextType | undefined>(
+  undefined
+);
 
-export const FormProvider: React.FC<{
-  children: React.ReactNode;
-  formSchema: FormDataCollection;
-}> = ({ children, formSchema }) => {
+export const FormProvider: React.FC<FormProviderProps> = ({
+  children,
+  formSchema,
+}) => {
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, any[]>>(
     {}
   );
+
+  const existingContext = useContext(FormContext);
+
+  // If context already exists, do NOT create a new one
+  if (existingContext) {
+    return <>{children}</>;
+  }
 
   // Store dependencies for dynamic fields
   const initialDependencies = (fields: any[]): Record<string, string> => {
@@ -121,11 +135,11 @@ export const FormProvider: React.FC<{
     });
   };
 
-  const validateForm = (formFields: any[]) => {
+  const validateForm = (form: FormDataCollection) => {
     let isValid = true;
     const newErrors: Record<string, string> = {};
 
-    const validateFieldRecursive = (fields: any[]) => {
+    const validateFieldRecursive = (fields: FormField[]) => {
       if (!fields || fields.length === 0) return;
       fields?.forEach((field) => {
         if (field.type === "group" && field.fields) {
@@ -141,8 +155,7 @@ export const FormProvider: React.FC<{
       });
     };
 
-    validateFieldRecursive(formFields);
-
+    validateFieldRecursive(form.fields);
     setErrors(newErrors);
     return isValid;
   };

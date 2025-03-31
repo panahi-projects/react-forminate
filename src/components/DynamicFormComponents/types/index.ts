@@ -1,14 +1,41 @@
 import React from "react";
 
+export interface FormDataCollection {
+  formId: string;
+  title: string;
+  fields: FormField[];
+}
 export interface FormContextType {
   values: Record<string, any>;
   errors: Record<string, string>;
   dynamicOptions: Record<string, any[]>; // Store dynamic options for fields
   setValue: (field: string, value: any) => void;
   validateField: (field: string, value: any) => void;
-  validateForm: (formFields: any[]) => boolean;
+  validateForm: (form: FormDataCollection) => boolean;
   shouldShowField: (field: any) => boolean;
   fetchDynamicOptions: (fieldId: string, value: string) => void; // Function to fetch dynamic options
+}
+
+export interface FormProviderProps {
+  formId?: string;
+  formSchema: FormDataCollection;
+  children: React.ReactNode;
+}
+
+export interface DynamicFormProps {
+  formId?: string;
+  formData: FormDataCollection;
+  onSubmit?: (values: any, isValid: boolean) => void;
+  isLoading?: boolean;
+  submitDetails?: {
+    visibility?: boolean;
+    text?: string;
+    className?: string;
+    styles?: React.CSSProperties;
+    containerClassName?: string;
+    containerStyles?: React.CSSProperties;
+  };
+  customProvider?: React.FC<FormProviderProps>;
 }
 
 export interface BaseField {
@@ -87,9 +114,3 @@ export type FormField =
   | CheckboxField
   | GroupField
   | ConditionalField;
-
-export interface FormDataCollection {
-  formId: string;
-  title: string;
-  fields: FormField[];
-}
