@@ -1,5 +1,5 @@
 import { DynamicFormField } from "../DynamicFormField";
-import { useForm } from "../providers/FormProvider";
+import { useForm } from "../providers/formContext";
 import { DynamicFormProps } from "../types";
 import { StyledSubmitButton } from "./StyledComponents";
 

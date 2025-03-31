@@ -1,7 +1,7 @@
 import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
-import { useForm } from "../../providers/FormProvider";
 import { CheckboxField as CheckboxFieldType } from "../../types";
+import { useForm } from "../../providers/formContext";
 
 const CheckboxField: React.FC<CheckboxFieldType> = ({
   id,
@@ -15,7 +15,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   labelClassName = "",
   labelStyles = {},
 }) => {
-  const { values, setValue, errors, validateField } = useForm();
+  const { values, setValue, errors } = useForm();
 
   const handleChange = (option: string) => {
     const currentValues = values[id] || [];
@@ -24,7 +24,6 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
       : [...currentValues, option];
 
     setValue(id, updatedValues);
-    validateField(id, updatedValues);
   };
 
   return (

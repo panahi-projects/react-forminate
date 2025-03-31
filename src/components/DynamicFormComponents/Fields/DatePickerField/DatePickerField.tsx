@@ -1,7 +1,7 @@
 import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
-import { useForm } from "../../providers/FormProvider";
 import { DateField } from "../../types";
+import { useForm } from "../../providers/formContext";
 
 const DatePickerField: React.FC<DateField> = ({
   id,
@@ -14,11 +14,10 @@ const DatePickerField: React.FC<DateField> = ({
   labelClassName = "",
   labelStyles = {},
 }) => {
-  const { values, setValue, errors, validateField } = useForm();
+  const { values, setValue, errors } = useForm();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(id, e.target.value);
-    validateField(id, e.target.value);
   };
 
   return (

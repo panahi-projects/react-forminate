@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FieldWrapper } from "../../FieldWrapper";
-import { useForm } from "../../providers/FormProvider";
 import { SelectField as SelectFieldType } from "../../types";
+import { useForm } from "../../providers/formContext";
 
 const SelectField: React.FC<SelectFieldType> = ({
   id,
@@ -15,7 +15,7 @@ const SelectField: React.FC<SelectFieldType> = ({
   labelClassName = "",
   labelStyles = {},
 }) => {
-  const { values, setValue, errors, validateField, dynamicOptions } = useForm();
+  const { values, setValue, errors, dynamicOptions } = useForm();
   const [dynamicValues, setDynamicValues] = useState<string[]>(
     dynamicOptions[id] || options || []
   );
@@ -28,7 +28,6 @@ const SelectField: React.FC<SelectFieldType> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValue(id, e.target.value);
-    validateField(id, e.target.value);
   };
 
   return (

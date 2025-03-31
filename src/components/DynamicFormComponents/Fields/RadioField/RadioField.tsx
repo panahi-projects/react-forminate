@@ -1,11 +1,12 @@
 import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
-import { useForm } from "../../providers/FormProvider";
 import { RadioField as RadioFieldType } from "../../types";
+import { useForm } from "../../providers/formContext";
 
 const RadioField: React.FC<RadioFieldType> = ({
   id,
   label,
+  type = "radio",
   options,
   required,
   className = "",
@@ -15,15 +16,13 @@ const RadioField: React.FC<RadioFieldType> = ({
   labelClassName = "",
   labelStyles = {},
 }) => {
-  const { values, setValue, errors, validateField, shouldShowField } =
-    useForm();
-  if (!shouldShowField({ id, label, options, required })) return null;
+  const { values, setValue, errors, shouldShowField } = useForm();
+  if (!shouldShowField({ id, label, options, required, type })) return null;
 
   const availableOptions = options;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(id, event.target.value);
-    validateField(id, event.target.value);
   };
 
   return (

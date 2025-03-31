@@ -1,13 +1,6 @@
 import { ComponentType, FC, lazy, Suspense } from "react";
-import { useForm } from "../providers/FormProvider";
-import {
-  BaseField,
-  CheckboxField as CheckboxFieldType,
-  DateField as DateFieldType,
-  RadioField as RadioFieldType,
-  SelectField as SelectFieldType,
-  TextField as TextFieldType,
-} from "../types";
+import { useForm } from "../providers/formContext";
+import { FormField } from "../types";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -29,15 +22,6 @@ const CheckboxField = lazy(() =>
   import("../Fields").then((module) => ({ default: module.CheckboxField }))
 );
 
-// Define the prop type as a union of all field interfaces
-type FieldProps =
-  | TextFieldType
-  | DateFieldType
-  | SelectFieldType
-  | RadioFieldType
-  | CheckboxFieldType
-  | BaseField;
-
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
   group: GroupField,
@@ -56,7 +40,7 @@ export const registerField = (type: string, component: ComponentType<any>) => {
 };
 
 // Generic DynamicFormField component
-const DynamicFormField: FC<FieldProps> = (props) => {
+const DynamicFormField: FC<FormField> = (props) => {
   const { shouldShowField } = useForm();
   if (!shouldShowField(props)) return null;
 

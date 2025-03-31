@@ -3,6 +3,7 @@ export * from "./DynamicFormComponents/types";
 export {
   default as DynamicForm,
   useForm,
+  FormContext,
   FormProvider,
   FieldWrapper,
   registerField,

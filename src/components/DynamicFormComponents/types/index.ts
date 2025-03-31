@@ -10,9 +10,20 @@ export interface FormContextType {
   errors: Record<string, string>;
   dynamicOptions: Record<string, any[]>; // Store dynamic options for fields
   setValue: (field: string, value: any) => void;
-  validateField: (field: string, value: any) => void;
+  validateField: (
+    field: string,
+    value: any,
+    formSchema: FormDataCollection,
+    values: Record<string, any>,
+    setErrors: (
+      update:
+        | Record<string, string>
+        | ((prev: Record<string, string>) => Record<string, string>)
+    ) => void
+  ) => void;
+
   validateForm: (form: FormDataCollection) => boolean;
-  shouldShowField: (field: any) => boolean;
+  shouldShowField: (field: FormField) => boolean;
   fetchDynamicOptions: (fieldId: string, value: string) => void; // Function to fetch dynamic options
 }
 
