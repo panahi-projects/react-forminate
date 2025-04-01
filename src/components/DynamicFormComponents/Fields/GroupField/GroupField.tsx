@@ -20,7 +20,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   legendStyles = {},
 }) => {
   return (
-    <fieldset className={className} style={styles}>
+    <fieldset data-testId="group-field" className={className} style={styles}>
       <legend className={legendClassName} style={legendStyles}>
         {label}
       </legend>

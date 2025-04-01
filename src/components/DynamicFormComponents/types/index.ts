@@ -95,6 +95,8 @@ export interface SelectField extends BaseField {
 export interface RadioField extends BaseField {
   type: "radio";
   options: string[];
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
 }
 
 export interface CheckboxField extends BaseField {

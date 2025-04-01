@@ -32,6 +32,7 @@ const DatePickerField: React.FC<DateField> = ({
       labelStyles={labelStyles}
     >
       <input
+        data-testId="date-picker-field"
         id={id}
         type="date"
         value={values[id] || ""}

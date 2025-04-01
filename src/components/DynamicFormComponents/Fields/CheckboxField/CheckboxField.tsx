@@ -37,20 +37,22 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      {options?.map((option) => (
-        <label key={option}>
-          <input
-            type="checkbox"
-            name={id}
-            value={option}
-            checked={values[id]?.includes(option) || false}
-            onChange={() => handleChange(option)}
-            className={className}
-            style={styles}
-          />
-          <span>{option}</span>
-        </label>
-      ))}
+      <div data-testId="checkbox-field">
+        {options?.map((option) => (
+          <label key={option}>
+            <input
+              type="checkbox"
+              name={id}
+              value={option}
+              checked={values[id]?.includes(option) || false}
+              onChange={() => handleChange(option)}
+              className={className}
+              style={styles}
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
     </FieldWrapper>
   );
 };

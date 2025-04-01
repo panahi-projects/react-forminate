@@ -15,6 +15,8 @@ const RadioField: React.FC<RadioFieldType> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  itemsStyles = {},
+  itemsClassName = "",
 }) => {
   const { values, setValue, errors, shouldShowField } = useForm();
   if (!shouldShowField({ id, label, options, required, type })) return null;
@@ -36,21 +38,23 @@ const RadioField: React.FC<RadioFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      {availableOptions &&
-        availableOptions.map((option: string) => (
-          <label key={option}>
-            <input
-              type="radio"
-              name={id}
-              value={option}
-              checked={values[id] === option}
-              onChange={handleChange}
-              className={className}
-              style={styles}
-            />
-            <span>{option}</span>
-          </label>
-        ))}
+      <div data-testId="radio-field">
+        {availableOptions &&
+          availableOptions.map((option: string) => (
+            <label style={itemsStyles} className={itemsClassName} key={option}>
+              <input
+                type="radio"
+                name={id}
+                value={option}
+                checked={values[id] === option}
+                onChange={handleChange}
+                className={className}
+                style={styles}
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+      </div>
     </FieldWrapper>
   );
 };

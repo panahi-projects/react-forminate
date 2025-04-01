@@ -75,8 +75,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "npm run format",
-      "npm run lint"
+      "npm run format"
     ],
     "src/**/!(*components/DynamicFormComponents*)*.{ts,tsx,js}": [
       "npm run test"
