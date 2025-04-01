@@ -42,7 +42,8 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
       <FieldContainer className={className} style={styles}>
         {label && (
           <label htmlFor={id} className={labelClassName} style={labelStyles}>
-            {label} {required && <StyledErrorMessage>*</StyledErrorMessage>}
+            <span>{label}</span>{" "}
+            {required && <StyledErrorMessage>*</StyledErrorMessage>}
           </label>
         )}
         {children}

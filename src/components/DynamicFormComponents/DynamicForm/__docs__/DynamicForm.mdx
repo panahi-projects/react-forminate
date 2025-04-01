@@ -1,0 +1,85 @@
+import { Canvas, Meta } from "@storybook/blocks";
+import Example from "./Example.tsx";
+import * as DynamicForm from "./DynamicForm.stories.tsx";
+
+<Meta of={DynamicForm} title="DynamicForm" />
+
+# DynamicForm
+
+Dynamic Form component with different props.
+
+#### Simple Form Example
+
+<Canvas of={DynamicForm.SimpleForm} />
+
+## Usage
+
+```ts
+import {DynamicForm} from "react-forminate";
+
+const formData = {
+    formId: "simple-form",
+    formData: {
+      formId: "simple-form",
+      title: "Simple Form",
+      fields: [
+        {
+          id: "firstName",
+          label: "First Name",
+          type: "text",
+          required: true,
+        },
+        {
+          id: "lastName",
+          label: "Last Name",
+          type: "text",
+          required: true,
+        },
+        {
+          id: "gender",
+          label: "Gender",
+          type: "radio",
+          options: ["Male", "Female"],
+        },
+        {
+          id: "age",
+          label: "Age",
+          type: "number",
+        },
+        {
+          id: "email",
+          label: "Email",
+          type: "email",
+          required: true,
+        },
+      ],
+    },
+    onSubmit: (data) => console.log("Form submitted with data:", data),
+    isLoading: false,
+    submitDetails: {
+      text: "Submit",
+    },
+}
+
+const Example = () => {
+    return (
+        <DynamicForm
+            formId={formData.formId}
+            formData={formData.formData}
+            onSubmit={formData.onSubmit}
+            isLoading={formData.isLoading}
+            submitDetails={formData.submitDetails}
+        />
+    );
+};
+
+export default Example;
+```
+
+#### Arguments
+
+- **formId** _`string`_ - A unique identifier for the form. This is used to manage the form state and handle submissions.
+- **formData** _`object`_ - An object containing the form's data, including the fields and their properties. Each field should have an `id`, `label`, `type`, and any other relevant properties (e.g., `required`, `options` for radio buttons).
+- **onSubmit** _`() => void`_ - A function that is called when the form is submitted. It receives the form data as an argument.
+- **isLoading** _`boolean`_ - A boolean indicating whether the form is in a loading state. This can be used to show a loading spinner or disable the form while waiting for a response. 
+- **submitDetails** _`object`_ - An object containing details about the submit button, such as its text and any other properties. This allows customization of the submit button's appearance and behavior.
