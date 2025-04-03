@@ -1,8 +1,8 @@
-import { ComponentType, FC, lazy, Suspense } from "react";
-import { useForm } from "../providers/formContext";
-import { FormField } from "../types";
+import { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useForm } from "../providers/formContext";
+import { FormField } from "../types";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -40,9 +40,37 @@ const fieldComponents: Record<string, ComponentType<any>> = {
 export const registerField = (type: string, component: ComponentType<any>) => {
   fieldComponents[type] = component;
 };
+export const unregisterField = (type: string) => {
+  delete fieldComponents[type];
+};
+
+type ExtendedFormField = FormField & {
+  showSkeletonLoading?: boolean;
+  skeleton?: ReactNode;
+};
+
+// Default skeleton
+const DefaultSkeleton = () => (
+  <div>
+    <Skeleton
+      height={15}
+      width={"25%"}
+      style={{ opacity: 0.2, marginTop: "10px" }}
+    />
+    <Skeleton
+      height={40}
+      width={"100%"}
+      style={{ opacity: 0.5, marginBottom: "15px" }}
+    />
+  </div>
+);
 
 // Generic DynamicFormField component
-const DynamicFormField: FC<FormField> = (props) => {
+const DynamicFormField: FC<ExtendedFormField> = ({
+  showSkeletonLoading = true,
+  skeleton,
+  ...props
+}) => {
   const { shouldShowField } = useForm();
   if (!shouldShowField(props)) return null;
 
@@ -53,10 +81,11 @@ const DynamicFormField: FC<FormField> = (props) => {
   return (
     <Suspense
       fallback={
-        <div>
-          <Skeleton height={15} width={"25%"} style={{ opacity: 0.2 }} />
-          <Skeleton height={40} width={"100%"} style={{ opacity: 0.5 }} />
-        </div>
+        showSkeletonLoading && skeleton !== undefined ? (
+          skeleton
+        ) : showSkeletonLoading ? (
+          <DefaultSkeleton />
+        ) : null
       }
     >
       <FieldComponent {...props} />

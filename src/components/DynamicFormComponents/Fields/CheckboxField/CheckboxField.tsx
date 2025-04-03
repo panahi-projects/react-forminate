@@ -39,7 +39,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <div data-testId="checkbox-field">
+      <div data-testid="checkbox-field">
         {options?.map((option) => (
           <label
             htmlFor={`${id}-item-${option}`}

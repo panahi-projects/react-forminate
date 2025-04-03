@@ -8,6 +8,8 @@ const FormContent: React.FC<DynamicFormProps> = ({
   onSubmit,
   isLoading,
   submitDetails,
+  showSkeletonLoading = true,
+  skeleton,
 }) => {
   const { values, validateForm } = useForm();
 
@@ -23,7 +25,12 @@ const FormContent: React.FC<DynamicFormProps> = ({
     <form onSubmit={handleSubmit} role="form">
       {isLoading && <div>{/* Loading animation goes here... */}</div>}
       {formData.fields.map((field: any) => (
-        <DynamicFormField key={field.id} {...field} />
+        <DynamicFormField
+          key={field.id}
+          {...field}
+          skeleton={skeleton}
+          showSkeletonLoading={showSkeletonLoading}
+        />
       ))}
       {submitDetails?.visibility !== false && (
         <div

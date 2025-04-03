@@ -47,6 +47,8 @@ export interface DynamicFormProps {
     containerStyles?: React.CSSProperties;
   };
   customProvider?: React.FC<FormProviderProps>;
+  skeleton?: React.ReactNode;
+  showSkeletonLoading?: boolean;
 }
 
 export interface BaseField {

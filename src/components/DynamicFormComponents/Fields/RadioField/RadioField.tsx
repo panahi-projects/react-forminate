@@ -38,7 +38,7 @@ const RadioField: React.FC<RadioFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <div data-testId="radio-field">
+      <div data-testid="radio-field">
         {availableOptions &&
           availableOptions.map((option: string) => (
             <label style={itemsStyles} className={itemsClassName} key={option}>

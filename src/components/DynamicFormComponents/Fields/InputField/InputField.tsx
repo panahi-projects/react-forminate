@@ -33,7 +33,7 @@ const InputField: React.FC<TextField> = ({
       labelStyles={labelStyles}
     >
       <input
-        data-testId="input-field"
+        data-testid="input-field"
         id={id}
         type={type}
         value={values[id] || ""}

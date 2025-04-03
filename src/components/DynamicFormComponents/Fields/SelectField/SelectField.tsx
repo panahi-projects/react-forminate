@@ -42,7 +42,7 @@ const SelectField: React.FC<SelectFieldType> = ({
       labelStyles={labelStyles}
     >
       <select
-        data-testId="select-field"
+        data-testid="select-field"
         id={id}
         value={values[id] || ""}
         onChange={handleChange}
