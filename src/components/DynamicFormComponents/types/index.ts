@@ -102,6 +102,8 @@ export interface RadioField extends BaseField {
 export interface CheckboxField extends BaseField {
   type: "checkbox";
   options: string[];
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
 }
 
 export interface GroupField extends BaseField {
