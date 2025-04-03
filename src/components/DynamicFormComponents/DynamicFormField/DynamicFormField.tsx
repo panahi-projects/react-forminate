@@ -1,6 +1,8 @@
 import { ComponentType, FC, lazy, Suspense } from "react";
 import { useForm } from "../providers/formContext";
 import { FormField } from "../types";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -49,7 +51,14 @@ const DynamicFormField: FC<FormField> = (props) => {
   if (!FieldComponent) return null;
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div>
+          <Skeleton height={15} width={"25%"} style={{ opacity: 0.2 }} />
+          <Skeleton height={40} width={"100%"} style={{ opacity: 0.5 }} />
+        </div>
+      }
+    >
       <FieldComponent {...props} />
     </Suspense>
   );
