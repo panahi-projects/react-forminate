@@ -21,10 +21,11 @@ export interface FormContextType {
         | ((prev: Record<string, string>) => Record<string, string>)
     ) => void
   ) => void;
-
   validateForm: (form: FormDataCollection) => boolean;
   shouldShowField: (field: FormField) => boolean;
   fetchDynamicOptions: (fieldId: string, value: string) => void; // Function to fetch dynamic options
+  getFieldSchema: (fieldId: string) => FormField; // Get Field schema for the current field
+  formSchema: FormDataCollection; // Form schema for the current form
 }
 
 export interface FormProviderProps {
@@ -51,7 +52,50 @@ export interface DynamicFormProps {
   showSkeletonLoading?: boolean;
 }
 
-export interface BaseField {
+type FormEventHandler<E> = (
+  e: E,
+  fieldId: string,
+  values: Record<string, any>,
+  fieldSchema?: FormField,
+  formSchema?: FormDataCollection
+) => void;
+
+type CustomEventHandlers = {
+  onCustomChange?: FormEventHandler<
+    React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomBlur?: FormEventHandler<
+    React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomFocus?: FormEventHandler<
+    React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomKeyDown?: FormEventHandler<
+    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomKeyUp?: FormEventHandler<
+    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomKeyPress?: FormEventHandler<
+    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomClick?: FormEventHandler<
+    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomMouseEnter?: FormEventHandler<
+    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomMouseLeave?: FormEventHandler<
+    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomMouseDown?: FormEventHandler<
+    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+  onCustomContextMenu?: FormEventHandler<
+    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+  >;
+};
+export interface BaseField extends CustomEventHandlers {
   fieldId: string;
   label: string;
   type: string;

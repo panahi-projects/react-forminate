@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { FormField, FormProviderProps } from "../types";
-import { getInitialDependencies } from "./fieldDependency";
+import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
 import { useDynamicOptions } from "./useDynamicOptions";
 import {
@@ -34,6 +34,9 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   const validateFormWrapper = () => {
     return validateForm(formSchema, values, setErrors);
   };
+  const getFieldSchemaById = (fieldId: string) => {
+    return findFieldById(fieldId, formSchema.fields);
+  };
 
   const handleVisibility = (field: FormField) => {
     return shouldShowField(field, values);
@@ -65,6 +68,8 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         validateForm: validateFormWrapper,
         shouldShowField: handleVisibility,
         fetchDynamicOptions,
+        getFieldSchema: getFieldSchemaById,
+        formSchema,
       }}
     >
       {children}

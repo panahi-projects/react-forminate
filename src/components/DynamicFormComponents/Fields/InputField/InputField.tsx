@@ -15,9 +15,20 @@ const InputField: React.FC<TextField> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  onCustomClick,
+  onCustomChange,
+  onCustomBlur,
+  onCustomFocus,
+  onCustomKeyDown,
+  onCustomKeyUp,
+  onCustomKeyPress,
+  onCustomMouseDown,
+  onCustomMouseEnter,
+  onCustomMouseLeave,
+  onCustomContextMenu,
   ...rest
 }) => {
-  const { values, setValue, errors } = useForm();
+  const { values, setValue, errors, getFieldSchema, formSchema } = useForm();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(id, e.target.value);
@@ -38,7 +49,15 @@ const InputField: React.FC<TextField> = ({
         id={id}
         type={type}
         value={values[id] || ""}
-        onChange={handleChange}
+        onChange={(e) => {
+          handleChange(e);
+          onCustomChange &&
+            onCustomChange(e, id, values, getFieldSchema(id), formSchema);
+        }}
+        onContextMenu={(e) => {
+          onCustomContextMenu &&
+            onCustomContextMenu(e, id, values, getFieldSchema(id), formSchema);
+        }}
         className={className}
         placeholder={placeholder}
         style={styles}
