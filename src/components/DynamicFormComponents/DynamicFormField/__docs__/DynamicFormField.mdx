@@ -21,7 +21,7 @@ import { FormField } from "../../types";
 import DynamicFormField from "../DynamicFormField";
 
 const fieldData: FormField = {
-  id: "exampleField",
+  fieldId: "exampleField",
   label: "Example Field",
   type: "text",
   placeholder: "Enter text here",
@@ -42,7 +42,7 @@ export default Example;
 
 #### Common Arguments
 
-- **id** _`string`_ - The unique identifier for the field. This is used to manage the field state and handle validation.
+- **fieldId** _`string`_ - The unique identifier for the field. This is used to manage the field state and handle validation.
 - **label** _`string`_ - The label for the field. This is displayed to the user as a prompt for what to enter in the field.
 - **type** _`string`_ - The type of the field. This determines the input type (e.g., text, number, email, select, radio, etc.).
 - **placeholder** _`string`_ - The placeholder text for the field. This is displayed when the field is empty and provides a hint to the user about what to enter.

@@ -48,33 +48,33 @@ export const SimpleForm: Story = {
       title: "Simple Form",
       fields: [
         {
-          id: "firstName",
+          fieldId: "firstName",
           label: "First Name",
           type: "text",
           required: true,
           ...inputStyles,
         },
         {
-          id: "lastName",
+          fieldId: "lastName",
           label: "Last Name",
           type: "text",
           required: true,
           ...inputStyles,
         },
         {
-          id: "gender",
+          fieldId: "gender",
           label: "Gender",
           type: "radio",
           options: ["Male", "Female"],
         },
         {
-          id: "age",
+          fieldId: "age",
           label: "Age",
           type: "number",
           ...inputStyles,
         },
         {
-          id: "email",
+          fieldId: "email",
           label: "Email",
           type: "email",
           required: true,

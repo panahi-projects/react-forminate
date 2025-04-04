@@ -105,20 +105,23 @@ export const validateForm = (
       } else if (shouldShowField(field, values)) {
         if (
           field.required &&
-          (!values[field.id] || values[field.id].length === 0)
+          (!values[field.fieldId] || values[field.fieldId].length === 0)
         ) {
-          newErrors[field.id] = "This field is required.";
+          newErrors[field.fieldId] = "This field is required.";
           isValid = false;
         } else if (field.validation?.pattern) {
           try {
             const regex = new RegExp(field.validation.pattern);
-            if (!regex.test(values[field.id] || "")) {
-              newErrors[field.id] =
+            if (!regex.test(values[field.fieldId] || "")) {
+              newErrors[field.fieldId] =
                 field.validation.message || "Invalid format.";
               isValid = false;
             }
           } catch (e) {
-            console.warn(`Invalid regex in validateForm for ${field.id}:`, e);
+            console.warn(
+              `Invalid regex in validateForm for ${field.fieldId}:`,
+              e
+            );
           }
         }
       }

@@ -11,7 +11,7 @@ import {
 
 // Mock checkbox field params
 const mockParams: CheckboxFieldType = {
-  id: "checkbox",
+  fieldId: "checkbox",
   type: "checkbox",
   label: "Checkbox",
   required: false,

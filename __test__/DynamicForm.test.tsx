@@ -8,8 +8,8 @@ const mockFormData: FormDataCollection = {
   formId: "test-form",
   title: "Test Form",
   fields: [
-    { id: "name", type: "text", label: "Name", required: true },
-    { id: "email", type: "email", label: "Email" },
+    { fieldId: "name", type: "text", label: "Name", required: true },
+    { fieldId: "email", type: "email", label: "Email" },
   ],
 };
 

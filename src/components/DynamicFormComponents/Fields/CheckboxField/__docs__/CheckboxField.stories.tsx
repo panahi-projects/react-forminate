@@ -50,7 +50,7 @@ const fieldStyles: Record<string, React.CSSProperties> = {
 
 export const SampleField: Story = {
   args: {
-    id: "exampleCheckbox",
+    fieldId: "exampleCheckbox",
     label: "Example Checkbox",
     type: "checkbox",
     options: ["Option 1", "Option 2", "Option 3"],

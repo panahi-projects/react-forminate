@@ -4,7 +4,7 @@ import { DateField } from "../../types";
 import { useForm } from "../../providers/formContext";
 
 const DatePickerField: React.FC<DateField> = ({
-  id,
+  fieldId: id,
   label,
   required,
   className = "",

@@ -4,7 +4,7 @@ import { RadioField as RadioFieldType } from "../../types";
 import { useForm } from "../../providers/formContext";
 
 const RadioField: React.FC<RadioFieldType> = ({
-  id,
+  fieldId: id,
   label,
   type = "radio",
   options,
@@ -19,7 +19,8 @@ const RadioField: React.FC<RadioFieldType> = ({
   itemsClassName = "",
 }) => {
   const { values, setValue, errors, shouldShowField } = useForm();
-  if (!shouldShowField({ id, label, options, required, type })) return null;
+  if (!shouldShowField({ fieldId: id, label, options, required, type }))
+    return null;
 
   const availableOptions = options;
 

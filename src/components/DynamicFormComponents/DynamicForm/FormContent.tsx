@@ -1,6 +1,6 @@
 import { DynamicFormField } from "../DynamicFormField";
 import { useForm } from "../providers/formContext";
-import { DynamicFormProps } from "../types";
+import { DynamicFormProps, FormField } from "../types";
 import { StyledSubmitButton } from "./StyledComponents";
 
 const FormContent: React.FC<DynamicFormProps> = ({
@@ -24,9 +24,9 @@ const FormContent: React.FC<DynamicFormProps> = ({
   return (
     <form onSubmit={handleSubmit} role="form">
       {isLoading && <div>{/* Loading animation goes here... */}</div>}
-      {formData.fields.map((field: any) => (
+      {formData.fields.map((field: FormField) => (
         <DynamicFormField
-          key={field.id}
+          key={field.fieldId}
           {...field}
           skeleton={skeleton}
           showSkeletonLoading={showSkeletonLoading}

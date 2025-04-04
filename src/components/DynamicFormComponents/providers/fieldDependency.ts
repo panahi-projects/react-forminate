@@ -1,6 +1,11 @@
-export const findFieldById = (fieldId: string, fields: any[]): any | null => {
+import { FormField } from "../types";
+
+export const findFieldById = (
+  fieldId: string,
+  fields: FormField[]
+): any | null => {
   for (const field of fields) {
-    if (field.id === fieldId) return field;
+    if (field.fieldId === fieldId) return field;
     if (field.type === "group" && field.fields) {
       const found = findFieldById(fieldId, field.fields);
       if (found) return found;
@@ -10,7 +15,7 @@ export const findFieldById = (fieldId: string, fields: any[]): any | null => {
 };
 
 export const getInitialDependencies = (
-  fields: any[]
+  fields: FormField[]
 ): Record<string, string> => {
   const dependencies: Record<string, string> = {};
 
@@ -18,7 +23,7 @@ export const getInitialDependencies = (
     if (!fields || fields.length === 0) return;
     fields.forEach((field) => {
       if (field.dynamicOptions?.dependsOn) {
-        dependencies[field.id] = field.dynamicOptions.dependsOn;
+        dependencies[field.fieldId] = field.dynamicOptions.dependsOn;
       }
       if (field.type === "group" && field.fields) {
         traverseFields(field.fields);

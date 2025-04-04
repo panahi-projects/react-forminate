@@ -4,7 +4,7 @@ import { FormProvider } from "../../../providers/FormProvider";
 import { CheckboxField as CheckboxFieldType } from "../../../types";
 
 const checkboxParams: CheckboxFieldType = {
-  id: "exampleCheckbox",
+  fieldId: "exampleCheckbox",
   label: "Example Checkbox",
   type: "checkbox",
   options: ["Option 1", "Option 2", "Option 3"],

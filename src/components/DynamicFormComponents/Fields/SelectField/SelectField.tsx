@@ -4,7 +4,7 @@ import { SelectField as SelectFieldType } from "../../types";
 import { useForm } from "../../providers/formContext";
 
 const SelectField: React.FC<SelectFieldType> = ({
-  id,
+  fieldId: id,
   label,
   options,
   required,

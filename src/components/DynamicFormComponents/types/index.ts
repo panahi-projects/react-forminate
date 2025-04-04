@@ -52,7 +52,7 @@ export interface DynamicFormProps {
 }
 
 export interface BaseField {
-  id: string;
+  fieldId: string;
   label: string;
   type: string;
   required?: boolean;
@@ -64,7 +64,6 @@ export interface BaseField {
   fields?: any[];
   className?: string;
   containerClassName?: string;
-  defaultValue?: any;
   styles?: React.CSSProperties;
   containerStyles?: React.CSSProperties;
   labelClassName?: string;
@@ -77,7 +76,9 @@ export interface BaseField {
   };
 }
 
-export interface TextField extends BaseField {
+export interface TextField
+  extends BaseField,
+    React.InputHTMLAttributes<HTMLInputElement> {
   type: "text" | "number" | "email" | "password";
   placeholder?: string;
 }
@@ -86,7 +87,9 @@ export interface DateField extends BaseField {
   type: "date";
 }
 
-export interface SelectField extends BaseField {
+export interface SelectField
+  extends BaseField,
+    React.SelectHTMLAttributes<HTMLSelectElement> {
   type: "select";
   options: string[];
   dynamicOptions?: {

@@ -9,7 +9,7 @@ const Example: FC<DynamicFormProps> = ({
     title: "Example Form",
     fields: [
       {
-        id: "exampleField",
+        fieldId: "exampleField",
         label: "Example Field",
         type: "text",
         required: true,

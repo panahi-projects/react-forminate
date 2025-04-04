@@ -4,7 +4,7 @@ import { TextField } from "../../types";
 import { useForm } from "../../providers/formContext";
 
 const InputField: React.FC<TextField> = ({
-  id,
+  fieldId: id,
   label,
   type,
   required,

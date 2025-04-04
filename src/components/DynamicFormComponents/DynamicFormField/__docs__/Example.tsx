@@ -4,7 +4,7 @@ import { FormField } from "../../types";
 import DynamicFormField from "../DynamicFormField";
 
 const fieldData: FormField = {
-  id: "exampleField",
+  fieldId: "exampleField",
   label: "Example Field",
   type: "text",
   placeholder: "Enter text here",

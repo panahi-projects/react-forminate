@@ -46,7 +46,7 @@ const renderWithContext = (fieldProps: FormField) => {
 
 describe("DynamicFormField Component", () => {
   it("should render InputField for text type", async () => {
-    renderWithContext({ id: "name", type: "text", label: "Name" });
+    renderWithContext({ fieldId: "name", type: "text", label: "Name" });
 
     await waitFor(() =>
       expect(screen.getByTestId("input-field")).toBeInTheDocument()
@@ -54,7 +54,7 @@ describe("DynamicFormField Component", () => {
   });
 
   it("should render DatePickerField for date type", async () => {
-    renderWithContext({ id: "dob", type: "date", label: "Date of Birth" });
+    renderWithContext({ fieldId: "dob", type: "date", label: "Date of Birth" });
 
     await waitFor(() =>
       expect(screen.getByTestId("date-picker-field")).toBeInTheDocument()
@@ -62,7 +62,7 @@ describe("DynamicFormField Component", () => {
   });
 
   it("should render SelectField for select type", async () => {
-    renderWithContext({ id: "country", type: "select", label: "Country" });
+    renderWithContext({ fieldId: "country", type: "select", label: "Country" });
 
     await waitFor(() =>
       expect(screen.getByTestId("select-field")).toBeInTheDocument()
@@ -70,7 +70,7 @@ describe("DynamicFormField Component", () => {
   });
 
   it("should render RadioField for radio type", async () => {
-    renderWithContext({ id: "gender", type: "radio", label: "Gender" });
+    renderWithContext({ fieldId: "gender", type: "radio", label: "Gender" });
 
     await waitFor(() =>
       expect(screen.getByTestId("radio-field")).toBeInTheDocument()
@@ -79,7 +79,7 @@ describe("DynamicFormField Component", () => {
 
   it("should render CheckboxField for checkbox type", async () => {
     renderWithContext({
-      id: "agree",
+      fieldId: "agree",
       type: "checkbox",
       label: "Agree to terms",
     });
@@ -92,7 +92,7 @@ describe("DynamicFormField Component", () => {
   it("should not render field if shouldShowField returns false", async () => {
     mockShouldShowField.mockReturnValueOnce(false);
     renderWithContext({
-      id: "hiddenField",
+      fieldId: "hiddenField",
       type: "text",
       label: "Hidden Field",
     });

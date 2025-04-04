@@ -21,7 +21,7 @@ import { FormProvider } from "../../../providers/FormProvider";
 import { CheckboxField as CheckboxFieldType } from "../../../types";
 
 const checkboxParams: CheckboxFieldType = {
-  id: "exampleCheckbox",
+  fieldId: "exampleCheckbox",
   label: "Example Checkbox",
   type: "checkbox",
   options: ["Option 1", "Option 2", "Option 3"],
@@ -48,7 +48,7 @@ export default Example;
 
 #### Common Arguments
 
-- **id** _`string`_ - The unique identifier for the field. This is used to manage the field state and handle validation.
+- **fieldId** _`string`_ - The unique identifier for the field. This is used to manage the field state and handle validation.
 - **label** _`string`_ - The label for the field. This is displayed to the user as a prompt for what to enter in the field.
 - **type** _`string`_ - The type of the field. This determines the input type (e.g., text, number, email, select, radio, etc.).
 - **options** _`Array<{ label: string; value: string }> or Array<string>`_ - The options for select and radio fields. This is used to populate the dropdown or radio button group with available choices.

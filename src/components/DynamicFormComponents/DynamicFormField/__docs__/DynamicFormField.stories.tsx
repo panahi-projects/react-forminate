@@ -30,7 +30,7 @@ const styles: Record<string, React.CSSProperties> = {
 
 export const InputField: Story = {
   args: {
-    id: "sampleInputField",
+    fieldId: "sampleInputField",
     label: "Sample Input Field",
     type: "text",
     required: true,
@@ -43,7 +43,7 @@ export const InputField: Story = {
 };
 export const SelectField: Story = {
   args: {
-    id: "sampleSelectField",
+    fieldId: "sampleSelectField",
     label: "Sample Select Field",
     type: "select",
     required: false,
@@ -57,7 +57,7 @@ export const SelectField: Story = {
 
 export const RadioField: Story = {
   args: {
-    id: "sampleRadioField",
+    fieldId: "sampleRadioField",
     label: "Sample Radio Field",
     type: "radio",
     required: false,
@@ -71,7 +71,7 @@ export const RadioField: Story = {
 
 export const CheckboxField: Story = {
   args: {
-    id: "sampleCheckboxField",
+    fieldId: "sampleCheckboxField",
     label: "Sample Checkbox Field",
     type: "checkbox",
     required: false,
@@ -85,7 +85,7 @@ export const CheckboxField: Story = {
 
 export const DatepickerField: Story = {
   args: {
-    id: "sampleDatepickerField",
+    fieldId: "sampleDatepickerField",
     label: "Sample Datepicker Field",
     type: "date",
     required: false,
@@ -98,7 +98,7 @@ export const DatepickerField: Story = {
 
 export const GroupField: Story = {
   args: {
-    id: "sampleGroupField",
+    fieldId: "sampleGroupField",
     label: "Sample Group Field",
     type: "group",
     required: false,
@@ -108,7 +108,7 @@ export const GroupField: Story = {
     ...styles,
     fields: [
       {
-        id: "sampleInputField1",
+        fieldId: "sampleInputField1",
         label: "Sample Input Field 1",
         type: "text",
         required: true,
@@ -119,7 +119,7 @@ export const GroupField: Story = {
         ...styles,
       },
       {
-        id: "sampleInputField2",
+        fieldId: "sampleInputField2",
         label: "Sample Input Field 2",
         type: "text",
         required: true,

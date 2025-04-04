@@ -4,7 +4,7 @@ import { CheckboxField as CheckboxFieldType } from "../../types";
 import { useForm } from "../../providers/formContext";
 
 const CheckboxField: React.FC<CheckboxFieldType> = ({
-  id,
+  fieldId: id,
   label,
   options,
   required,

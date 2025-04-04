@@ -2,7 +2,7 @@ import React from "react";
 import { DynamicFormField } from "../../DynamicFormField";
 
 interface GroupFieldProps {
-  id: string;
+  fieldId: string;
   label: string;
   fields?: any[];
   className?: string;
@@ -12,6 +12,7 @@ interface GroupFieldProps {
 }
 
 const GroupField: React.FC<GroupFieldProps> = ({
+  fieldId: id,
   label,
   fields,
   className = "",
@@ -20,7 +21,12 @@ const GroupField: React.FC<GroupFieldProps> = ({
   legendStyles = {},
 }) => {
   return (
-    <fieldset data-testid="group-field" className={className} style={styles}>
+    <fieldset
+      id={id}
+      data-testid="group-field"
+      className={className}
+      style={styles}
+    >
       <legend className={legendClassName} style={legendStyles}>
         {label}
       </legend>
