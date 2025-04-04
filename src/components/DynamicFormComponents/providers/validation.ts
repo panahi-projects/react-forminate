@@ -67,7 +67,9 @@ export const shouldShowField = (
   field: FormField,
   values: Record<string, any>
 ) => {
-  if (!field.visibility) return true;
+  if (typeof field.visibility === "undefined" || field.visibility === true)
+    return true;
+  if (typeof field.visibility === "boolean") return field.visibility;
 
   const { dependsOn, condition, value } = field.visibility;
   const parentValue = values[dependsOn];

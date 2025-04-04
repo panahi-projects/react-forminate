@@ -21,7 +21,6 @@ const InputField: React.FC<TextField> = ({
   onCustomFocus,
   onCustomKeyDown,
   onCustomKeyUp,
-  onCustomKeyPress,
   onCustomMouseDown,
   onCustomMouseEnter,
   onCustomMouseLeave,
@@ -29,10 +28,54 @@ const InputField: React.FC<TextField> = ({
   ...rest
 }) => {
   const { values, setValue, errors, getFieldSchema, formSchema } = useForm();
+  const fieldValue = values[id] || "";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDefaultChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(id, e.target.value);
   };
+
+  const handleCustomEvent = (
+    handler: Function | undefined,
+    event: React.SyntheticEvent<HTMLInputElement>
+  ) => {
+    if (handler) {
+      handler(event, id, values, getFieldSchema(id), formSchema);
+    }
+  };
+
+  const inputProps = {
+    "data-testid": "input-field",
+    id,
+    type,
+    value: fieldValue,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleDefaultChange(e);
+      handleCustomEvent(onCustomChange, e);
+    },
+    onClick: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomClick, e),
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomBlur, e),
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomFocus, e),
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomKeyDown, e),
+    onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomKeyUp, e),
+    onMouseDown: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseDown, e),
+    onMouseEnter: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseEnter, e),
+    onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseLeave, e),
+    onContextMenu: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomContextMenu, e),
+    className,
+    placeholder,
+    style: styles,
+    ...rest,
+  };
+
   return (
     <FieldWrapper
       id={id}
@@ -44,25 +87,7 @@ const InputField: React.FC<TextField> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <input
-        data-testid="input-field"
-        id={id}
-        type={type}
-        value={values[id] || ""}
-        onChange={(e) => {
-          handleChange(e);
-          onCustomChange &&
-            onCustomChange(e, id, values, getFieldSchema(id), formSchema);
-        }}
-        onContextMenu={(e) => {
-          onCustomContextMenu &&
-            onCustomContextMenu(e, id, values, getFieldSchema(id), formSchema);
-        }}
-        className={className}
-        placeholder={placeholder}
-        style={styles}
-        {...rest}
-      />
+      <input {...inputProps} />
     </FieldWrapper>
   );
 };

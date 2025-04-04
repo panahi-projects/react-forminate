@@ -76,9 +76,6 @@ type CustomEventHandlers = {
   onCustomKeyUp?: FormEventHandler<
     React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
   >;
-  onCustomKeyPress?: FormEventHandler<
-    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
-  >;
   onCustomClick?: FormEventHandler<
     React.MouseEvent<HTMLInputElement | HTMLSelectElement>
   >;
@@ -100,11 +97,13 @@ export interface BaseField extends CustomEventHandlers {
   label: string;
   type: string;
   required?: boolean;
-  visibility?: {
-    dependsOn: string;
-    condition: string;
-    value: string;
-  };
+  visibility?:
+    | {
+        dependsOn: string;
+        condition: string;
+        value: string;
+      }
+    | boolean;
   fields?: any[];
   className?: string;
   containerClassName?: string;

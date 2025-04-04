@@ -14,8 +14,26 @@ const SelectField: React.FC<SelectFieldType> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  onCustomClick,
+  onCustomChange,
+  onCustomBlur,
+  onCustomFocus,
+  onCustomKeyDown,
+  onCustomKeyUp,
+  onCustomMouseDown,
+  onCustomMouseEnter,
+  onCustomMouseLeave,
+  onCustomContextMenu,
+  ...rest
 }) => {
-  const { values, setValue, errors, dynamicOptions } = useForm();
+  const {
+    values,
+    setValue,
+    errors,
+    dynamicOptions,
+    getFieldSchema,
+    formSchema,
+  } = useForm();
   const [dynamicValues, setDynamicValues] = useState<string[]>(
     dynamicOptions[id] || options || []
   );
@@ -26,8 +44,49 @@ const SelectField: React.FC<SelectFieldType> = ({
     }
   }, [dynamicOptions]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDefaultChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValue(id, e.target.value);
+  };
+
+  const handleCustomEvent = (
+    handler: Function | undefined,
+    event: React.SyntheticEvent<HTMLSelectElement>
+  ) => {
+    if (handler) {
+      handler(event, id, values, getFieldSchema(id), formSchema);
+    }
+  };
+
+  const inputProps = {
+    id,
+    name: id,
+    value: values[id] || "",
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+      handleDefaultChange(e);
+      handleCustomEvent(onCustomChange, e);
+    },
+    onClick: (e: React.MouseEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomClick, e),
+    onBlur: (e: React.FocusEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomBlur, e),
+    onFocus: (e: React.FocusEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomFocus, e),
+    onKeyDown: (e: React.KeyboardEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomKeyDown, e),
+    onKeyUp: (e: React.KeyboardEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomKeyUp, e),
+    onMouseDown: (e: React.MouseEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomMouseDown, e),
+    onMouseEnter: (e: React.MouseEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomMouseEnter, e),
+    onMouseLeave: (e: React.MouseEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomMouseLeave, e),
+    onContextMenu: (e: React.MouseEvent<HTMLSelectElement>) =>
+      handleCustomEvent(onCustomContextMenu, e),
+    className,
+    style: styles,
+    "data-testid": "select-field",
+    ...rest,
   };
 
   return (
@@ -41,23 +100,15 @@ const SelectField: React.FC<SelectFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <select
-        data-testid="select-field"
-        id={id}
-        value={values[id] || ""}
-        onChange={handleChange}
-        className={className}
-        style={styles}
-      >
+      <select {...inputProps}>
         <option value="" disabled>
           Select an option
         </option>
-        {dynamicValues &&
-          dynamicValues?.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
+        {dynamicValues?.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
       </select>
     </FieldWrapper>
   );

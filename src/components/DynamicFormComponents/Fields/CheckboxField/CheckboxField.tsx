@@ -16,18 +16,63 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   labelStyles = {},
   itemsClassName = "",
   itemsStyles = {},
+  onCustomClick,
+  onCustomChange,
+  onCustomBlur,
+  onCustomFocus,
+  onCustomKeyDown,
+  onCustomKeyUp,
+  onCustomMouseDown,
+  onCustomMouseEnter,
+  onCustomMouseLeave,
+  onCustomContextMenu,
   ...rest
 }) => {
-  const { type: _type, ...safeRest } = rest;
-  const { values, setValue, errors } = useForm();
+  const { values, setValue, errors, getFieldSchema, formSchema } = useForm();
+  const { type: _type, ...safeRest } = rest; //Omit "type" from rest before spreading
 
-  const handleChange = (option: string) => {
+  const handleDefaultChange = (option: string) => {
     const currentValues = values[id] || [];
     const updatedValues = currentValues.includes(option)
       ? currentValues.filter((val: string) => val !== option)
       : [...currentValues, option];
 
     setValue(id, updatedValues);
+  };
+
+  const handleCustomEvent = (
+    handler: Function | undefined,
+    event: React.SyntheticEvent<HTMLInputElement>
+  ) => {
+    if (handler) {
+      handler(event, id, values, getFieldSchema(id), formSchema);
+    }
+  };
+
+  const baseInputProps = {
+    type: "checkbox",
+    name: id,
+    onClick: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomClick, e),
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomBlur, e),
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomFocus, e),
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomKeyDown, e),
+    onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomKeyUp, e),
+    onMouseDown: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseDown, e),
+    onMouseEnter: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseEnter, e),
+    onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomMouseLeave, e),
+    onContextMenu: (e: React.MouseEvent<HTMLInputElement>) =>
+      handleCustomEvent(onCustomContextMenu, e),
+    className,
+    style: styles,
+    ...safeRest,
   };
 
   return (
@@ -50,15 +95,14 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
             key={option}
           >
             <input
+              {...baseInputProps}
               id={`${id}-item-${option}`}
-              type="checkbox"
-              name={id}
               value={option}
               checked={values[id]?.includes(option) || false}
-              onChange={() => handleChange(option)}
-              className={className}
-              style={styles}
-              {...safeRest}
+              onChange={(e) => {
+                handleDefaultChange(option);
+                handleCustomEvent(onCustomChange, e);
+              }}
             />
             <span>{option}</span>
           </label>
