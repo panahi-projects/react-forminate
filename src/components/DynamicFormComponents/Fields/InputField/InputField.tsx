@@ -15,6 +15,7 @@ const InputField: React.FC<TextField> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  ...rest
 }) => {
   const { values, setValue, errors } = useForm();
 
@@ -41,6 +42,7 @@ const InputField: React.FC<TextField> = ({
         className={className}
         placeholder={placeholder}
         style={styles}
+        {...rest}
       />
     </FieldWrapper>
   );

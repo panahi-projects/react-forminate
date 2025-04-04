@@ -19,6 +19,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   styles = {},
   legendClassName = "",
   legendStyles = {},
+  ...rest
 }) => {
   return (
     <fieldset
@@ -26,6 +27,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
       data-testid="group-field"
       className={className}
       style={styles}
+      {...rest}
     >
       <legend className={legendClassName} style={legendStyles}>
         {label}

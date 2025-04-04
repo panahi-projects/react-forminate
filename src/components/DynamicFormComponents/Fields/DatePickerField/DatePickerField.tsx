@@ -13,7 +13,9 @@ const DatePickerField: React.FC<DateField> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  ...rest
 }) => {
+  const { type: _type, ...safeRest } = rest; //Omit "type" from rest before spreading
   const { values, setValue, errors } = useForm();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +41,7 @@ const DatePickerField: React.FC<DateField> = ({
         onChange={handleChange}
         className={className}
         style={styles}
+        {...safeRest}
       />
     </FieldWrapper>
   );

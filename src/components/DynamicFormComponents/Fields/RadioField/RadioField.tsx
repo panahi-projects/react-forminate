@@ -17,6 +17,7 @@ const RadioField: React.FC<RadioFieldType> = ({
   labelStyles = {},
   itemsStyles = {},
   itemsClassName = "",
+  ...rest
 }) => {
   const { values, setValue, errors, shouldShowField } = useForm();
   if (!shouldShowField({ fieldId: id, label, options, required, type }))
@@ -51,6 +52,7 @@ const RadioField: React.FC<RadioFieldType> = ({
                 onChange={handleChange}
                 className={className}
                 style={styles}
+                {...rest}
               />
               <span>{option}</span>
             </label>

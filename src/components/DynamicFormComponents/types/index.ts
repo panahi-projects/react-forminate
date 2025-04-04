@@ -83,7 +83,9 @@ export interface TextField
   placeholder?: string;
 }
 
-export interface DateField extends BaseField {
+export interface DateField
+  extends BaseField,
+    React.InputHTMLAttributes<HTMLDataElement> {
   type: "date";
 }
 
@@ -99,14 +101,21 @@ export interface SelectField
   };
 }
 
-export interface RadioField extends BaseField {
+export interface RadioField
+  extends BaseField,
+    React.InputHTMLAttributes<HTMLInputElement> {
   type: "radio";
   options: string[];
   itemsStyles?: React.CSSProperties;
   itemsClassName?: string;
 }
 
-export interface CheckboxField extends BaseField {
+type InputPropsWithoutType = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type"
+>;
+
+export interface CheckboxField extends BaseField, InputPropsWithoutType {
   type: "checkbox";
   options: string[];
   itemsStyles?: React.CSSProperties;

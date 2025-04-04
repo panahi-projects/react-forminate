@@ -16,7 +16,9 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   labelStyles = {},
   itemsClassName = "",
   itemsStyles = {},
+  ...rest
 }) => {
+  const { type: _type, ...safeRest } = rest;
   const { values, setValue, errors } = useForm();
 
   const handleChange = (option: string) => {
@@ -56,6 +58,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
               onChange={() => handleChange(option)}
               className={className}
               style={styles}
+              {...safeRest}
             />
             <span>{option}</span>
           </label>
