@@ -69,14 +69,16 @@ export interface BaseField {
   containerStyles?: React.CSSProperties;
   labelClassName?: string;
   labelStyles?: React.CSSProperties;
+  validation?: {
+    pattern?: string;
+    message?: string;
+    min?: number;
+    max?: number;
+  };
 }
 
 export interface TextField extends BaseField {
   type: "text" | "number" | "email" | "password";
-  validation?: {
-    min?: number;
-    max?: number;
-  };
   placeholder?: string;
 }
 
@@ -124,6 +126,7 @@ export interface ConditionalField extends BaseField {
 }
 
 export type FormField =
+  | BaseField
   | TextField
   | DateField
   | SelectField
