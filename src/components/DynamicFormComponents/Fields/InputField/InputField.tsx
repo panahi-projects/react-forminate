@@ -31,7 +31,12 @@ const InputField: React.FC<TextField> = ({
   const fieldValue = values[id] || "";
 
   const handleDefaultChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(id, e.target.value);
+    try {
+      const value = type === "number" ? +e.target.value : e.target.value;
+      setValue(id, value);
+    } catch (error) {
+      console.error("Error setting value:", error);
+    }
   };
 
   const handleCustomEvent = (

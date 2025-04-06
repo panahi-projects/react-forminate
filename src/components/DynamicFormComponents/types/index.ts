@@ -92,11 +92,23 @@ type CustomEventHandlers = {
     React.MouseEvent<HTMLInputElement | HTMLSelectElement>
   >;
 };
+
+export interface ValidationRule {
+  pattern?: string;
+  message?: string;
+  min?: number;
+  max?: number;
+  maxLength?: number;
+  minLength?: number;
+  custom?: (value: any) => boolean;
+}
+
 export interface BaseField extends CustomEventHandlers {
   fieldId: string;
   label: string;
   type: string;
   required?: boolean;
+  requiredMessage?: string;
   visibility?:
     | {
         dependsOn: string;
@@ -111,12 +123,7 @@ export interface BaseField extends CustomEventHandlers {
   containerStyles?: React.CSSProperties;
   labelClassName?: string;
   labelStyles?: React.CSSProperties;
-  validation?: {
-    pattern?: string;
-    message?: string;
-    min?: number;
-    max?: number;
-  };
+  validation?: ValidationRule[];
 }
 
 export interface TextField

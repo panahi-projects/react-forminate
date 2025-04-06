@@ -27,28 +27,76 @@ export const validateField = (
     return;
   }
 
-  // if (typeof value === "string" && value.trim() === "") {
-  //   errorMessage = "This field is required.";
-  // } else if (Array.isArray(value) && value.length === 0) {
-  //   errorMessage = "At least one option must be selected.";
-  // }
   const isEmpty =
+    value === undefined ||
+    value === null ||
     (typeof value === "string" && value.trim() === "") ||
     (Array.isArray(value) && value.length === 0);
 
   if (fieldSchema.required && isEmpty) {
-    errorMessage = "This field is required.";
+    errorMessage = fieldSchema.requiredMessage || "This field is required.";
   }
 
-  // Pattern validation
-  if (!errorMessage && fieldSchema.validation?.pattern) {
-    try {
-      const regex = new RegExp(fieldSchema.validation.pattern);
-      if (!regex.test(value)) {
-        errorMessage = fieldSchema.validation.message || "Invalid format.";
+  if (!errorMessage && Array.isArray(fieldSchema.validation)) {
+    for (const rule of fieldSchema.validation) {
+      // Pattern validation
+      if (rule.pattern) {
+        try {
+          const regex = new RegExp(rule.pattern);
+          if (!regex.test(value)) {
+            errorMessage = rule.message || "Invalid format.";
+            break;
+          }
+        } catch (e) {
+          console.warn(`Invalid regex for field "${field}":`, e);
+        }
       }
-    } catch (e) {
-      console.warn(`Invalid regex pattern for field ${field}:`, e);
+
+      if (
+        rule.min !== undefined &&
+        typeof +value === "number" &&
+        value < rule.min
+      ) {
+        errorMessage = rule.message || `Minimum value is ${rule.min}.`;
+        break;
+      }
+
+      if (
+        rule.max !== undefined &&
+        typeof +value === "number" &&
+        value > rule.max
+      ) {
+        errorMessage = rule.message || `Maximum value is ${rule.max}.`;
+        break;
+      }
+
+      if (
+        rule.minLength !== undefined &&
+        typeof value === "string" &&
+        value.length < rule.minLength
+      ) {
+        errorMessage =
+          rule.message || `Minimum length is ${rule.minLength} characters.`;
+        break;
+      }
+
+      if (
+        rule.maxLength !== undefined &&
+        typeof value === "string" &&
+        value.length > rule.maxLength
+      ) {
+        errorMessage =
+          rule.message || `Maximum length is ${rule.maxLength} characters.`;
+        break;
+      }
+
+      if (rule.custom && typeof rule.custom === "function") {
+        const passed = rule.custom(value);
+        if (!passed) {
+          errorMessage = rule.message || `Invalid input.`;
+          break;
+        }
+      }
     }
   }
 
@@ -105,25 +153,88 @@ export const validateForm = (
       if (field.type === "group" && field.fields) {
         validateFieldRecursive(field.fields);
       } else if (shouldShowField(field, values)) {
-        if (
-          field.required &&
-          (!values[field.fieldId] || values[field.fieldId].length === 0)
-        ) {
-          newErrors[field.fieldId] = "This field is required.";
+        const value = values[field.fieldId];
+        const isEmpty =
+          value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "") ||
+          (Array.isArray(value) && value.length === 0);
+
+        if (field.required && isEmpty) {
+          newErrors[field.fieldId] =
+            field.requiredMessage || "This field is required.";
           isValid = false;
-        } else if (field.validation?.pattern) {
-          try {
-            const regex = new RegExp(field.validation.pattern);
-            if (!regex.test(values[field.fieldId] || "")) {
-              newErrors[field.fieldId] =
-                field.validation.message || "Invalid format.";
-              isValid = false;
+        } else if (Array.isArray(field.validation)) {
+          for (const rule of field.validation) {
+            if (rule.pattern) {
+              try {
+                const regex = new RegExp(rule.pattern);
+                if (!regex.test(value)) {
+                  newErrors[field.fieldId] = rule.message || "Invalid format.";
+                  isValid = false;
+                  break;
+                }
+              } catch (e) {
+                console.warn(
+                  `Invalid regex in validateForm for ${field.fieldId}:`,
+                  e
+                );
+              }
             }
-          } catch (e) {
-            console.warn(
-              `Invalid regex in validateForm for ${field.fieldId}:`,
-              e
-            );
+
+            if (
+              rule.min !== undefined &&
+              typeof value === "number" &&
+              value < rule.min
+            ) {
+              newErrors[field.fieldId] =
+                rule.message || `Minimum value is ${rule.min}.`;
+              isValid = false;
+              break;
+            }
+
+            if (
+              rule.max !== undefined &&
+              typeof value === "number" &&
+              value > rule.max
+            ) {
+              newErrors[field.fieldId] =
+                rule.message || `Maximum value is ${rule.max}.`;
+              isValid = false;
+              break;
+            }
+
+            if (
+              rule.minLength !== undefined &&
+              typeof value === "string" &&
+              value.length < rule.minLength
+            ) {
+              newErrors[field.fieldId] =
+                rule.message || `Minimum length is ${rule.minLength}.`;
+              isValid = false;
+              break;
+            }
+
+            if (
+              rule.maxLength !== undefined &&
+              typeof value === "string" &&
+              value.length > rule.maxLength
+            ) {
+              newErrors[field.fieldId] =
+                rule.message || `Maximum length is ${rule.maxLength}.`;
+              isValid = false;
+              break;
+            }
+
+            if (rule.custom && typeof rule.custom === "function") {
+              const passed = rule.custom(value);
+              if (!passed) {
+                newErrors[field.fieldId] =
+                  rule.message || "Custom validation failed.";
+                isValid = false;
+                break;
+              }
+            }
           }
         }
       }
