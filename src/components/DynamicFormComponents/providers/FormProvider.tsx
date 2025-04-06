@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { FormField, FormProviderProps } from "../types";
+import { useContext, useEffect, useState } from "react";
+import { FormField, FormProviderProps, SelectField } from "../types";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
 import { useDynamicOptions } from "./useDynamicOptions";
@@ -43,19 +43,28 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   };
 
   const setValue = (field: string, value: any) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
+    const newValues = { ...values, [field]: value };
+    setValues(newValues);
     validateField(field, value);
 
     Object.entries(dependencies).forEach(([key, val]) => {
-      if (val === field) {
-        fetchDynamicOptions(key, value);
+      if (val === field || (Array.isArray(val) && val.includes(field))) {
+        fetchDynamicOptions(key, newValues);
       }
     });
   };
 
-  // useEffect(() => {
-  //   console.log("dependencies:", dependencies);
-  // }, [dependencies]);
+  function isSelectField(field: FormField): field is SelectField {
+    return field.type === "select";
+  }
+
+  useEffect(() => {
+    formSchema.fields.forEach((field) => {
+      if (isSelectField(field) && field.dynamicOptions?.fetchOnInit) {
+        fetchDynamicOptions(field.fieldId, values);
+      }
+    });
+  }, []);
 
   return (
     <FormContext.Provider

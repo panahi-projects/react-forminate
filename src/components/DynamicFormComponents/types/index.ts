@@ -4,7 +4,20 @@ export interface FormDataCollection {
   formId: string;
   title: string;
   fields: FormField[];
+  baseUrl?: string;
 }
+
+export interface dynamicOptionsType {
+  endpoint: string; // can contain placeholders like {{albumId}}
+  method?: "GET" | "POST"; // default to GET
+  dependsOn?: string | string[]; // support multiple dependencies
+  params?: Record<string, string>; // query params as fieldId references
+  headers?: Record<string, string>; // optional headers
+  transformResponse?: (response: any) => { label: string; value: any }[];
+  resultPath?: string; // e.g., 'data.results' to extract nested result
+  fetchOnInit?: boolean; // to fetch options on mount
+}
+
 export interface FormContextType {
   values: Record<string, any>;
   errors: Record<string, string>;
@@ -23,7 +36,10 @@ export interface FormContextType {
   ) => void;
   validateForm: (form: FormDataCollection) => boolean;
   shouldShowField: (field: FormField) => boolean;
-  fetchDynamicOptions: (fieldId: string, value: string) => void; // Function to fetch dynamic options
+  fetchDynamicOptions: (
+    fieldId: string,
+    allValues?: Record<string, any>
+  ) => Promise<void>; // Function to fetch dynamic options
   getFieldSchema: (fieldId: string) => FormField; // Get Field schema for the current field
   formSchema: FormDataCollection; // Form schema for the current form
 }
@@ -143,12 +159,8 @@ export interface SelectField
   extends BaseField,
     React.SelectHTMLAttributes<HTMLSelectElement> {
   type: "select";
-  options: string[];
-  dynamicOptions?: {
-    dependsOn: string;
-    endpoint: string;
-    method: string;
-  };
+  options?: string[] | { label: string; value: any }[];
+  dynamicOptions?: dynamicOptionsType;
 }
 
 export interface RadioField

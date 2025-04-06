@@ -24,6 +24,7 @@ const SelectField: React.FC<SelectFieldType> = ({
   onCustomMouseEnter,
   onCustomMouseLeave,
   onCustomContextMenu,
+  dynamicOptions: _omitDynamicOptions, // removed from DOM
   ...rest
 }) => {
   const {
@@ -34,15 +35,29 @@ const SelectField: React.FC<SelectFieldType> = ({
     getFieldSchema,
     formSchema,
   } = useForm();
-  const [dynamicValues, setDynamicValues] = useState<string[]>(
-    dynamicOptions[id] || options || []
-  );
+
+  const [selectOptions, setSelectOptions] = useState<
+    { label: string; value: any }[] | string[]
+  >(options || []);
+
+  // Update options when dynamicOptions are loaded
+  useEffect(() => {
+    if (dynamicOptions && dynamicOptions[id]) {
+      setSelectOptions(dynamicOptions[id]);
+    }
+  }, [dynamicOptions, id]);
 
   useEffect(() => {
-    if (dynamicOptions[id]) {
-      setDynamicValues(Object.values(dynamicOptions[id])?.[1] || options || []);
-    }
-  }, [dynamicOptions]);
+    let raw = dynamicOptions?.[id] || options || [];
+
+    // Normalize string[] to { label, value }[]
+    const normalized =
+      typeof raw[0] === "string"
+        ? raw.map((opt: string) => ({ label: opt, value: opt }))
+        : raw;
+
+    setSelectOptions(normalized);
+  }, [dynamicOptions, id, options]);
 
   const handleDefaultChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValue(id, e.target.value);
@@ -86,7 +101,7 @@ const SelectField: React.FC<SelectFieldType> = ({
     className,
     style: styles,
     "data-testid": "select-field",
-    ...rest,
+    ...rest, // safe now since dynamicOptions props are removed
   };
 
   return (
@@ -104,9 +119,12 @@ const SelectField: React.FC<SelectFieldType> = ({
         <option value="" disabled>
           Select an option
         </option>
-        {dynamicValues?.map((option) => (
-          <option key={option} value={option}>
-            {option}
+        {selectOptions.map((option) => (
+          <option
+            key={typeof option !== "string" ? option.value : option}
+            value={typeof option !== "string" ? option.value : option}
+          >
+            {typeof option !== "string" ? option.label : option}
           </option>
         ))}
       </select>
