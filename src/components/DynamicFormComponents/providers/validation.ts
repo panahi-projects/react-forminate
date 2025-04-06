@@ -1,6 +1,15 @@
 import { FormDataCollection, FormField } from "../types";
 import { findFieldById } from "./fieldDependency";
 
+const isValueEmpty = (value: any): boolean => {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "string" && value.trim() === "") ||
+    (Array.isArray(value) && value.length === 0)
+  );
+};
+
 export const validateField = (
   field: string,
   value: any,
@@ -27,13 +36,7 @@ export const validateField = (
     return;
   }
 
-  const isEmpty =
-    value === undefined ||
-    value === null ||
-    (typeof value === "string" && value.trim() === "") ||
-    (Array.isArray(value) && value.length === 0);
-
-  if (fieldSchema.required && isEmpty) {
+  if (fieldSchema.required && isValueEmpty(value)) {
     errorMessage = fieldSchema.requiredMessage || "This field is required.";
   }
 
@@ -154,13 +157,8 @@ export const validateForm = (
         validateFieldRecursive(field.fields);
       } else if (shouldShowField(field, values)) {
         const value = values[field.fieldId];
-        const isEmpty =
-          value === undefined ||
-          value === null ||
-          (typeof value === "string" && value.trim() === "") ||
-          (Array.isArray(value) && value.length === 0);
 
-        if (field.required && isEmpty) {
+        if (field.required && isValueEmpty(value)) {
           newErrors[field.fieldId] =
             field.requiredMessage || "This field is required.";
           isValid = false;
