@@ -23,6 +23,9 @@ const RadioField = lazy(() =>
 const CheckboxField = lazy(() =>
   import("../Fields").then((module) => ({ default: module.CheckboxField }))
 );
+const GridViewField = lazy(() =>
+  import("../Fields").then((module) => ({ default: module.GridViewField }))
+);
 
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
@@ -34,6 +37,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   select: SelectField,
   radio: RadioField,
   checkbox: CheckboxField,
+  gridview: GridViewField,
 };
 
 // Plugin extension mechanism (for additional fields like SwitchField)

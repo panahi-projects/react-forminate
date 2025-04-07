@@ -13,9 +13,15 @@ export interface dynamicOptionsType {
   dependsOn?: string | string[]; // support multiple dependencies
   params?: Record<string, string>; // query params as fieldId references
   headers?: Record<string, string>; // optional headers
-  transformResponse?: (response: any) => { label: string; value: any }[];
+  transformResponse?: (
+    response: any
+  ) => { label: string; value: any }[] | string[];
   resultPath?: string; // e.g., 'data.results' to extract nested result
   fetchOnInit?: boolean; // to fetch options on mount
+  pagination?: {
+    limit?: number;
+    maxPage?: number;
+  };
 }
 
 export interface FormContextType {
@@ -38,7 +44,8 @@ export interface FormContextType {
   shouldShowField: (field: FormField) => boolean;
   fetchDynamicOptions: (
     fieldId: string,
-    allValues?: Record<string, any>
+    allValues?: Record<string, any>,
+    pagination?: { page?: number; limit?: number }
   ) => Promise<void>; // Function to fetch dynamic options
   getFieldSchema: (fieldId: string) => FormField; // Get Field schema for the current field
   formSchema: FormDataCollection; // Form schema for the current form
@@ -189,6 +196,14 @@ export interface GroupField extends BaseField {
   fields: FormField[];
 }
 
+export interface GridViewFieldProps extends BaseField {
+  type: "gridview";
+  required?: boolean;
+  dynamicOptions?: dynamicOptionsType;
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
+}
+
 export interface VisibilityCondition {
   dependsOn: string;
   condition: "equals";
@@ -207,4 +222,5 @@ export type FormField =
   | RadioField
   | CheckboxField
   | GroupField
-  | ConditionalField;
+  | ConditionalField
+  | GridViewFieldProps;
