@@ -86,21 +86,22 @@ const GridViewField: React.FC<GridViewFieldProps> = ({
     (f) => f.fieldId === fieldId
   ) as DynamicField;
   const pagination = field?.dynamicOptions?.pagination;
+  const limit = pagination?.limit || 10;
 
   const fetchData = async () => {
     setLoading(true);
-
-    const limit = pagination?.limit || 10; // Default fallback
-
     await fetchDynamicOptions(fieldId, values, { page, limit });
-
     setItems(dynamicOptions[fieldId] || []);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchData();
+    if (field?.dynamicOptions?.fetchOnInit !== false) fetchData();
   }, [page]);
+
+  useEffect(() => {
+    setItems(dynamicOptions[fieldId] || []);
+  }, [dynamicOptions[fieldId]]);
 
   const handleSelect = (item: GridItem) => {
     setValue(fieldId, item.value);
@@ -126,7 +127,9 @@ const GridViewField: React.FC<GridViewFieldProps> = ({
           items.map((item) => (
             <GridItemWrapper
               key={item.value}
-              className={`${itemsClassName} ${values[fieldId] === item.value ? "selected" : ""}`}
+              className={`${itemsClassName} ${
+                values[fieldId] === item.value ? "selected" : ""
+              }`}
               style={itemsStyles}
               onClick={() => handleSelect(item)}
             >
@@ -147,9 +150,9 @@ const GridViewField: React.FC<GridViewFieldProps> = ({
         <span className="text-sm">Page {page}</span>
         <Button
           onClick={handleNext}
-          //   disabled={
-          //     loading || (pagination?.maxPage && page >= pagination.maxPage)
-          //   }
+          disabled={Boolean(
+            loading || (pagination?.maxPage && page >= pagination.maxPage)
+          )}
         >
           Next
         </Button>

@@ -21,6 +21,12 @@ export interface dynamicOptionsType {
   pagination?: {
     limit?: number;
     maxPage?: number;
+    pageKey?: string; // default: "page"
+    limitKey?: string; // default: "limit"
+    skipKey?: string; // optional, if using skip
+    pageMode?: "page" | "skip"; // determines if using page or skip
+    startPage?: number; // e.g., 0 or 1
+    metadataPath?: string; // path to access metadata like total pages
   };
 }
 
