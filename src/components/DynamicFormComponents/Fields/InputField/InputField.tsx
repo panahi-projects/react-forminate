@@ -1,7 +1,8 @@
 import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
+import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
+import { useFieldEvents } from "../../helpers/useFieldEvents";
 import { TextField } from "../../types";
-import { useForm } from "../../providers/formContext";
 
 const InputField: React.FC<TextField> = ({
   fieldId: id,
@@ -27,59 +28,41 @@ const InputField: React.FC<TextField> = ({
   onCustomContextMenu,
   ...rest
 }) => {
-  const { values, setValue, errors, getFieldSchema, formSchema } = useForm();
+  const { values, errors } = useFieldEvents();
+  const {
+    validation: _validation,
+    requiredMessage: _requiredMessage,
+    visibility: _visibility,
+
+    ...safeRest
+  } = rest;
   const fieldValue = values[id] || "";
-
-  const handleDefaultChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const value = type === "number" ? +e.target.value : e.target.value;
-      setValue(id, value);
-    } catch (error) {
-      console.error("Error setting value:", error);
-    }
-  };
-
-  const handleCustomEvent = (
-    handler: Function | undefined,
-    event: React.SyntheticEvent<HTMLInputElement>
-  ) => {
-    if (handler) {
-      handler(event, id, values, getFieldSchema(id), formSchema);
-    }
-  };
 
   const inputProps = {
     "data-testid": "input-field",
     id,
     type,
-    value: fieldValue,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      handleDefaultChange(e);
-      handleCustomEvent(onCustomChange, e);
-    },
-    onClick: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomClick, e),
-    onBlur: (e: React.FocusEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomBlur, e),
-    onFocus: (e: React.FocusEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomFocus, e),
-    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomKeyDown, e),
-    onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomKeyUp, e),
-    onMouseDown: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseDown, e),
-    onMouseEnter: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseEnter, e),
-    onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseLeave, e),
-    onContextMenu: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomContextMenu, e),
     className,
     placeholder,
     style: styles,
-    ...rest,
+    ...safeRest,
   };
+
+  const eventHandlers = buildFieldEventHandlers<HTMLInputElement>({
+    fieldId: id,
+    value: fieldValue,
+    type,
+    onCustomClick,
+    onCustomChange,
+    onCustomBlur,
+    onCustomFocus,
+    onCustomKeyDown,
+    onCustomKeyUp,
+    onCustomMouseDown,
+    onCustomMouseEnter,
+    onCustomMouseLeave,
+    onCustomContextMenu,
+  });
 
   return (
     <FieldWrapper
@@ -92,7 +75,7 @@ const InputField: React.FC<TextField> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <input {...inputProps} />
+      <input {...inputProps} {...eventHandlers} />
     </FieldWrapper>
   );
 };

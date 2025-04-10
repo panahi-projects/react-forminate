@@ -35,6 +35,12 @@ const SelectField: React.FC<SelectFieldType> = ({
     getFieldSchema,
     formSchema,
   } = useForm();
+  const {
+    validation: _validation,
+    requiredMessage: _requiredMessage,
+    visibility: _visibility,
+    ...safeRest
+  } = rest;
 
   const [selectOptions, setSelectOptions] = useState<
     { label: string; value: any }[] | string[]
@@ -101,7 +107,7 @@ const SelectField: React.FC<SelectFieldType> = ({
     className,
     style: styles,
     "data-testid": "select-field",
-    ...rest, // safe now since dynamicOptions props are removed
+    ...safeRest, // safe now since dynamicOptions props are removed
   };
 
   return (
