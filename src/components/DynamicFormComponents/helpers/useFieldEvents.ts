@@ -21,13 +21,14 @@ export const useFieldEvents = () => {
   ) => {
     if (handler) {
       const currentValue = newValue ?? values[fieldId];
+      const currentFieldSchema = getFieldSchema(fieldId);
       handler(
         event,
         fieldId,
         { ...values, [fieldId]: currentValue },
-        errors,
-        getFieldSchema(fieldId),
-        formSchema
+        currentFieldSchema,
+        formSchema,
+        errors
       );
     }
   };
