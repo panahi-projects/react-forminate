@@ -6,7 +6,7 @@ export const findFieldById = (
 ): any | null => {
   for (const field of fields) {
     if (field.fieldId === fieldId) return field;
-    if (field.type === "group" && field.fields) {
+    if (field.fields && field.fields.length > 0) {
       const found = findFieldById(fieldId, field.fields);
       if (found) return found;
     }

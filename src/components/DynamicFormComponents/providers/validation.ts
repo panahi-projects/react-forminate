@@ -153,7 +153,8 @@ export const validateForm = (
   const validateFieldRecursive = (fields: FormField[]) => {
     if (!fields || fields.length === 0) return;
     fields.forEach((field) => {
-      if (field.type === "group" && field.fields) {
+      if (field.fields && field.fields.length > 0) {
+        // Recursively validate nested fields
         validateFieldRecursive(field.fields);
       } else if (shouldShowField(field, values)) {
         const value = values[field.fieldId];

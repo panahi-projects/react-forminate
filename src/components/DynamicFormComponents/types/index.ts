@@ -136,8 +136,8 @@ export interface ValidationRule {
 
 export interface BaseField extends CustomEventHandlers {
   fieldId: string;
-  label: string;
   type: string;
+  label?: string;
   required?: boolean;
   requiredMessage?: string;
   visibility?:
@@ -162,6 +162,24 @@ export interface TextField
     React.InputHTMLAttributes<HTMLInputElement> {
   type: "text" | "number" | "email" | "password";
   placeholder?: string;
+}
+export interface ContainerField
+  extends BaseField,
+    React.InputHTMLAttributes<HTMLInputElement> {
+  type: "container";
+  as: "div" | "section" | "article" | "main" | "header" | "footer";
+  columns?: number;
+  gap?: number;
+  fields: FormField[];
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
+  containerStyles?: React.CSSProperties;
+  containerClassName?: string;
+  styles: React.CSSProperties;
+  className: string;
+  children?: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 export interface DateField
@@ -231,4 +249,5 @@ export type FormField =
   | CheckboxField
   | GroupField
   | ConditionalField
-  | GridViewFieldProps;
+  | GridViewFieldProps
+  | ContainerField;
