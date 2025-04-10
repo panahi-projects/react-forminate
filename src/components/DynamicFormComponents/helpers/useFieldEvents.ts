@@ -3,7 +3,15 @@ import { useForm } from "../providers/formContext";
 type Handler = Function | undefined;
 
 export const useFieldEvents = () => {
-  const { values, errors, setValue, getFieldSchema, formSchema } = useForm();
+  const {
+    values,
+    errors,
+    setValue,
+    getFieldSchema,
+    formSchema,
+    dynamicOptions,
+    shouldShowField,
+  } = useForm();
 
   const handleCustomEvent = <T>(
     handler: Handler,
@@ -26,10 +34,12 @@ export const useFieldEvents = () => {
 
   return {
     values,
-    setValue,
+    dynamicOptions,
     errors,
-    getFieldSchema,
     formSchema,
+    setValue,
+    getFieldSchema,
     handleCustomEvent,
+    shouldShowField,
   };
 };

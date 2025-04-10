@@ -90,36 +90,38 @@ type FormEventHandler<E> = (
 ) => void;
 
 type CustomEventHandlers = {
-  onCustomChange?: FormEventHandler<
-    React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomBlur?: FormEventHandler<
-    React.FocusEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomFocus?: FormEventHandler<
-    React.FocusEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomKeyDown?: FormEventHandler<
-    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomKeyUp?: FormEventHandler<
-    React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomClick?: FormEventHandler<
-    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomMouseEnter?: FormEventHandler<
-    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomMouseLeave?: FormEventHandler<
-    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomMouseDown?: FormEventHandler<
-    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-  >;
-  onCustomContextMenu?: FormEventHandler<
-    React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-  >;
+  events?: {
+    onCustomChange?: FormEventHandler<
+      React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomBlur?: FormEventHandler<
+      React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomFocus?: FormEventHandler<
+      React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomKeyDown?: FormEventHandler<
+      React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomKeyUp?: FormEventHandler<
+      React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomClick?: FormEventHandler<
+      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomMouseEnter?: FormEventHandler<
+      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomMouseLeave?: FormEventHandler<
+      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomMouseDown?: FormEventHandler<
+      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+    onCustomContextMenu?: FormEventHandler<
+      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+    >;
+  };
 };
 
 export interface ValidationRule {

@@ -37,8 +37,18 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   const handleChange = (e: React.ChangeEvent<T>) => {
     const newValue =
       type === "number" ? +(e.target as any).value : (e.target as any).value;
-    setValue(fieldId, newValue);
-    handleCustomEvent(onCustomChange, e, fieldId, newValue);
+    if (type === "checkbox") {
+      const checked = (e.target as any).checked;
+      const currentValue = value || [];
+      const newValueArray = checked
+        ? [...currentValue, newValue]
+        : currentValue.filter((item: any) => item !== newValue);
+      setValue(fieldId, newValueArray);
+      handleCustomEvent(onCustomChange, e, fieldId, newValueArray);
+    } else {
+      setValue(fieldId, newValue);
+      handleCustomEvent(onCustomChange, e, fieldId, newValue);
+    }
   };
 
   const wrapHandler = (handler: any) => {

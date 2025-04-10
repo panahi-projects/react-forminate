@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { FieldWrapper } from "../../FieldWrapper";
+import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
+import { useFieldEvents } from "../../helpers/useFieldEvents";
 import { SelectField as SelectFieldType } from "../../types";
-import { useForm } from "../../providers/formContext";
 
 const SelectField: React.FC<SelectFieldType> = ({
   fieldId: id,
+  type = "select",
   label,
   options,
   required,
@@ -14,27 +16,13 @@ const SelectField: React.FC<SelectFieldType> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
-  onCustomClick,
-  onCustomChange,
-  onCustomBlur,
-  onCustomFocus,
-  onCustomKeyDown,
-  onCustomKeyUp,
-  onCustomMouseDown,
-  onCustomMouseEnter,
-  onCustomMouseLeave,
-  onCustomContextMenu,
   dynamicOptions: _omitDynamicOptions, // removed from DOM
+  events,
   ...rest
 }) => {
-  const {
-    values,
-    setValue,
-    errors,
-    dynamicOptions,
-    getFieldSchema,
-    formSchema,
-  } = useForm();
+  const { values, errors, dynamicOptions } = useFieldEvents();
+  const fieldValue =
+    values[id] || typeof options?.[options?.length - 1] === "string" ? "" : {};
   const {
     validation: _validation,
     requiredMessage: _requiredMessage,
@@ -65,50 +53,22 @@ const SelectField: React.FC<SelectFieldType> = ({
     setSelectOptions(normalized);
   }, [dynamicOptions, id, options]);
 
-  const handleDefaultChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue(id, e.target.value);
-  };
-
-  const handleCustomEvent = (
-    handler: Function | undefined,
-    event: React.SyntheticEvent<HTMLSelectElement>
-  ) => {
-    if (handler) {
-      handler(event, id, values, getFieldSchema(id), formSchema);
-    }
-  };
-
   const inputProps = {
+    "data-testid": "select-field",
     id,
     name: id,
     value: values[id] || "",
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
-      handleDefaultChange(e);
-      handleCustomEvent(onCustomChange, e);
-    },
-    onClick: (e: React.MouseEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomClick, e),
-    onBlur: (e: React.FocusEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomBlur, e),
-    onFocus: (e: React.FocusEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomFocus, e),
-    onKeyDown: (e: React.KeyboardEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomKeyDown, e),
-    onKeyUp: (e: React.KeyboardEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomKeyUp, e),
-    onMouseDown: (e: React.MouseEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomMouseDown, e),
-    onMouseEnter: (e: React.MouseEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomMouseEnter, e),
-    onMouseLeave: (e: React.MouseEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomMouseLeave, e),
-    onContextMenu: (e: React.MouseEvent<HTMLSelectElement>) =>
-      handleCustomEvent(onCustomContextMenu, e),
     className,
     style: styles,
-    "data-testid": "select-field",
     ...safeRest, // safe now since dynamicOptions props are removed
   };
+
+  const eventHandlers = buildFieldEventHandlers<HTMLSelectElement>({
+    fieldId: id,
+    value: fieldValue,
+    type,
+    ...events,
+  });
 
   return (
     <FieldWrapper
@@ -121,7 +81,7 @@ const SelectField: React.FC<SelectFieldType> = ({
       labelClassName={labelClassName}
       labelStyles={labelStyles}
     >
-      <select {...inputProps}>
+      <select {...inputProps} {...eventHandlers}>
         <option value="" disabled>
           Select an option
         </option>

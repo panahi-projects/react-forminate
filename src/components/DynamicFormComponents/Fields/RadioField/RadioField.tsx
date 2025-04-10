@@ -1,7 +1,8 @@
 import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
+import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
+import { useFieldEvents } from "../../helpers/useFieldEvents";
 import { RadioField as RadioFieldType } from "../../types";
-import { useForm } from "../../providers/formContext";
 
 const RadioField: React.FC<RadioFieldType> = ({
   fieldId: id,
@@ -17,72 +18,35 @@ const RadioField: React.FC<RadioFieldType> = ({
   labelStyles = {},
   itemsStyles = {},
   itemsClassName = "",
-  onCustomClick,
-  onCustomChange,
-  onCustomBlur,
-  onCustomFocus,
-  onCustomKeyDown,
-  onCustomKeyUp,
-  onCustomMouseDown,
-  onCustomMouseEnter,
-  onCustomMouseLeave,
-  onCustomContextMenu,
+  events,
   ...rest
 }) => {
+  const { values, errors, shouldShowField } = useFieldEvents();
   const {
-    values,
-    setValue,
-    errors,
-    shouldShowField,
-    getFieldSchema,
-    formSchema,
-  } = useForm();
+    validation: _validation,
+    requiredMessage: _requiredMessage,
+    visibility: _visibility,
+    ...safeRest
+  } = rest;
+  const fieldValue = values[id] || "";
 
   if (!shouldShowField({ fieldId: id, label, options, required, type }))
     return null;
 
-  const handleDefaultChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(id, event.target.value);
-  };
-
-  const handleCustomEvent = (
-    handler: Function | undefined,
-    event: React.SyntheticEvent<HTMLInputElement>
-  ) => {
-    if (handler) {
-      handler(event, id, values, getFieldSchema(id), formSchema);
-    }
-  };
-
   const baseInputProps = {
     type,
     name: id,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      handleDefaultChange(e);
-      handleCustomEvent(onCustomChange, e);
-    },
-    onClick: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomClick, e),
-    onBlur: (e: React.FocusEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomBlur, e),
-    onFocus: (e: React.FocusEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomFocus, e),
-    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomKeyDown, e),
-    onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomKeyUp, e),
-    onMouseDown: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseDown, e),
-    onMouseEnter: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseEnter, e),
-    onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomMouseLeave, e),
-    onContextMenu: (e: React.MouseEvent<HTMLInputElement>) =>
-      handleCustomEvent(onCustomContextMenu, e),
     className,
     style: styles,
-    ...rest,
+    ...safeRest,
   };
+
+  const eventHandlers = buildFieldEventHandlers<HTMLInputElement>({
+    fieldId: id,
+    value: fieldValue,
+    type,
+    ...events,
+  });
 
   return (
     <FieldWrapper
@@ -100,6 +64,8 @@ const RadioField: React.FC<RadioFieldType> = ({
           <label key={option} style={itemsStyles} className={itemsClassName}>
             <input
               {...baseInputProps}
+              {...eventHandlers}
+              {...(typeof option !== "string" ? option : {})}
               value={option}
               checked={values[id] === option}
             />

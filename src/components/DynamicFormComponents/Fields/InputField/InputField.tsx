@@ -16,16 +16,7 @@ const InputField: React.FC<TextField> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
-  onCustomClick,
-  onCustomChange,
-  onCustomBlur,
-  onCustomFocus,
-  onCustomKeyDown,
-  onCustomKeyUp,
-  onCustomMouseDown,
-  onCustomMouseEnter,
-  onCustomMouseLeave,
-  onCustomContextMenu,
+  events,
   ...rest
 }) => {
   const { values, errors } = useFieldEvents();
@@ -33,7 +24,6 @@ const InputField: React.FC<TextField> = ({
     validation: _validation,
     requiredMessage: _requiredMessage,
     visibility: _visibility,
-
     ...safeRest
   } = rest;
   const fieldValue = values[id] || "";
@@ -52,16 +42,7 @@ const InputField: React.FC<TextField> = ({
     fieldId: id,
     value: fieldValue,
     type,
-    onCustomClick,
-    onCustomChange,
-    onCustomBlur,
-    onCustomFocus,
-    onCustomKeyDown,
-    onCustomKeyUp,
-    onCustomMouseDown,
-    onCustomMouseEnter,
-    onCustomMouseLeave,
-    onCustomContextMenu,
+    ...events,
   });
 
   return (
