@@ -6,6 +6,8 @@ import SelectField from "./SelectField";
 import RadioField from "./RadioField";
 import GridViewField from "./GridViewField";
 import ContainerField from "./ContainerField";
+import TextareaField from "./TextareaField";
+import SpacerField from "./SpacerField";
 
 export {
   InputField,
@@ -16,6 +18,8 @@ export {
   RadioField,
   GridViewField,
   ContainerField,
+  TextareaField,
+  SpacerField,
   // Add other fields here as needed
   // e.g., TextAreaField, ToggleField, etc.
   // TextAreaField,

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
+type fieldIdType = string;
 export interface FormDataCollection {
   formId: string;
   title: string;
@@ -49,11 +50,11 @@ export interface FormContextType {
   validateForm: (form: FormDataCollection) => boolean;
   shouldShowField: (field: FormField) => boolean;
   fetchDynamicOptions: (
-    fieldId: string,
+    fieldId: fieldIdType,
     allValues?: Record<string, any>,
     pagination?: { page?: number; limit?: number }
   ) => Promise<void>; // Function to fetch dynamic options
-  getFieldSchema: (fieldId: string) => FormField; // Get Field schema for the current field
+  getFieldSchema: (fieldId: fieldIdType) => FormField; // Get Field schema for the current field
   formSchema: FormDataCollection; // Form schema for the current form
 }
 
@@ -83,43 +84,42 @@ export interface DynamicFormProps {
 
 type FormEventHandler<E> = (
   e: E,
-  fieldId: string,
+  fieldId: fieldIdType,
   values: Record<string, any>,
   fieldSchema?: FormField,
   formSchema?: FormDataCollection
 ) => void;
 
+type CustomChangeEventTypes =
+  | HTMLInputElement
+  | HTMLSelectElement
+  | HTMLTextAreaElement;
+
 type CustomEventHandlers = {
   events?: {
     onCustomChange?: FormEventHandler<
-      React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+      React.ChangeEvent<CustomChangeEventTypes>
     >;
-    onCustomBlur?: FormEventHandler<
-      React.FocusEvent<HTMLInputElement | HTMLSelectElement>
-    >;
-    onCustomFocus?: FormEventHandler<
-      React.FocusEvent<HTMLInputElement | HTMLSelectElement>
-    >;
+    onCustomBlur?: FormEventHandler<React.FocusEvent<CustomChangeEventTypes>>;
+    onCustomFocus?: FormEventHandler<React.FocusEvent<CustomChangeEventTypes>>;
     onCustomKeyDown?: FormEventHandler<
-      React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+      React.KeyboardEvent<CustomChangeEventTypes>
     >;
     onCustomKeyUp?: FormEventHandler<
-      React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+      React.KeyboardEvent<CustomChangeEventTypes>
     >;
-    onCustomClick?: FormEventHandler<
-      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
-    >;
+    onCustomClick?: FormEventHandler<React.MouseEvent<CustomChangeEventTypes>>;
     onCustomMouseEnter?: FormEventHandler<
-      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+      React.MouseEvent<CustomChangeEventTypes>
     >;
     onCustomMouseLeave?: FormEventHandler<
-      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+      React.MouseEvent<CustomChangeEventTypes>
     >;
     onCustomMouseDown?: FormEventHandler<
-      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+      React.MouseEvent<CustomChangeEventTypes>
     >;
     onCustomContextMenu?: FormEventHandler<
-      React.MouseEvent<HTMLInputElement | HTMLSelectElement>
+      React.MouseEvent<CustomChangeEventTypes>
     >;
   };
 };
@@ -135,7 +135,7 @@ export interface ValidationRule {
 }
 
 export interface BaseField extends CustomEventHandlers {
-  fieldId: string;
+  fieldId: fieldIdType;
   type: string;
   label?: string;
   required?: boolean;
@@ -147,7 +147,7 @@ export interface BaseField extends CustomEventHandlers {
         value: string;
       }
     | boolean;
-  fields?: any[];
+  fields?: FormField[];
   className?: string;
   containerClassName?: string;
   styles?: React.CSSProperties;
@@ -155,6 +155,7 @@ export interface BaseField extends CustomEventHandlers {
   labelClassName?: string;
   labelStyles?: React.CSSProperties;
   validation?: ValidationRule[];
+  disabled?: boolean;
 }
 
 export interface TextField
@@ -162,15 +163,48 @@ export interface TextField
     React.InputHTMLAttributes<HTMLInputElement> {
   type: "text" | "number" | "email" | "password";
   placeholder?: string;
+  autoCorrect?: "on" | "off";
+  autoCapitalize?: "on" | "off" | "sentences" | "words" | "characters";
+  spellCheck?: boolean;
+  // autoComplete?: "on" | "off" | "name" | "email" | "username" | "new-password";
+  autoFocus?: boolean;
+  pattern?: string;
+  min?: number;
+  max?: number;
+  minLength?: number;
+  maxLength?: number;
+  step?: number;
 }
-export interface ContainerField
+
+export interface TextareaField
   extends BaseField,
+    React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  type: "textarea";
+  placeholder?: string;
+  rows?: number;
+  cols?: number;
+  maxLength?: number;
+  minLength?: number;
+  autoCorrect?: "on" | "off";
+  autoCapitalize?: "on" | "off" | "sentences" | "words" | "characters";
+  spellCheck?: boolean;
+  autoComplete?: "on" | "off" | "name" | "email" | "username" | "new-password";
+  autoFocus?: boolean;
+  pattern?: string;
+}
+
+// ✅ Clean version of ExtractFieldIds
+type ExtractFieldIds<T extends { fieldId: string }[]> = T[number]["fieldId"];
+
+// ✅ Updated BaseContainerField
+export interface BaseContainerField<T extends FormField[]>
+  extends Omit<BaseField, "fields">,
     React.InputHTMLAttributes<HTMLInputElement> {
   type: "container";
   as: "div" | "section" | "article" | "main" | "header" | "footer";
   columns?: number;
   gap?: number;
-  fields: FormField[];
+  fields: T;
   itemsStyles?: React.CSSProperties;
   itemsClassName?: string;
   containerStyles?: React.CSSProperties;
@@ -180,11 +214,21 @@ export interface ContainerField
   children?: React.ReactNode;
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  itemsParentAttributes?: {
+    [K in ExtractFieldIds<T>]?: HTMLAttributes<HTMLElement> & {
+      colSpan?: number;
+      style?: React.CSSProperties;
+      [key: string]: any; // Allow any other attributes
+    };
+  };
 }
+
+// ✅ ContainerField specialization
+export type ContainerField = BaseContainerField<FormField[]>;
 
 export interface DateField
   extends BaseField,
-    React.InputHTMLAttributes<HTMLDataElement> {
+    React.InputHTMLAttributes<HTMLInputElement> {
   type: "date";
 }
 
@@ -230,6 +274,14 @@ export interface GridViewFieldProps extends BaseField {
   itemsClassName?: string;
 }
 
+export interface SpacerField extends BaseField {
+  as: "div" | "section" | "span" | "p" | "hr" | "br";
+  type: "spacer";
+  width?: string | number; // default: "100%"
+  height?: string | number; // default: 16
+  children?: React.ReactNode;
+}
+
 export interface VisibilityCondition {
   dependsOn: string;
   condition: "equals";
@@ -250,4 +302,6 @@ export type FormField =
   | GroupField
   | ConditionalField
   | GridViewFieldProps
-  | ContainerField;
+  | ContainerField
+  | TextareaField
+  | SpacerField;

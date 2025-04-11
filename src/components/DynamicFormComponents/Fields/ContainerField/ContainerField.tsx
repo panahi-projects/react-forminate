@@ -17,8 +17,21 @@ const ContainerField: React.FC<ContainerFieldType> = ({
   children,
   header,
   footer,
+  itemsParentAttributes,
   ...rest
 }) => {
+  const getMergedGridItemStyle = (
+    colSpan?: number,
+    baseStyle?: React.CSSProperties,
+    extraStyle?: React.CSSProperties
+  ): React.CSSProperties => ({
+    ...baseStyle,
+    ...extraStyle,
+    ...(colSpan && {
+      gridColumn: `span ${colSpan} / span ${colSpan}`,
+    }),
+  });
+
   return (
     <div style={containerStyles} className={containerClassName}>
       {header}
@@ -32,15 +45,25 @@ const ContainerField: React.FC<ContainerFieldType> = ({
         }}
         {...rest}
       >
-        {fields.map((field) => (
-          <div
-            key={field.fieldId}
-            className={itemsClassName}
-            style={itemsStyles}
-          >
-            <DynamicFormField {...field} />
-          </div>
-        ))}
+        {fields.map((field) => {
+          const {
+            colSpan,
+            style: customStyle,
+            ...restAttrs
+          } = itemsParentAttributes?.[field.fieldId] || {};
+
+          return (
+            <div
+              key={field.fieldId}
+              className={itemsClassName}
+              style={getMergedGridItemStyle(colSpan, itemsStyles, customStyle)}
+              {...restAttrs}
+            >
+              <DynamicFormField {...field} />
+            </div>
+          );
+        })}
+
         {children}
       </Component>
       {footer}

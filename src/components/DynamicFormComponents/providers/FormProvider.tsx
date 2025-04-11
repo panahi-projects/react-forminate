@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { FormField, FormProviderProps, SelectField } from "../types";
+import { FormField, FormProviderProps } from "../types";
+import { isSelectField } from "../utils";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
 import { useDynamicOptions } from "./useDynamicOptions";
@@ -53,10 +54,6 @@ export const FormProvider: React.FC<FormProviderProps> = ({
       }
     });
   };
-
-  function isSelectField(field: FormField): field is SelectField {
-    return field.type === "select";
-  }
 
   useEffect(() => {
     formSchema.fields.forEach((field) => {

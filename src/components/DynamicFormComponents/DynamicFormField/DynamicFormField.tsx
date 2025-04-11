@@ -29,6 +29,12 @@ const GridViewField = lazy(() =>
 const ContainerField = lazy(() =>
   import("../Fields").then((module) => ({ default: module.ContainerField }))
 );
+const TextareaField = lazy(() =>
+  import("../Fields").then((module) => ({ default: module.TextareaField }))
+);
+const SpacerField = lazy(() =>
+  import("../Fields").then((module) => ({ default: module.SpacerField }))
+);
 
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
@@ -42,6 +48,8 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   checkbox: CheckboxField,
   gridview: GridViewField,
   container: ContainerField,
+  textarea: TextareaField,
+  spacer: SpacerField,
   // Add other fields here as needed
 };
 
