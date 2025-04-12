@@ -1,18 +1,10 @@
 import React from "react";
 import { DynamicFormField } from "../../DynamicFormField";
+import { GroupFieldType } from "../../types";
 
-interface GroupFieldProps {
-  fieldId: string;
-  label: string;
-  fields?: any[];
-  className?: string;
-  styles?: React.CSSProperties;
-  legendClassName?: string;
-  legendStyles?: React.CSSProperties;
-}
-
-const GroupField: React.FC<GroupFieldProps> = ({
+const GroupField: React.FC<GroupFieldType> = ({
   fieldId: id,
+  as: Component = "fieldset",
   label,
   fields,
   className = "",
@@ -22,19 +14,24 @@ const GroupField: React.FC<GroupFieldProps> = ({
   ...rest
 }) => {
   return (
-    <fieldset
+    <Component
       id={id}
       data-testid="group-field"
       className={className}
       style={styles}
       {...rest}
     >
-      <legend className={legendClassName} style={legendStyles}>
-        {label}
-      </legend>
+      {Component === "fieldset" && (
+        <legend className={legendClassName} style={legendStyles}>
+          {label}
+        </legend>
+      )}
+
       {fields &&
-        fields.map((field) => <DynamicFormField key={field.id} {...field} />)}
-    </fieldset>
+        fields.map((field) => (
+          <DynamicFormField key={field.fieldId} {...field} />
+        ))}
+    </Component>
   );
 };
 

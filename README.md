@@ -1,177 +1,257 @@
-# react-forminate
+# 🧩 React Forminate
 
-A dynamic form generator for React and Next.js, allowing you to define complex forms using JSON-like structures with built-in validation and grouped fields.
+The ultimate plug-and-play form engine for modern React apps.
 
-⚠️ **This library is under development and some parts of it may still be incomplete.**
+Build fully dynamic, schema-based forms in seconds — no boilerplate, no repetitive wiring, and full TypeScript support out of the box.
 
-## Features
+A dynamic form generator for React and Next.js, enabling you to build powerful forms using JSON-like structures. It supports validation, grouping, API-driven select fields, custom styling (including Tailwind CSS), and dynamic field behaviors.
 
-- 🚀 **Dynamic Form Rendering**: Define forms using a JSON-like structure.
-- 📝 **Multiple Field Types**: Supports text, select, radio, checkbox, date, and more.
-- 📂 **Grouped Fields**: Organize fields in logical sections using the `group` type.
-- ✅ **Validation**: Supports required fields and conditional visibility.
-- 📡 **API-Driven Options**: Fetch dynamic select options from an API.
-- 🔄 **Dependency Management**: Show/hide or modify fields dynamically based on other fields.
-- ⚡ **Lazy Loading**: Fields load only when needed, improving performance.
-- 🛠 **Extensible Plugin System**: Add custom field components easily.
+## 💡 Why use `react-forminate`?
 
-## Installation
+- ✅ Zero setup required – Just provide a JSON schema and you're good to go.
+- ⚙️ Highly customizable – Use your own field components, layouts, and skeletons.
+- 🔌 API-powered fields – Support for dynamic options, remote filtering, and paginated data.
+- 🧠 Smart schema system – Add logic, validation, conditions, and dynamic queries right in your config.
+- 🧱 Composable – Works great with any UI library (Tailwind, shadcn, Material UI, etc.)
+- 🛠️ Built for real-world apps – Perfect for dashboards, admin panels, CMS forms, onboarding flows, and more.
+- 🔄 Live preview + local development support – Test your custom fields and forms locally before publishing.
 
-```sh
+## ✨ Features
+
+- 🧩 **Dynamic Form Rendering** using JSON schema (`FormDataCollection`)
+- 🧠 **Built-in Validation** with custom messages and regex
+- 🧱 **Grouped Fields** for logical sections
+- 📅 **Date, Text, Select, Radio, Checkbox** support
+- 🔁 **API-Driven Selects** with dependent fields
+- 🧩 **Extensible with Plugins** for custom components
+- 🎯 **Conditional Visibility** & dependencies
+- 💨 **Lazy Field Loading** to boost performance
+- 🎨 **Custom Styling** via TailwindCSS or inline styles
+
+---
+
+## 📦 Installation
+
+```bash
 npm install react-forminate
 # or
 yarn add react-forminate
 ```
 
-## Usage
+## 🚀 Quick Start
 
-You can use react-forminate in different ways. Here are two examples:
-
-#### Example 1: Basic Usage
+**✅ Basic Usage**
 
 ```ts
-import {DynamicForm, FormProvider, useForm } from "react-forminate";
+import { DynamicForm, FormProvider } from "react-forminate";
 
 const formData = {
-  id: "my_form",
-  fields: [
-    { id: "name", label: "Name", type: "text", required: true },
-    { id: "email", label: "Email", type: "text", required: true },
-    { id: "dob", label: "Date of Birth", type: "date" },
-  ],
-};
-
-const MyForm = () => {
-  return (
-    <FormProvider>
-      <DynamicForm formData={formData} />
-    </FormProvider>
-  );
-};
-
-export default MyForm;
-```
-
-#### Example 2: Grouped Fields and Dynamic Options
-
-```ts
-import { DynamicForm } from "react-forminate";
-
-const formData = {
-  id: "main_form",
-  label: "Main Form",
-  type: "group",
+  formId: "SimpleForm",
+  title: "Simple Form Example",
   fields: [
     {
-      id: "personal_info",
-      label: "Personal Information",
-      type: "group",
-      fields: [
-        { id: "first_name", label: "First Name", type: "text", required: true },
-        { id: "last_name", label: "Last Name", type: "text", required: true },
-        { id: "dob", label: "Date of Birth", type: "date", required: true },
-      ],
+      fieldId: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      placeholder: "Enter your name",
     },
     {
-      id: "address",
-      label: "Address",
-      type: "group",
-      fields: [
-        {
-          id: "country",
-          label: "Country",
-          type: "select",
-          options: ["USA", "Canada", "Germany", "France"],
-          required: true,
-        },
-        {
-          id: "state",
-          label: "State",
-          type: "select",
-          required: false,
-          dynamicOptions: {
-            dependsOn: "country",
-            endpoint: "/api/getStates",
-            method: "GET",
-          },
-        },
-        { id: "city", label: "City", type: "text", required: true },
-      ],
+      fieldId: "email",
+      label: "Email",
+      type: "text",
+      required: true,
+      placeholder: "Enter your email",
     },
     {
-      id: "health_info",
-      label: "Health Information",
-      type: "group",
-      fields: [
-        {
-          id: "smoker",
-          label: "Do you smoke?",
-          type: "radio",
-          options: ["Yes", "No"],
-          required: true,
-        },
-        {
-          id: "smoking_frequency",
-          label: "How often do you smoke?",
-          type: "select",
-          options: ["Occasionally", "Daily", "Heavy"],
-          required: true,
-          visibility: {
-            dependsOn: "smoker",
-            condition: "equals",
-            value: "Yes",
-          },
-        },
-      ],
+      fieldId: "dob",
+      label: "Date of Birth",
+      type: "date",
     },
   ],
 };
 
-function App() {
-  const onSubmit = (value: any, isValid: boolean) => {
-    console.log("Form is valid:", isValid);
-    console.log("Submitted data:", value);
+const App = () => {
+  const handleSubmit = (values: any, isValid: boolean) => {
+    console.log("Form Data:", values, "Is Valid:", isValid);
   };
 
-  return (
-    <div>
-      <DynamicForm formData={formData} onSubmit={onSubmit} />
-    </div>
-  );
-}
+  return <DynamicForm formData={formData} onSubmit={handleSubmit} />;
+};
 
 export default App;
 ```
 
-## Supported Field Types
+## 📂 Advanced Example (Grouped + API Options)
 
-- Text (text): Standard input field.
-- Number (number): Numeric input.
-- Date (date): Date picker field.
-- Select (select): Dropdown menu.
-- Radio (radio): Radio button selection.
-- Checkbox (checkbox): Checkbox selection.
-- Group (group): Allows nesting of fields inside a structured section.
+```ts
+import { DynamicForm, FormDataCollection } from "react-forminate";
 
-## ✅ Validation
+const formData: FormDataCollection = {
+  formId: "ApiDrivenFormData",
+  title: "API Driven Form Example",
+  fields: [
+    {
+      fieldId: "group1",
+      label: "Photo Album",
+      type: "group",
+      className: "p-4 border-2 border-gray-300 rounded-lg",
+      legendClassName: "block text-sm font-medium text-gray-200 px-2",
+      fields: [
+        {
+          fieldId: "album",
+          label: "Album",
+          type: "select",
+          dynamicOptions: {
+            endpoint: "https://jsonplaceholder.typicode.com/albums",
+            transformResponse: (res) =>
+              res.map((item: { title: string; id: string }) => ({
+                label: item.title,
+                value: item.id,
+              })),
+            fetchOnInit: true,
+          },
+          className:
+            "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+          labelClassName:
+            "block mb-2 text-sm font-medium text-gray-900 dark:text-white",
+        },
+        {
+          fieldId: "photo",
+          label: "Photo",
+          type: "select",
+          dynamicOptions: {
+            dependsOn: "album",
+            endpoint: "https://jsonplaceholder.typicode.com/photos",
+            params: { albumId: "album" },
+            transformResponse: (res) =>
+              res.map((item: { title: string; id: string }) => ({
+                label: item.title,
+                value: item.id,
+              })),
+          },
+          className:
+            "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+          labelClassName:
+            "block mb-2 text-sm font-medium text-gray-900 dark:text-white",
+        },
+      ],
+    },
+  ],
+};
+const AdvancedGroupAndAPIForm = () => {
+  return (
+    <DynamicForm
+      formData={formData}
+      onSubmit={(value, valid) => console.log(value, valid)}
+    />
+  );
+};
 
-Fields support built-in validation. Example:
+export default AdvancedGroupAndAPIForm;
+```
 
-```json
+## 🎨 TailwindCSS Styling Support
+
+Fields support custom `className`, `labelClassName`, and even inline `styles`.
+
+```ts
 {
-  "id": "email",
-  "label": "Email",
-  "type": "text",
-  "required": true,
-  "validation": {
-    "pattern": "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$",
-    "message": "Enter a valid email address"
-  }
+  fieldId: "email",
+  label: "Email",
+  type: "text",
+  className: "bg-gray-100 p-2 rounded-md w-full",
+  labelClassName: "text-sm text-gray-700",
+  placeholder: "Enter your email",
 }
 ```
 
-#### License
+You can also apply inline styles:
 
-MIT
+```ts
+{
+  type: "radio",
+  fieldId: "subscribe",
+  label: "Subscribe",
+  styles: {
+    backgroundColor: "#fff",
+    padding: "10px",
+  },
+  labelStyles: {
+    fontWeight: "bold",
+    color: "#000",
+  },
+}
+```
 
-**⚠️ ATTENTION: This library is under development and some parts of it may still be incomplete. Please support us on this journey and I would appreciate it if you could install it on your project and send me any bugs so that I can fix them.**
+## 🛠 Supported Field Types
+
+| Type        | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `text`      | Single-line input field                                                  |
+| `number`    | Numeric input                                                            |
+| `date`      | Date picker                                                              |
+| `select`    | Dropdown select (static/dynamic)                                         |
+| `radio`     | Radio button group                                                       |
+| `checkbox`  | Checkbox list                                                            |
+| `textarea`  | Multi-line text area                                                     |
+| `group`     | Logical grouping of fields                                               |
+| `container` | Logical wrapper to group fields visually or structurally                 |
+| `gridview`  | Displays dynamic API data in a grid layout with pagination and filtering |
+| `spacer`    | Adds visual spacing in the form layout                                   |
+| `custom`    | Custom component (via plugin)                                            |
+
+## ✅ Validation Example
+
+```ts
+...
+{
+  fieldId: "name",
+  label: "Name",
+  type: "text",
+  required: true,
+  placeholder: "Enter your name",
+  requiredMessage: "Name is required", //Custom required text message
+  validation: [
+    {
+      pattern: "^[a-zA-Z ]+$",
+      message: "Name should contain only letters and spaces",
+    },
+    {
+      minLength: 3,
+      message: "Name should be at least 3 characters long",
+    },
+  ],
+},
+...
+```
+
+or
+
+```ts
+{
+  fieldId: "email",
+  label: "Email",
+  type: "text",
+  required: true,
+  placeholder: "Enter your email",
+  validation: [{
+    pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+    message: "Invalid email format",
+  }],
+}
+```
+
+## 📖 Documentation
+
+For full documentation, advanced schema examples, and plugin development: 👉 Visit Full Docs
+
+## 🧪 Contributions & Feedback
+
+This library is in active development. Please try it out and submit issues for any bugs or feature requests. Contributions are welcome! <br /><br />
+
+---
+
+#### 💬 Need help or want to collaborate?
+
+Feel free to reach out or contribute to improve `react-forminate`!

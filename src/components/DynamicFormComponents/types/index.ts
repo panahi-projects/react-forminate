@@ -176,6 +176,24 @@ export interface TextField
   step?: number;
 }
 
+export interface GroupFieldType extends BaseField {
+  type: "group";
+  as?:
+    | "fieldset"
+    | "div"
+    | "section"
+    | "article"
+    | "main"
+    | "header"
+    | "footer";
+  label: string;
+  fields?: FormField[];
+  className?: string;
+  styles?: React.CSSProperties;
+  legendClassName?: string;
+  legendStyles?: React.CSSProperties;
+}
+
 export interface TextareaField
   extends BaseField,
     React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -261,11 +279,6 @@ export interface CheckboxField extends BaseField, InputPropsWithoutType {
   itemsClassName?: string;
 }
 
-export interface GroupField extends BaseField {
-  type: "group";
-  fields: FormField[];
-}
-
 export interface GridViewFieldProps extends BaseField {
   type: "gridview";
   required?: boolean;
@@ -299,7 +312,7 @@ export type FormField =
   | SelectField
   | RadioField
   | CheckboxField
-  | GroupField
+  | GroupFieldType
   | ConditionalField
   | GridViewFieldProps
   | ContainerField

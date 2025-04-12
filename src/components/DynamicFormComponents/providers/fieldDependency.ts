@@ -25,7 +25,7 @@ export const getInitialDependencies = (
       if (field.dynamicOptions?.dependsOn) {
         dependencies[field.fieldId] = field.dynamicOptions.dependsOn;
       }
-      if (field.type === "group" && field.fields) {
+      if (field.fields && field.fields.length > 0) {
         traverseFields(field.fields);
       }
     });

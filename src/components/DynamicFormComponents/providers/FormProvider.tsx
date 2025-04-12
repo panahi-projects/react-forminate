@@ -55,12 +55,19 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     });
   };
 
-  useEffect(() => {
-    formSchema.fields.forEach((field) => {
+  const traverseAndFetch = (fields: FormField[]) => {
+    for (const field of fields) {
       if (isSelectField(field) && field.dynamicOptions?.fetchOnInit) {
         fetchDynamicOptions(field.fieldId, values);
       }
-    });
+      if (field.fields && field.fields.length > 0) {
+        traverseAndFetch(field.fields);
+      }
+    }
+  };
+
+  useEffect(() => {
+    traverseAndFetch(formSchema.fields);
   }, []);
 
   return (
