@@ -5,6 +5,7 @@ import { peerDependencies } from "./package.json";
 
 export default defineConfig({
   build: {
+    target: "es2020",
     lib: {
       entry: "./src/index.ts", // Specifies the entry point for building the library.
       name: "vite-react-ts-button", // Sets the name of the generated library.
