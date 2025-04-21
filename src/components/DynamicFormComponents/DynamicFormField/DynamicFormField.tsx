@@ -2,7 +2,7 @@ import { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useForm } from "../providers/formContext";
-import { FormField } from "../types";
+import { FormFieldType } from "../types";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -61,7 +61,7 @@ export const unregisterField = (type: string) => {
   delete fieldComponents[type];
 };
 
-type ExtendedFormField = FormField & {
+type ExtendedFormField = FormFieldType & {
   showSkeletonLoading?: boolean;
   skeleton?: ReactNode;
 };

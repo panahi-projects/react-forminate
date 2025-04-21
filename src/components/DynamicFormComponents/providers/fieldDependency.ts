@@ -1,8 +1,8 @@
-import { FormField } from "../types";
+import { FormFieldType } from "../types";
 
 export const findFieldById = (
   fieldId: string,
-  fields: FormField[]
+  fields: FormFieldType[]
 ): any | null => {
   for (const field of fields) {
     if (field.fieldId === fieldId) return field;
@@ -15,7 +15,7 @@ export const findFieldById = (
 };
 
 export const getInitialDependencies = (
-  fields: FormField[]
+  fields: FormFieldType[]
 ): Record<string, string> => {
   const dependencies: Record<string, string> = {};
 

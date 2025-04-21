@@ -1,5 +1,5 @@
-import { FormField, SelectField } from "../types";
+import { FormFieldType, SelectFieldType } from "../types";
 
-export function isSelectField(field: FormField): field is SelectField {
+export function isSelectField(field: FormFieldType): field is SelectFieldType {
   return field.type === "select";
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { SelectField as SelectFieldType } from "../../types";
+import { SelectFieldType } from "../../types";
 
 const SelectField: React.FC<SelectFieldType> = ({
   fieldId: id,

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { FormField, FormProviderProps } from "../types";
+import { FormFieldType, FormProviderType, SelectFieldType } from "../types";
 import { isSelectField } from "../utils";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
@@ -10,7 +10,7 @@ import {
   validateForm,
 } from "./validation";
 
-export const FormProvider: React.FC<FormProviderProps> = ({
+export const FormProvider: React.FC<FormProviderType> = ({
   children,
   formSchema,
 }) => {
@@ -39,7 +39,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     return findFieldById(fieldId, formSchema.fields);
   };
 
-  const handleVisibility = (field: FormField) => {
+  const handleVisibility = (field: FormFieldType) => {
     return shouldShowField(field, values);
   };
 
@@ -55,9 +55,12 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     });
   };
 
-  const traverseAndFetch = (fields: FormField[]) => {
+  const traverseAndFetch = (fields: FormFieldType[]) => {
     for (const field of fields) {
-      if (isSelectField(field) && field.dynamicOptions?.fetchOnInit) {
+      if (
+        isSelectField(field) &&
+        (field as SelectFieldType).dynamicOptions?.fetchOnInit
+      ) {
         fetchDynamicOptions(field.fieldId, values);
       }
       if (field.fields && field.fields.length > 0) {

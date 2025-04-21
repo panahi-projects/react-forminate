@@ -1,4 +1,4 @@
-import { FormDataCollection, FormField } from "../types";
+import { FormDataCollectionType, FormFieldType } from "../types";
 import { findFieldById } from "./fieldDependency";
 
 const isValueEmpty = (value: any): boolean => {
@@ -13,7 +13,7 @@ const isValueEmpty = (value: any): boolean => {
 export const validateField = (
   field: string,
   value: any,
-  formSchema: FormDataCollection,
+  formSchema: FormDataCollectionType,
   values: Record<string, any>,
   setErrors: (
     update:
@@ -23,7 +23,7 @@ export const validateField = (
 ) => {
   let errorMessage = "";
 
-  const fieldSchema: FormField = findFieldById(field, formSchema.fields);
+  const fieldSchema: FormFieldType = findFieldById(field, formSchema.fields);
   if (!fieldSchema) return;
 
   // Skip validation if field is hidden
@@ -115,7 +115,7 @@ export const validateField = (
 };
 
 export const shouldShowField = (
-  field: FormField,
+  field: FormFieldType,
   values: Record<string, any>
 ) => {
   if (typeof field.visibility === "undefined" || field.visibility === true)
@@ -136,7 +136,7 @@ export const shouldShowField = (
 };
 
 export const validateForm = (
-  form: FormDataCollection,
+  form: FormDataCollectionType,
   values: Record<string, any>,
   setErrors: (
     update:
@@ -150,7 +150,7 @@ export const validateForm = (
   // Clear previous errors
   setErrors({});
 
-  const validateFieldRecursive = (fields: FormField[]) => {
+  const validateFieldRecursive = (fields: FormFieldType[]) => {
     if (!fields || fields.length === 0) return;
     fields.forEach((field) => {
       if (field.fields && field.fields.length > 0) {

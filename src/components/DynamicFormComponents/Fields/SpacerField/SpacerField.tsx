@@ -1,4 +1,4 @@
-import { SpacerField as SpacerFieldType } from "../../types";
+import { SpacerFieldType } from "../../types";
 
 const SpacerField: React.FC<SpacerFieldType> = ({
   as: Component = "div",

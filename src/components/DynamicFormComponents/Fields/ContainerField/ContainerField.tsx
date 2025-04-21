@@ -1,5 +1,5 @@
 import React from "react";
-import { ContainerField as ContainerFieldType } from "../../types";
+import { ContainerFieldType } from "../../types";
 import { DynamicFormField } from "../../DynamicFormField";
 
 const ContainerField: React.FC<ContainerFieldType> = ({

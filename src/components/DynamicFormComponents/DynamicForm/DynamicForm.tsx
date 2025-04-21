@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { FormProvider as DefaultFormProvider } from "../providers/FormProvider";
-import { DynamicFormProps } from "../types";
+import { DynamicFormType } from "../types";
 import FormContent from "./FormContent";
 import { FormContext } from "../providers/formContext";
 
-const DynamicForm: React.FC<DynamicFormProps> = ({
+const DynamicForm: React.FC<DynamicFormType> = ({
   formId,
   formData,
   onSubmit,

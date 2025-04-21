@@ -1,10 +1,16 @@
-import React, { HTMLAttributes } from "react";
+import React, {
+  HTMLAttributes,
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
 
 type fieldIdType = string;
-export interface FormDataCollection {
+
+export interface FormDataCollectionType {
   formId: string;
   title: string;
-  fields: FormField[];
+  fields: FormFieldType[];
   baseUrl?: string;
 }
 
@@ -34,12 +40,12 @@ export interface dynamicOptionsType {
 export interface FormContextType {
   values: Record<string, any>;
   errors: Record<string, string>;
-  dynamicOptions: Record<string, any[]>; // Store dynamic options for fields
+  dynamicOptions: Record<string, any[]>;
   setValue: (field: string, value: any) => void;
   validateField: (
     field: string,
     value: any,
-    formSchema: FormDataCollection,
+    formSchema: FormDataCollectionType,
     values: Record<string, any>,
     setErrors: (
       update:
@@ -47,26 +53,26 @@ export interface FormContextType {
         | ((prev: Record<string, string>) => Record<string, string>)
     ) => void
   ) => void;
-  validateForm: (form: FormDataCollection) => boolean;
-  shouldShowField: (field: FormField) => boolean;
+  validateForm: (form: FormDataCollectionType) => boolean;
+  shouldShowField: (field: FormFieldType) => boolean;
   fetchDynamicOptions: (
     fieldId: fieldIdType,
     allValues?: Record<string, any>,
     pagination?: { page?: number; limit?: number }
-  ) => Promise<void>; // Function to fetch dynamic options
-  getFieldSchema: (fieldId: fieldIdType) => FormField; // Get Field schema for the current field
-  formSchema: FormDataCollection; // Form schema for the current form
+  ) => Promise<void>;
+  getFieldSchema: (fieldId: fieldIdType) => FormFieldType;
+  formSchema: FormDataCollectionType;
 }
 
-export interface FormProviderProps {
+export interface FormProviderType {
   formId?: string;
-  formSchema: FormDataCollection;
+  formSchema: FormDataCollectionType;
   children: React.ReactNode;
 }
 
-export interface DynamicFormProps {
+export interface DynamicFormType {
   formId?: string;
-  formData: FormDataCollection;
+  formData: FormDataCollectionType;
   onSubmit?: (values: any, isValid: boolean) => void;
   isLoading?: boolean;
   submitDetails?: {
@@ -77,7 +83,7 @@ export interface DynamicFormProps {
     containerClassName?: string;
     containerStyles?: React.CSSProperties;
   };
-  customProvider?: React.FC<FormProviderProps>;
+  customProvider?: React.FC<FormProviderType>;
   skeleton?: React.ReactNode;
   showSkeletonLoading?: boolean;
 }
@@ -86,42 +92,24 @@ type FormEventHandler<E> = (
   e: E,
   fieldId: fieldIdType,
   values: Record<string, any>,
-  fieldSchema?: FormField,
-  formSchema?: FormDataCollection
+  fieldSchema?: FormFieldType,
+  formSchema?: FormDataCollectionType
 ) => void;
 
-type CustomChangeEventTypes =
-  | HTMLInputElement
-  | HTMLSelectElement
-  | HTMLTextAreaElement;
-
 type CustomEventHandlers = {
-  events?: {
-    onCustomChange?: FormEventHandler<
-      React.ChangeEvent<CustomChangeEventTypes>
-    >;
-    onCustomBlur?: FormEventHandler<React.FocusEvent<CustomChangeEventTypes>>;
-    onCustomFocus?: FormEventHandler<React.FocusEvent<CustomChangeEventTypes>>;
-    onCustomKeyDown?: FormEventHandler<
-      React.KeyboardEvent<CustomChangeEventTypes>
-    >;
-    onCustomKeyUp?: FormEventHandler<
-      React.KeyboardEvent<CustomChangeEventTypes>
-    >;
-    onCustomClick?: FormEventHandler<React.MouseEvent<CustomChangeEventTypes>>;
-    onCustomMouseEnter?: FormEventHandler<
-      React.MouseEvent<CustomChangeEventTypes>
-    >;
-    onCustomMouseLeave?: FormEventHandler<
-      React.MouseEvent<CustomChangeEventTypes>
-    >;
-    onCustomMouseDown?: FormEventHandler<
-      React.MouseEvent<CustomChangeEventTypes>
-    >;
-    onCustomContextMenu?: FormEventHandler<
-      React.MouseEvent<CustomChangeEventTypes>
-    >;
-  };
+  events?: Partial<{
+    [K in
+      | "onCustomChange"
+      | "onCustomBlur"
+      | "onCustomFocus"
+      | "onCustomKeyDown"
+      | "onCustomKeyUp"
+      | "onCustomClick"
+      | "onCustomMouseEnter"
+      | "onCustomMouseLeave"
+      | "onCustomMouseDown"
+      | "onCustomContextMenu"]: FormEventHandler<any>;
+  }>;
 };
 
 export interface ValidationRule {
@@ -141,13 +129,13 @@ export interface BaseField extends CustomEventHandlers {
   required?: boolean;
   requiredMessage?: string;
   visibility?:
+    | boolean
     | {
         dependsOn: string;
         condition: string;
         value: string;
-      }
-    | boolean;
-  fields?: FormField[];
+      };
+  fields?: FormFieldType[];
   className?: string;
   containerClassName?: string;
   styles?: React.CSSProperties;
@@ -158,22 +146,59 @@ export interface BaseField extends CustomEventHandlers {
   disabled?: boolean;
 }
 
-export interface TextField
+export interface TextFieldType
   extends BaseField,
-    React.InputHTMLAttributes<HTMLInputElement> {
+    InputHTMLAttributes<HTMLInputElement> {
   type: "text" | "number" | "email" | "password";
   placeholder?: string;
   autoCorrect?: "on" | "off";
   autoCapitalize?: "on" | "off" | "sentences" | "words" | "characters";
   spellCheck?: boolean;
-  // autoComplete?: "on" | "off" | "name" | "email" | "username" | "new-password";
   autoFocus?: boolean;
-  pattern?: string;
-  min?: number;
-  max?: number;
-  minLength?: number;
-  maxLength?: number;
   step?: number;
+}
+
+export interface DateFieldType
+  extends BaseField,
+    InputHTMLAttributes<HTMLInputElement> {
+  type: "date";
+}
+
+export interface SelectFieldType
+  extends BaseField,
+    SelectHTMLAttributes<HTMLSelectElement> {
+  type: "select";
+  options?: string[] | { label: string; value: any }[];
+  dynamicOptions?: dynamicOptionsType;
+}
+
+export interface RadioFieldType extends BaseField {
+  type: "radio";
+  options: string[];
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
+}
+
+export interface CheckboxFieldType
+  extends BaseField,
+    Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+  type: "checkbox";
+  options: string[];
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
+}
+
+export interface TextareaFieldType
+  extends BaseField,
+    TextareaHTMLAttributes<HTMLTextAreaElement> {
+  type: "textarea";
+  placeholder?: string;
+  rows?: number;
+  cols?: number;
+  autoCorrect?: "on" | "off";
+  autoCapitalize?: "on" | "off" | "sentences" | "words" | "characters";
+  spellCheck?: boolean;
+  autoFocus?: boolean;
 }
 
 export interface GroupFieldType extends BaseField {
@@ -187,99 +212,11 @@ export interface GroupFieldType extends BaseField {
     | "header"
     | "footer";
   label: string;
-  fields?: FormField[];
-  className?: string;
-  styles?: React.CSSProperties;
   legendClassName?: string;
   legendStyles?: React.CSSProperties;
 }
 
-export interface TextareaField
-  extends BaseField,
-    React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  type: "textarea";
-  placeholder?: string;
-  rows?: number;
-  cols?: number;
-  maxLength?: number;
-  minLength?: number;
-  autoCorrect?: "on" | "off";
-  autoCapitalize?: "on" | "off" | "sentences" | "words" | "characters";
-  spellCheck?: boolean;
-  autoComplete?: "on" | "off" | "name" | "email" | "username" | "new-password";
-  autoFocus?: boolean;
-  pattern?: string;
-}
-
-// ✅ Clean version of ExtractFieldIds
-type ExtractFieldIds<T extends { fieldId: string }[]> = T[number]["fieldId"];
-
-// ✅ Updated BaseContainerField
-export interface BaseContainerField<T extends FormField[]>
-  extends Omit<BaseField, "fields">,
-    React.InputHTMLAttributes<HTMLInputElement> {
-  type: "container";
-  as: "div" | "section" | "article" | "main" | "header" | "footer";
-  columns?: number;
-  gap?: number;
-  fields: T;
-  itemsStyles?: React.CSSProperties;
-  itemsClassName?: string;
-  containerStyles?: React.CSSProperties;
-  containerClassName?: string;
-  styles: React.CSSProperties;
-  className: string;
-  children?: React.ReactNode;
-  header?: React.ReactNode;
-  footer?: React.ReactNode;
-  itemsParentAttributes?: {
-    [K in ExtractFieldIds<T>]?: HTMLAttributes<HTMLElement> & {
-      colSpan?: number;
-      style?: React.CSSProperties;
-      [key: string]: any; // Allow any other attributes
-    };
-  };
-}
-
-// ✅ ContainerField specialization
-export type ContainerField = BaseContainerField<FormField[]>;
-
-export interface DateField
-  extends BaseField,
-    React.InputHTMLAttributes<HTMLInputElement> {
-  type: "date";
-}
-
-export interface SelectField
-  extends BaseField,
-    React.SelectHTMLAttributes<HTMLSelectElement> {
-  type: "select";
-  options?: string[] | { label: string; value: any }[];
-  dynamicOptions?: dynamicOptionsType;
-}
-
-export interface RadioField
-  extends BaseField,
-    React.InputHTMLAttributes<HTMLInputElement> {
-  type: "radio";
-  options: string[];
-  itemsStyles?: React.CSSProperties;
-  itemsClassName?: string;
-}
-
-type InputPropsWithoutType = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "type"
->;
-
-export interface CheckboxField extends BaseField, InputPropsWithoutType {
-  type: "checkbox";
-  options: string[];
-  itemsStyles?: React.CSSProperties;
-  itemsClassName?: string;
-}
-
-export interface GridViewFieldProps extends BaseField {
+export interface GridViewFieldType extends BaseField {
   type: "gridview";
   required?: boolean;
   dynamicOptions?: dynamicOptionsType;
@@ -287,34 +224,58 @@ export interface GridViewFieldProps extends BaseField {
   itemsClassName?: string;
 }
 
-export interface SpacerField extends BaseField {
-  as: "div" | "section" | "span" | "p" | "hr" | "br";
+export interface SpacerFieldType extends BaseField {
   type: "spacer";
-  width?: string | number; // default: "100%"
-  height?: string | number; // default: 16
+  as: "div" | "section" | "span" | "p" | "hr" | "br";
+  width?: string | number;
+  height?: string | number;
   children?: React.ReactNode;
 }
 
-export interface VisibilityCondition {
+export interface VisibilityConditionType {
   dependsOn: string;
   condition: "equals";
   value: string;
 }
 
-export interface ConditionalField extends BaseField {
-  visibility?: VisibilityCondition;
+export interface ConditionalFieldType extends BaseField {
+  visibility?: VisibilityConditionType;
 }
 
-export type FormField =
+type ExtractFieldIds<T extends { fieldId: string }[]> = T[number]["fieldId"];
+
+export interface BaseContainerField<T extends FormFieldType[]>
+  extends Omit<BaseField, "fields"> {
+  type: "container";
+  as: "div" | "section" | "article" | "main" | "header" | "footer";
+  columns?: number;
+  gap?: number;
+  fields: T;
+  itemsStyles?: React.CSSProperties;
+  itemsClassName?: string;
+  children?: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  itemsParentAttributes?: {
+    [K in ExtractFieldIds<T>]?: HTMLAttributes<HTMLElement> & {
+      colSpan?: number;
+      [key: string]: any;
+    };
+  };
+}
+
+export type ContainerFieldType = BaseContainerField<FormFieldType[]>;
+
+export type FormFieldType =
   | BaseField
-  | TextField
-  | DateField
-  | SelectField
-  | RadioField
-  | CheckboxField
+  | TextFieldType
+  | DateFieldType
+  | SelectFieldType
+  | RadioFieldType
+  | CheckboxFieldType
   | GroupFieldType
-  | ConditionalField
-  | GridViewFieldProps
-  | ContainerField
-  | TextareaField
-  | SpacerField;
+  | ConditionalFieldType
+  | GridViewFieldType
+  | ContainerFieldType
+  | TextareaFieldType
+  | SpacerFieldType;

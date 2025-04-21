@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 import {
-  FormDataCollection,
-  FormField,
-  GridViewFieldProps,
-  SelectField,
+  FormDataCollectionType,
+  FormFieldType,
+  GridViewFieldType,
+  SelectFieldType,
 } from "../types";
 import { findFieldById } from "./fieldDependency";
 
-export const useDynamicOptions = (formSchema: FormDataCollection) => {
+export const useDynamicOptions = (formSchema: FormDataCollectionType) => {
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, any[]>>(
     {}
   );
@@ -18,8 +18,9 @@ export const useDynamicOptions = (formSchema: FormDataCollection) => {
     allValues: Record<string, any> = {},
     pagination?: { page?: number; limit?: number }
   ) => {
-    const field: FormField = findFieldById(fieldId, formSchema.fields);
-    const config = (field as GridViewFieldProps | SelectField)?.dynamicOptions;
+    const field: FormFieldType = findFieldById(fieldId, formSchema.fields);
+    const config = (field as GridViewFieldType | SelectFieldType)
+      ?.dynamicOptions;
     if (!config || !config.endpoint) return;
 
     abortControllers.current[fieldId]?.abort();

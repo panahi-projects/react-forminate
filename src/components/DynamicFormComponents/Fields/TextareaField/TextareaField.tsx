@@ -1,7 +1,7 @@
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { TextareaField as TextareaFieldType } from "../../types";
+import { TextareaFieldType } from "../../types";
 
 const TextareaField: React.FC<TextareaFieldType> = ({
   fieldId: id,

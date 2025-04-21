@@ -2,9 +2,9 @@ import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { DateField } from "../../types";
+import { DateFieldType } from "../../types";
 
-const DatePickerField: React.FC<DateField> = ({
+const DatePickerField: React.FC<DateFieldType> = ({
   fieldId: id,
   label,
   required,

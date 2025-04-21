@@ -2,7 +2,7 @@ import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { CheckboxField as CheckboxFieldType } from "../../types";
+import { CheckboxFieldType } from "../../types";
 
 const CheckboxField: React.FC<CheckboxFieldType> = ({
   fieldId: id,
