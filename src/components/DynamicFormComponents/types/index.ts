@@ -12,6 +12,7 @@ export interface FormDataCollectionType {
   title: string;
   fields: FormFieldType[];
   baseUrl?: string;
+  description?: string;
 }
 
 export interface dynamicOptionsType {
@@ -144,6 +145,7 @@ export interface BaseField extends CustomEventHandlers {
   labelStyles?: React.CSSProperties;
   validation?: ValidationRule[];
   disabled?: boolean;
+  _defaultValue?: unknown;
 }
 
 export interface TextFieldType
@@ -163,18 +165,24 @@ export interface DateFieldType
     InputHTMLAttributes<HTMLInputElement> {
   type: "date";
 }
-
+export type OptionsType =
+  | string
+  | {
+      value: string | number;
+      label: string | number;
+    };
 export interface SelectFieldType
   extends BaseField,
     SelectHTMLAttributes<HTMLSelectElement> {
   type: "select";
-  options?: string[] | { label: string; value: any }[];
+  options?: OptionsType[];
   dynamicOptions?: dynamicOptionsType;
+  placeholder?: string;
 }
 
 export interface RadioFieldType extends BaseField {
   type: "radio";
-  options: string[];
+  options: OptionsType[];
   itemsStyles?: React.CSSProperties;
   itemsClassName?: string;
 }
@@ -183,7 +191,7 @@ export interface CheckboxFieldType
   extends BaseField,
     Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
   type: "checkbox";
-  options: string[];
+  options: OptionsType[];
   itemsStyles?: React.CSSProperties;
   itemsClassName?: string;
 }
@@ -233,8 +241,8 @@ export interface SpacerFieldType extends BaseField {
 }
 
 export interface VisibilityConditionType {
-  dependsOn: string;
-  condition: "equals";
+  dependsOn: fieldIdType;
+  condition: "equals" | "not_equals";
   value: string;
 }
 

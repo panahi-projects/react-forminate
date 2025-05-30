@@ -1,9 +1,15 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import path from "path";
 import { peerDependencies } from "./package.json";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"), // ✅ add alias for "@/"
+    },
+  },
   build: {
     target: "es2020",
     lib: {

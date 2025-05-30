@@ -3,6 +3,7 @@ import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
 import { CheckboxFieldType } from "../../types";
+import { useDefaultFieldValue } from "../../hooks/useDefaultFieldValue";
 
 const CheckboxField: React.FC<CheckboxFieldType> = ({
   fieldId: id,
@@ -18,6 +19,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
   labelStyles = {},
   itemsClassName = "",
   itemsStyles = {},
+  _defaultValue,
   events,
   ...rest
 }) => {
@@ -28,7 +30,22 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
     visibility: _visibility,
     ...safeRest
   } = rest;
-  const fieldValue = values[id] || [];
+
+  const fallbackValue: string[] = [];
+  const fieldValue =
+    values[id] !== undefined
+      ? values[id]
+      : _defaultValue !== undefined && Array.isArray(_defaultValue)
+        ? _defaultValue
+        : fallbackValue;
+
+  // 🧠 Set default value on mount if not already set
+  useDefaultFieldValue(
+    id,
+    _defaultValue !== undefined && Array.isArray(_defaultValue)
+      ? _defaultValue
+      : []
+  );
 
   if (!shouldShowField({ fieldId: id, label, options, required, type }))
     return null;
@@ -61,23 +78,29 @@ const CheckboxField: React.FC<CheckboxFieldType> = ({
       labelStyles={labelStyles}
     >
       <div data-testid="checkbox-field">
-        {options?.map((option) => (
-          <label
-            htmlFor={`${id}-item-${option}`}
-            style={itemsStyles}
-            className={itemsClassName}
-            key={option}
-          >
-            <input
-              {...baseInputProps}
-              {...eventHandlers}
-              id={`${id}-item-${option}`}
-              value={option}
-              checked={values[id]?.includes(option) || false}
-            />
-            <span>{option}</span>
-          </label>
-        ))}
+        {options?.map((option, index) => {
+          const isString = typeof option === "string";
+          const optionValue = isString ? option : option.value;
+          const optionLabel = isString ? option : option.label;
+
+          return (
+            <label
+              key={isString ? option : `${option.value}-${index}`}
+              htmlFor={`${id}-item-${optionValue}`}
+              style={itemsStyles}
+              className={itemsClassName}
+            >
+              <input
+                {...baseInputProps}
+                {...eventHandlers}
+                id={`${id}-item-${optionValue}`}
+                value={optionValue}
+                checked={values[id]?.includes(optionValue) || false}
+              />
+              <span>{optionLabel}</span>
+            </label>
+          );
+        })}
       </div>
     </FieldWrapper>
   );

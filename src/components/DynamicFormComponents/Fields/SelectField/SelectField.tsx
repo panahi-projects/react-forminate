@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { SelectFieldType } from "../../types";
+import { OptionsType, SelectFieldType } from "../../types";
+import { useDefaultFieldValue } from "../../hooks/useDefaultFieldValue";
 
 const SelectField: React.FC<SelectFieldType> = ({
   fieldId: id,
@@ -16,13 +17,26 @@ const SelectField: React.FC<SelectFieldType> = ({
   containerStyles = {},
   labelClassName = "",
   labelStyles = {},
+  placeholder,
   dynamicOptions: _omitDynamicOptions, // removed from DOM
+  _defaultValue,
   events,
   ...rest
 }) => {
   const { values, errors, dynamicOptions } = useFieldEvents();
+  const fallbackValue =
+    typeof options?.[options.length - 1] === "string" ? "" : {};
+
   const fieldValue =
-    values[id] || typeof options?.[options?.length - 1] === "string" ? "" : {};
+    values[id] !== undefined
+      ? values[id]
+      : _defaultValue !== undefined
+        ? _defaultValue
+        : fallbackValue;
+
+  // 🧠 Set default value on mount if not already set
+  useDefaultFieldValue(id, _defaultValue);
+
   const {
     validation: _validation,
     requiredMessage: _requiredMessage,
@@ -30,9 +44,9 @@ const SelectField: React.FC<SelectFieldType> = ({
     ...safeRest
   } = rest;
 
-  const [selectOptions, setSelectOptions] = useState<
-    { label: string; value: any }[] | string[]
-  >(options || []);
+  const [selectOptions, setSelectOptions] = useState<OptionsType[]>(
+    options || []
+  );
 
   // Update options when dynamicOptions are loaded
   useEffect(() => {
@@ -83,16 +97,27 @@ const SelectField: React.FC<SelectFieldType> = ({
     >
       <select {...inputProps} {...eventHandlers}>
         <option value="" disabled>
-          Select an option
+          {placeholder ? placeholder : `Select an option`}
         </option>
-        {selectOptions.map((option) => (
-          <option
-            key={typeof option !== "string" ? option.value : option}
-            value={typeof option !== "string" ? option.value : option}
-          >
-            {typeof option !== "string" ? option.label : option}
-          </option>
-        ))}
+        {selectOptions.map((option, index) => {
+          const isString = typeof option === "string";
+          const optionValue = isString ? option : option.value;
+          const optionLabel = isString ? option : option.label;
+
+          return (
+            <option
+              key={isString ? option : `${option.value}-${index}`}
+              value={optionValue}
+              selected={
+                typeof option !== "string"
+                  ? fieldValue === option.value
+                  : fieldValue === option
+              }
+            >
+              {optionLabel}
+            </option>
+          );
+        })}
       </select>
     </FieldWrapper>
   );
