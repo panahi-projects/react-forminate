@@ -5,77 +5,108 @@ import React, {
   TextareaHTMLAttributes,
 } from "react";
 
-type fieldIdType = string;
+// Primitive types
+export type FormIdType = string;
+export type FieldIdType = string;
+export type TitleType = string;
+export type BaseUrlType = string;
+export type DescriptionType = string;
+export type APIEndpointType = string;
+export type APIMethodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+export type APIDependsOnType = string | string[];
+export type APIParamsType = Record<string, string>;
+export type APIHeadersType = Record<string, string>;
+export type APITransformResponseType = (
+  response: any
+) => { label: string; value: any }[] | string[];
+export type APIResultPathType = string;
+export type APIfetchOnInitType = boolean;
+export type FormValuesType = Record<FieldIdType, any>;
+export type FormErrorsType = Record<FieldIdType, string>;
+export type FieldDynamicOptionsType = Record<FieldIdType, any[]>;
+export type ChildrenType = React.ReactNode;
 
+// API Pagination
+export type APIPaginationType = {
+  limit?: number;
+  maxPage?: number;
+  pageKey?: string; // default: "page"
+  limitKey?: string; // default: "limit"
+  skipKey?: string; // optional, if using skip
+  pageMode?: "page" | "skip"; // determines if using page or skip
+  startPage?: number; // e.g., 0 or 1
+  metadataPath?: string; // path to access metadata like total pages
+};
+
+// Functions
+export type SetValueType = (field: string, value: any) => void;
+export type ValidateFieldType = (
+  field: string,
+  value: any,
+  formSchema: FormDataCollectionType,
+  values: Record<string, any>,
+  setErrors: (
+    update:
+      | Record<string, string>
+      | ((prev: Record<string, string>) => Record<string, string>)
+  ) => void
+) => void;
+export type ValidateFormType = (form: FormDataCollectionType) => boolean;
+export type ShouldShowFieldType = (field: FormFieldType) => boolean;
+export type FetchDynamicOptionsType = (
+  fieldId: FieldIdType,
+  allValues?: Record<string, any>,
+  pagination?: { page?: number; limit?: number }
+) => Promise<void>;
+export type GetFieldSchemaType = (fieldId: FieldIdType) => FormFieldType;
+export type OnSubmitType = (values: any, isValid: boolean) => void;
+export type IsLoadingType = boolean;
+
+//! ______________________________________________________________
 export interface FormDataCollectionType {
-  formId: string;
-  title: string;
+  formId: FormIdType;
+  title: TitleType;
   fields: FormFieldType[];
-  baseUrl?: string;
-  description?: string;
+  baseUrl?: BaseUrlType;
+  description?: DescriptionType;
 }
 
 export interface dynamicOptionsType {
-  endpoint: string; // can contain placeholders like {{albumId}}
-  method?: "GET" | "POST"; // default to GET
-  dependsOn?: string | string[]; // support multiple dependencies
-  params?: Record<string, string>; // query params as fieldId references
-  headers?: Record<string, string>; // optional headers
-  transformResponse?: (
-    response: any
-  ) => { label: string; value: any }[] | string[];
-  resultPath?: string; // e.g., 'data.results' to extract nested result
-  fetchOnInit?: boolean; // to fetch options on mount
-  pagination?: {
-    limit?: number;
-    maxPage?: number;
-    pageKey?: string; // default: "page"
-    limitKey?: string; // default: "limit"
-    skipKey?: string; // optional, if using skip
-    pageMode?: "page" | "skip"; // determines if using page or skip
-    startPage?: number; // e.g., 0 or 1
-    metadataPath?: string; // path to access metadata like total pages
-  };
+  endpoint: APIEndpointType; // can contain placeholders like {{albumId}}
+  method?: APIMethodType; // default to GET
+  dependsOn?: APIDependsOnType; // support multiple dependencies
+  params?: APIParamsType; // query params as fieldId references
+  headers?: APIHeadersType; // optional headers
+  transformResponse?: APITransformResponseType;
+  resultPath?: APIResultPathType; // e.g., 'data.results' to extract nested result
+  fetchOnInit?: APIfetchOnInitType; // to fetch options on mount
+  pagination?: APIPaginationType;
 }
 
 export interface FormContextType {
-  values: Record<string, any>;
-  errors: Record<string, string>;
-  dynamicOptions: Record<string, any[]>;
-  setValue: (field: string, value: any) => void;
-  validateField: (
-    field: string,
-    value: any,
-    formSchema: FormDataCollectionType,
-    values: Record<string, any>,
-    setErrors: (
-      update:
-        | Record<string, string>
-        | ((prev: Record<string, string>) => Record<string, string>)
-    ) => void
-  ) => void;
-  validateForm: (form: FormDataCollectionType) => boolean;
-  shouldShowField: (field: FormFieldType) => boolean;
-  fetchDynamicOptions: (
-    fieldId: fieldIdType,
-    allValues?: Record<string, any>,
-    pagination?: { page?: number; limit?: number }
-  ) => Promise<void>;
-  getFieldSchema: (fieldId: fieldIdType) => FormFieldType;
+  values: FormValuesType;
+  errors: FormErrorsType;
+  dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
+  setValue: SetValueType;
+  validateField: ValidateFieldType;
+  validateForm: ValidateFormType;
+  shouldShowField: ShouldShowFieldType;
+  fetchDynamicOptions: FetchDynamicOptionsType;
+  getFieldSchema: GetFieldSchemaType;
 }
 
 export interface FormProviderType {
-  formId?: string;
+  formId?: FormIdType;
   formSchema: FormDataCollectionType;
-  children: React.ReactNode;
+  children: ChildrenType;
 }
 
 export interface DynamicFormType {
-  formId?: string;
+  formId?: FormIdType;
   formData: FormDataCollectionType;
-  onSubmit?: (values: any, isValid: boolean) => void;
-  isLoading?: boolean;
+  onSubmit?: OnSubmitType;
+  isLoading?: IsLoadingType;
   submitDetails?: {
     visibility?: boolean;
     text?: string;
@@ -91,7 +122,7 @@ export interface DynamicFormType {
 
 type FormEventHandler<E> = (
   e: E,
-  fieldId: fieldIdType,
+  fieldId: FieldIdType,
   values: Record<string, any>,
   fieldSchema?: FormFieldType,
   formSchema?: FormDataCollectionType
@@ -124,7 +155,7 @@ export interface ValidationRule {
 }
 
 export interface BaseField extends CustomEventHandlers {
-  fieldId: fieldIdType;
+  fieldId: FieldIdType;
   type: string;
   label?: string;
   required?: boolean;
@@ -241,7 +272,7 @@ export interface SpacerFieldType extends BaseField {
 }
 
 export interface VisibilityConditionType {
-  dependsOn: fieldIdType;
+  dependsOn: FieldIdType;
   condition: "equals" | "not_equals";
   value: string;
 }
@@ -287,3 +318,10 @@ export type FormFieldType =
   | ContainerFieldType
   | TextareaFieldType
   | SpacerFieldType;
+
+export interface FieldPropContext {
+  fieldId: string;
+  values: any;
+  fieldSchema: FormFieldType;
+  formSchema: FormDataCollectionType;
+}
