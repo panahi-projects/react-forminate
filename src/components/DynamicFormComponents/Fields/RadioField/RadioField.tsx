@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FieldWrapper } from "../../FieldWrapper";
 import { buildFieldEventHandlers } from "../../helpers/buildFieldEventHandlers";
 import { useFieldEvents } from "../../helpers/useFieldEvents";
-import { RadioFieldType } from "../../types";
 import { useDefaultFieldValue } from "../../hooks/useDefaultFieldValue";
+import { RadioFieldType } from "../../types";
 
 const RadioField: React.FC<RadioFieldType> = ({
   fieldId: id,
