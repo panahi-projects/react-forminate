@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { FieldWrapper } from "../../FieldWrapper";
 import { useForm } from "../../providers/formContext";
-import { dynamicOptionsType, GridViewFieldType } from "../../types";
+import {
+  dynamicOptionsType,
+  GridViewFieldType,
+  TFieldLabel,
+} from "../../types";
 
 interface DynamicField {
   dynamicOptions?: dynamicOptionsType;
@@ -113,7 +117,7 @@ const GridViewField: React.FC<GridViewFieldType> = ({
   return (
     <FieldWrapper
       id={fieldId}
-      label={label}
+      label={label as TFieldLabel}
       required={required}
       className={containerClassName}
       styles={containerStyles}

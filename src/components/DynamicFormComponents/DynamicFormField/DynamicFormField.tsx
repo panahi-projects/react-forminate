@@ -2,7 +2,9 @@ import { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useForm } from "../providers/formContext";
-import { FormFieldType } from "../types";
+import { FormFieldType, TFieldLabel } from "../types";
+import { FieldWrapper } from "../FieldWrapper";
+import { useField } from "../hooks/useField";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -42,6 +44,10 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   text: InputField,
   number: InputField,
   email: InputField,
+  tel: InputField,
+  url: InputField,
+  password: InputField,
+  search: InputField,
   date: DatePickerField,
   select: SelectField,
   radio: RadioField,
@@ -95,6 +101,8 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   const FieldComponent = fieldComponents[props.type];
   if (!FieldComponent) return null;
 
+  const { processedProps, errors } = useField(props);
+
   return (
     <Suspense
       fallback={
@@ -105,7 +113,18 @@ const DynamicFormField: FC<ExtendedFormField> = ({
         ) : null
       }
     >
-      <FieldComponent {...props} />
+      <FieldWrapper
+        id={processedProps.fieldId}
+        label={processedProps.label as TFieldLabel}
+        required={processedProps.required}
+        error={errors?.[processedProps.fieldId]}
+        className={processedProps.containerClassName}
+        styles={processedProps.containerStyles}
+        labelClassName={processedProps.labelClassName}
+        labelStyles={processedProps.labelStyles}
+      >
+        <FieldComponent {...processedProps} />
+      </FieldWrapper>
     </Suspense>
   );
 };

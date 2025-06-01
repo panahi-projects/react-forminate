@@ -1,6 +1,6 @@
 import React from "react";
 import { DynamicFormField } from "../../DynamicFormField";
-import { GroupFieldType } from "../../types";
+import { GroupFieldType, TFieldLabel } from "../../types";
 
 const GroupField: React.FC<GroupFieldType> = ({
   fieldId: id,
@@ -23,7 +23,7 @@ const GroupField: React.FC<GroupFieldType> = ({
     >
       {Component === "fieldset" && (
         <legend className={legendClassName} style={legendStyles}>
-          {label}
+          {label as TFieldLabel}
         </legend>
       )}
 

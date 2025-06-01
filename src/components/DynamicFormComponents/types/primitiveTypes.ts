@@ -1,6 +1,27 @@
+import { FieldPropContext } from "./formTypes";
+
+export type SupportedPrimitive = string | number | boolean | null;
+export type SupportedArray = Array<
+  SupportedPrimitive | SupportedObject | SupportedArray
+>;
+export type SupportedObject = {
+  [key: string]: SupportedPrimitive | SupportedArray | SupportedObject;
+};
+
+export type SupportedTypes =
+  | SupportedPrimitive
+  | SupportedArray
+  | SupportedObject;
+
+export type FunctionOrValue<T extends SupportedTypes> =
+  | T
+  | ((context: FieldPropContext) => T);
+
+export type TFieldLabel = string;
+
 export type FieldIdType = string;
 export type FieldTypeType = string;
-export type FieldLabelType = string;
+export type FieldLabelType = FunctionOrValue<TFieldLabel>;
 export type FieldRequiredType = boolean;
 export type FieldRequiredMessageType = string;
 export type VisibilityConditionType = "equals" | "not_equals";
@@ -14,15 +35,7 @@ export type FieldVisibilityType =
 export type FieldClassNameType = string;
 export type FieldStyleType = React.CSSProperties;
 export type FieldDisabledType = boolean;
-export type FieldDefaultValueType = unknown;
-export type FieldInputType =
-  | "text"
-  | "number"
-  | "email"
-  | "password"
-  | "url"
-  | "tel"
-  | "search";
+export type FieldDefaultValueType = SupportedTypes;
 export type FieldPlaceholderType = string;
 export type FieldAutoCorrectType = "on" | "off";
 export type FieldAutoCapitalizeType =
@@ -34,6 +47,14 @@ export type FieldAutoCapitalizeType =
 export type FieldSpellCheckType = boolean;
 export type FieldAutoFocusType = boolean;
 export type FieldStepType = number;
+export type FieldInputType =
+  | "text"
+  | "number"
+  | "email"
+  | "password"
+  | "url"
+  | "tel"
+  | "search";
 export type FieldDatepickerType = "date";
 export type FieldSelectType = "select";
 export type FieldRadioType = "radio";

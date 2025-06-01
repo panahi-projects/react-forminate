@@ -1,33 +1,30 @@
-import React, {
-  HTMLAttributes,
-  InputHTMLAttributes,
-  SelectHTMLAttributes,
-  TextareaHTMLAttributes,
-} from "react";
+import React from "react";
+import { FormFieldType } from "./fieldTypes";
 import {
-  FormIdType,
-  TitleType,
-  BaseUrlType,
-  DescriptionType,
-  FormValuesType,
-  FormErrorsType,
-  FieldDynamicOptionsType,
-  ChildrenType,
-  ShowSkeletonLoadingType,
-  FieldClassNameType,
-  FieldStyleType,
-} from "./primitiveTypes";
-import {
-  SetValueType,
-  ValidateFieldType,
-  ValidateFormType,
-  ShouldShowFieldType,
   FetchDynamicOptionsType,
   GetFieldSchemaType,
-  OnSubmitType,
   IsLoadingType,
+  OnSubmitType,
+  SetValueType,
+  ShouldShowFieldType,
+  ValidateFieldType,
+  ValidateFormType,
 } from "./functionTypes";
-import { FormFieldType } from "./fieldTypes";
+import {
+  BaseUrlType,
+  ChildrenType,
+  DescriptionType,
+  FieldClassNameType,
+  FieldDynamicOptionsType,
+  FieldIdType,
+  FieldStyleType,
+  FormErrorsType,
+  FormIdType,
+  FormValuesType,
+  ShowSkeletonLoadingType,
+  SupportedTypes,
+  TitleType,
+} from "./primitiveTypes";
 
 export type SubmitDetailsType = {
   visibility?: boolean;
@@ -78,8 +75,8 @@ export interface DynamicFormType {
 }
 
 export interface FieldPropContext {
-  fieldId: string;
-  values: any;
+  fieldId: FieldIdType;
+  values: Record<string, SupportedTypes>;
   fieldSchema: FormFieldType;
   formSchema: FormDataCollectionType;
 }
