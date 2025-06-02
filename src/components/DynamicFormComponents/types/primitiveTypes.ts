@@ -19,12 +19,13 @@ export type FunctionOrValue<T extends SupportedTypes> =
 
 export type TFieldLabel = string;
 export type TFieldRequired = boolean;
+export type TFieldRequiredMessage = string;
 
 export type FieldIdType = string;
 export type FieldTypeType = string;
 export type FieldLabelType = FunctionOrValue<TFieldLabel>;
 export type FieldRequiredType = FunctionOrValue<TFieldRequired>;
-export type FieldRequiredMessageType = string;
+export type FieldRequiredMessageType = FunctionOrValue<TFieldRequiredMessage>;
 export type VisibilityConditionType = "equals" | "not_equals";
 export type FieldVisibilityType =
   | boolean

@@ -2,6 +2,7 @@ import {
   FormDataCollectionType,
   FormFieldType,
   SupportedTypes,
+  TFieldRequiredMessage,
 } from "../types";
 import { findFieldById } from "./fieldDependency";
 
@@ -16,7 +17,7 @@ const isValueEmpty = (value: any): boolean => {
 
 export const validateField = (
   field: string,
-  value: any,
+  value: SupportedTypes,
   formSchema: FormDataCollectionType,
   values: Record<string, any>,
   setErrors: (
@@ -29,7 +30,9 @@ export const validateField = (
 
   const fieldSchema: FormFieldType | null = findFieldById(
     field,
-    formSchema.fields
+    formSchema.fields,
+    values,
+    formSchema
   );
 
   if (!fieldSchema) return;
@@ -45,7 +48,9 @@ export const validateField = (
   }
 
   if (fieldSchema.required && isValueEmpty(value)) {
-    errorMessage = fieldSchema.requiredMessage || "This field is required.";
+    errorMessage =
+      (fieldSchema.requiredMessage as TFieldRequiredMessage) ||
+      "This field is required.";
   }
 
   if (!errorMessage && Array.isArray(fieldSchema.validation)) {
@@ -54,7 +59,7 @@ export const validateField = (
       if (rule.pattern) {
         try {
           const regex = new RegExp(rule.pattern);
-          if (!regex.test(value)) {
+          if (!regex.test(value as string)) {
             errorMessage = rule.message || "Invalid format.";
             break;
           }
@@ -65,8 +70,8 @@ export const validateField = (
 
       if (
         rule.min !== undefined &&
-        typeof +value === "number" &&
-        value < rule.min
+        typeof +(value as string) === "number" &&
+        (value as number) < rule.min
       ) {
         errorMessage = rule.message || `Minimum value is ${rule.min}.`;
         break;
@@ -74,8 +79,8 @@ export const validateField = (
 
       if (
         rule.max !== undefined &&
-        typeof +value === "number" &&
-        value > rule.max
+        typeof +(value as string) === "number" &&
+        (value as number) > rule.max
       ) {
         errorMessage = rule.message || `Maximum value is ${rule.max}.`;
         break;
@@ -173,15 +178,15 @@ export const validateForm = (
           values,
           form
         );
-        console.log("[fieldSchema]", fieldSchema);
         if (!fieldSchema)
           throw new Error(
-            "Something is wrong with FieldSchema, It is undefined!"
+            "Something is wrong with field schema. It is undefined!"
           );
 
-        if (fieldSchema?.required && isValueEmpty(value)) {
-          newErrors[fieldSchema.fieldId] =
-            fieldSchema?.requiredMessage || "This field is required.";
+        if (fieldSchema.required && isValueEmpty(value)) {
+          newErrors[fieldSchema.fieldId as string] =
+            (fieldSchema.requiredMessage as TFieldRequiredMessage) ||
+            "This field is required.";
           isValid = false;
         } else if (Array.isArray(fieldSchema.validation)) {
           for (const rule of fieldSchema.validation) {

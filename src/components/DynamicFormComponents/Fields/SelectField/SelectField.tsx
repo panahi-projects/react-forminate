@@ -36,8 +36,8 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
   }, [dynamicOptions, fieldId, processedProps.options]);
 
   return (
-    <select {...fieldParams} {...eventHandlers}>
-      <option value="" disabled selected={!fieldValue}>
+    <select {...fieldParams} {...eventHandlers} value={fieldValue || ""}>
+      <option value="" disabled>
         {processedProps.placeholder
           ? processedProps.placeholder
           : `Select an option`}
@@ -51,11 +51,6 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
           <option
             key={isString ? option : `${option.value}-${index}`}
             value={optionValue}
-            selected={
-              typeof option !== "string"
-                ? fieldValue === option.value
-                : fieldValue === option
-            }
           >
             {optionLabel}
           </option>
