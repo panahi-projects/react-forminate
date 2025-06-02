@@ -18,11 +18,12 @@ export type FunctionOrValue<T extends SupportedTypes> =
   | ((context: FieldPropContext) => T);
 
 export type TFieldLabel = string;
+export type TFieldRequired = boolean;
 
 export type FieldIdType = string;
 export type FieldTypeType = string;
 export type FieldLabelType = FunctionOrValue<TFieldLabel>;
-export type FieldRequiredType = boolean;
+export type FieldRequiredType = FunctionOrValue<TFieldRequired>;
 export type FieldRequiredMessageType = string;
 export type VisibilityConditionType = "equals" | "not_equals";
 export type FieldVisibilityType =

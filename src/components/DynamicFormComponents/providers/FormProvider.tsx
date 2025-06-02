@@ -36,7 +36,14 @@ export const FormProvider: React.FC<FormProviderType> = ({
     return validateForm(formSchema, values, setErrors);
   };
   const getFieldSchemaById = (fieldId: string) => {
-    return findFieldById(fieldId, formSchema.fields);
+    const field = findFieldById(
+      fieldId,
+      formSchema.fields,
+      values,
+      formSchema
+    ) as FormFieldType | null;
+    console.log("[Field Schema By ID]", fieldId, field);
+    return field;
   };
 
   const handleVisibility = (field: FormFieldType) => {

@@ -3,31 +3,13 @@ import { useForm } from "../providers/formContext";
 import {
   BaseField,
   FieldIdType,
-  FormDataCollectionType,
-  FormFieldType,
+  FieldPropValue,
+  ProcessedFieldProps,
   SupportedTypes,
 } from "../types";
+import { getPropValue, processFieldProps } from "../utils";
 import { initFieldSetup } from "../utils/initFieldSetup";
 import { useDefaultFieldValue } from "./useDefaultFieldValue";
-
-interface FieldPropFunction<P> {
-  (params: {
-    fieldId: FieldIdType;
-    values: Record<string, string | number | unknown[] | boolean | null>;
-    fieldSchema: FormFieldType;
-    formSchema: FormDataCollectionType;
-  }): P;
-}
-
-type FieldPropValue<T> = T | FieldPropFunction<T>;
-
-type ProcessedFieldProps<T extends BaseField> = {
-  [K in keyof T]: T[K] extends FieldPropFunction<infer U>
-    ? U
-    : T[K] extends FieldPropValue<infer V>
-      ? V
-      : T[K];
-};
 
 const fallbackValue: { [key: string]: unknown } = {
   checkbox: [],
@@ -70,31 +52,12 @@ export const useField = <
 
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
 
-  const getPropValue = <P>(prop: FieldPropValue<P>, defaultValue?: P): P => {
-    if (typeof prop === "function") {
-      try {
-        return (prop as FieldPropFunction<P>)({
-          fieldId,
-          values,
-          fieldSchema: getFieldSchema(fieldId),
-          formSchema,
-        });
-      } catch (error) {
-        console.error("Error in field prop function:", error);
-        return defaultValue as P;
-      }
-    }
-    return prop !== undefined ? prop : (defaultValue as P);
-  }; // Function to evaluate field prop values, handling functions and defaults
-
-  const processedProps: ProcessedFieldProps<T> = Object.entries(
-    fieldProps
-  ).reduce((acc, [key, value]) => {
-    return {
-      ...acc,
-      [key]: getPropValue(value as FieldPropValue<any>),
-    };
-  }, {} as ProcessedFieldProps<T>); // Process props by evaluating functions or using default values
+  const processedProps: ProcessedFieldProps<T> = processFieldProps(
+    fieldProps,
+    fieldId,
+    values,
+    formSchema
+  ); // Process props by evaluating functions or using default values
 
   const eventHandlers = buildFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,

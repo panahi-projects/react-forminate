@@ -1,14 +1,31 @@
-import { FormFieldType } from "../types";
+import {
+  FormDataCollectionType,
+  FormFieldType,
+  SupportedTypes,
+} from "../types";
+import { processFieldProps } from "../utils";
 
 export const findFieldById = (
   fieldId: string,
-  fields: FormFieldType[]
-): any | null => {
+  fields: FormFieldType[] = [],
+  values: Record<string, SupportedTypes> = {},
+  formSchema?: FormDataCollectionType
+): FormFieldType | null => {
   for (const field of fields) {
-    if (field.fieldId === fieldId) return field;
+    if (field.fieldId === fieldId) {
+      const processedField = processFieldProps(
+        field,
+        fieldId,
+        values,
+        formSchema as FormDataCollectionType
+      );
+      if (processedField) return processedField;
+    }
     if (field.fields && field.fields.length > 0) {
-      const found = findFieldById(fieldId, field.fields);
-      if (found) return found;
+      const found = findFieldById(fieldId, field.fields, values, formSchema);
+      if (found) {
+        return found;
+      }
     }
   }
   return null;

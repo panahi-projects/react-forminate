@@ -6,6 +6,7 @@ import {
   dynamicOptionsType,
   GridViewFieldType,
   TFieldLabel,
+  TFieldRequired,
 } from "../../types";
 
 interface DynamicField {
@@ -118,7 +119,7 @@ const GridViewField: React.FC<GridViewFieldType> = ({
     <FieldWrapper
       id={fieldId}
       label={label as TFieldLabel}
-      required={required}
+      required={required as TFieldRequired}
       className={containerClassName}
       styles={containerStyles}
     >

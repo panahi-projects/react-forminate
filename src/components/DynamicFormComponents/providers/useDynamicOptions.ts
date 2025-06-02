@@ -18,7 +18,7 @@ export const useDynamicOptions = (formSchema: FormDataCollectionType) => {
     allValues: Record<string, any> = {},
     pagination?: { page?: number; limit?: number }
   ) => {
-    const field: FormFieldType = findFieldById(fieldId, formSchema.fields);
+    const field = findFieldById(fieldId, formSchema.fields);
     const config = (field as GridViewFieldType | SelectFieldType)
       ?.dynamicOptions;
     if (!config || !config.endpoint) return;

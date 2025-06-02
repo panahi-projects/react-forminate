@@ -67,7 +67,7 @@ export interface BaseField extends CustomEventHandlers {
 
 export interface TextFieldType
   extends BaseField,
-    InputHTMLAttributes<HTMLInputElement> {
+    Omit<InputHTMLAttributes<HTMLInputElement>, "required"> {
   type: FieldInputType;
   placeholder?: FieldPlaceholderType;
   autoCorrect?: FieldAutoCorrectType;
@@ -79,13 +79,13 @@ export interface TextFieldType
 
 export interface DateFieldType
   extends BaseField,
-    InputHTMLAttributes<HTMLInputElement> {
+    Omit<InputHTMLAttributes<HTMLInputElement>, "required"> {
   type: FieldDatepickerType;
 }
 
 export interface SelectFieldType
   extends BaseField,
-    SelectHTMLAttributes<HTMLSelectElement> {
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, "required"> {
   type: FieldSelectType;
   options?: OptionsType[];
   dynamicOptions?: dynamicOptionsType;
@@ -101,7 +101,7 @@ export interface RadioFieldType extends BaseField {
 
 export interface CheckboxFieldType
   extends BaseField,
-    Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, "required" | "type"> {
   type: FieldCheckboxType;
   options: OptionsType[];
   itemsClassName: FieldClassNameType;
@@ -110,7 +110,7 @@ export interface CheckboxFieldType
 
 export interface TextareaFieldType
   extends BaseField,
-    TextareaHTMLAttributes<HTMLTextAreaElement> {
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "required"> {
   type: FieldTextareaType;
   placeholder?: FieldPlaceholderType;
   rows?: FieldTextareaRowsType;

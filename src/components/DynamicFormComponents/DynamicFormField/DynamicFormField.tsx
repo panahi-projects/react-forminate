@@ -2,7 +2,7 @@ import { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useForm } from "../providers/formContext";
-import { FormFieldType, TFieldLabel } from "../types";
+import { FormFieldType, TFieldLabel, TFieldRequired } from "../types";
 import { FieldWrapper } from "../FieldWrapper";
 import { useField } from "../hooks/useField";
 
@@ -116,7 +116,7 @@ const DynamicFormField: FC<ExtendedFormField> = ({
       <FieldWrapper
         id={processedProps.fieldId}
         label={processedProps.label as TFieldLabel}
-        required={processedProps.required}
+        required={processedProps.required as TFieldRequired}
         error={errors?.[processedProps.fieldId]}
         className={processedProps.containerClassName}
         styles={processedProps.containerStyles}

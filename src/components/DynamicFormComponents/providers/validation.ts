@@ -1,4 +1,8 @@
-import { FormDataCollectionType, FormFieldType } from "../types";
+import {
+  FormDataCollectionType,
+  FormFieldType,
+  SupportedTypes,
+} from "../types";
 import { findFieldById } from "./fieldDependency";
 
 const isValueEmpty = (value: any): boolean => {
@@ -23,7 +27,11 @@ export const validateField = (
 ) => {
   let errorMessage = "";
 
-  const fieldSchema: FormFieldType = findFieldById(field, formSchema.fields);
+  const fieldSchema: FormFieldType | null = findFieldById(
+    field,
+    formSchema.fields
+  );
+
   if (!fieldSchema) return;
 
   // Skip validation if field is hidden
@@ -137,7 +145,7 @@ export const shouldShowField = (
 
 export const validateForm = (
   form: FormDataCollectionType,
-  values: Record<string, any>,
+  values: Record<string, SupportedTypes>,
   setErrors: (
     update:
       | Record<string, string>
@@ -159,17 +167,31 @@ export const validateForm = (
       } else if (shouldShowField(field, values)) {
         const value = values[field.fieldId];
 
-        if (field.required && isValueEmpty(value)) {
-          newErrors[field.fieldId] =
-            field.requiredMessage || "This field is required.";
+        const fieldSchema: FormFieldType | null = findFieldById(
+          field.fieldId,
+          fields,
+          values,
+          form
+        );
+        console.log("[fieldSchema]", fieldSchema);
+        if (!fieldSchema)
+          throw new Error(
+            "Something is wrong with FieldSchema, It is undefined!"
+          );
+
+        if (fieldSchema?.required && isValueEmpty(value)) {
+          newErrors[fieldSchema.fieldId] =
+            fieldSchema?.requiredMessage || "This field is required.";
           isValid = false;
-        } else if (Array.isArray(field.validation)) {
-          for (const rule of field.validation) {
+        } else if (Array.isArray(fieldSchema.validation)) {
+          for (const rule of fieldSchema.validation) {
             if (rule.pattern) {
               try {
                 const regex = new RegExp(rule.pattern);
-                if (!regex.test(value)) {
-                  newErrors[field.fieldId] = rule.message || "Invalid format.";
+                if (!regex.test(value as string)) {
+                  // If the value does not match the regex pattern
+                  newErrors[fieldSchema.fieldId] =
+                    rule.message || "Invalid format.";
                   isValid = false;
                   break;
                 }
@@ -186,7 +208,7 @@ export const validateForm = (
               typeof value === "number" &&
               value < rule.min
             ) {
-              newErrors[field.fieldId] =
+              newErrors[fieldSchema.fieldId] =
                 rule.message || `Minimum value is ${rule.min}.`;
               isValid = false;
               break;
@@ -197,7 +219,7 @@ export const validateForm = (
               typeof value === "number" &&
               value > rule.max
             ) {
-              newErrors[field.fieldId] =
+              newErrors[fieldSchema.fieldId] =
                 rule.message || `Maximum value is ${rule.max}.`;
               isValid = false;
               break;
@@ -208,7 +230,7 @@ export const validateForm = (
               typeof value === "string" &&
               value.length < rule.minLength
             ) {
-              newErrors[field.fieldId] =
+              newErrors[fieldSchema.fieldId] =
                 rule.message || `Minimum length is ${rule.minLength}.`;
               isValid = false;
               break;
@@ -219,7 +241,7 @@ export const validateForm = (
               typeof value === "string" &&
               value.length > rule.maxLength
             ) {
-              newErrors[field.fieldId] =
+              newErrors[fieldSchema.fieldId] =
                 rule.message || `Maximum length is ${rule.maxLength}.`;
               isValid = false;
               break;
@@ -228,7 +250,7 @@ export const validateForm = (
             if (rule.custom && typeof rule.custom === "function") {
               const passed = rule.custom(value);
               if (!passed) {
-                newErrors[field.fieldId] =
+                newErrors[fieldSchema.fieldId] =
                   rule.message || "Custom validation failed.";
                 isValid = false;
                 break;

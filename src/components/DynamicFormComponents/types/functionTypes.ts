@@ -1,6 +1,6 @@
-import { FormFieldType } from "./fieldTypes";
+import { BaseField, FormFieldType } from "./fieldTypes";
 import { FormDataCollectionType } from "./formTypes";
-import { FieldIdType } from "./primitiveTypes";
+import { FieldIdType, SupportedTypes } from "./primitiveTypes";
 
 export type SetValueType = (field: string, value: any) => void;
 export type ValidateFieldType = (
@@ -21,7 +21,7 @@ export type FetchDynamicOptionsType = (
   allValues?: Record<string, any>,
   pagination?: { page?: number; limit?: number }
 ) => Promise<void>;
-export type GetFieldSchemaType = (fieldId: FieldIdType) => FormFieldType;
+export type GetFieldSchemaType = (fieldId: FieldIdType) => FormFieldType | null;
 export type OnSubmitType = (values: any, isValid: boolean) => void;
 export type IsLoadingType = boolean;
 
@@ -47,4 +47,25 @@ export type CustomEventHandlers = {
       | "onCustomMouseDown"
       | "onCustomContextMenu"]: FormEventHandler<any>;
   }>;
+};
+
+export type FieldPropFunctionReturnParams = {
+  fieldId: FieldIdType;
+  values: Record<string, SupportedTypes>;
+  fieldSchema: FormFieldType;
+  formSchema: FormDataCollectionType;
+};
+
+export interface FieldPropFunction<P> {
+  (params: FieldPropFunctionReturnParams): P;
+}
+
+export type FieldPropValue<T> = T | FieldPropFunction<T>;
+
+export type ProcessedFieldProps<T extends BaseField> = {
+  [K in keyof T]: T[K] extends FieldPropFunction<infer U>
+    ? U
+    : T[K] extends FieldPropValue<infer V>
+      ? V
+      : T[K];
 };
