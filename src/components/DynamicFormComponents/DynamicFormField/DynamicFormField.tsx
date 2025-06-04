@@ -1,10 +1,17 @@
-import { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
+import {
+  ComponentType,
+  FC,
+  lazy,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useState,
+} from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useForm } from "../providers/formContext";
-import { FormFieldType, TFieldLabel, TFieldRequired } from "../types";
 import { FieldWrapper } from "../FieldWrapper";
 import { useField } from "../hooks/useField";
+import { FormFieldType, TFieldLabel, TFieldRequired } from "../types";
 
 // Lazy load field components for better performance
 const InputField = lazy(() =>
@@ -94,8 +101,12 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   skeleton,
   ...props
 }) => {
-  const { shouldShowField } = useForm();
-  if (!shouldShowField(props)) return null;
+  const { isVisible } = useField(props);
+  const [showComponent, setShowComponent] = useState<boolean>(true);
+
+  useEffect(() => {
+    setShowComponent(isVisible);
+  }, [isVisible]);
 
   // Get the corresponding field component dynamically
   const FieldComponent = fieldComponents[props.type];
@@ -103,6 +114,7 @@ const DynamicFormField: FC<ExtendedFormField> = ({
 
   const { processedProps, errors } = useField(props);
 
+  if (!showComponent) return null;
   return (
     <Suspense
       fallback={

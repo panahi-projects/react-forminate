@@ -19,7 +19,15 @@ export type FunctionOrValue<T extends SupportedTypes> =
 
 export type TFieldLabel = string;
 export type TFieldRequired = boolean;
+export type TFieldDisabled = boolean;
 export type TFieldRequiredMessage = string;
+export type TFieldVisibility =
+  | boolean
+  | {
+      dependsOn: FieldIdType;
+      condition: VisibilityConditionType;
+      value: string | number;
+    };
 
 export type FieldIdType = string;
 export type FieldTypeType = string;
@@ -27,16 +35,10 @@ export type FieldLabelType = FunctionOrValue<TFieldLabel>;
 export type FieldRequiredType = FunctionOrValue<TFieldRequired>;
 export type FieldRequiredMessageType = FunctionOrValue<TFieldRequiredMessage>;
 export type VisibilityConditionType = "equals" | "not_equals";
-export type FieldVisibilityType =
-  | boolean
-  | {
-      dependsOn: FieldIdType;
-      condition: VisibilityConditionType;
-      value: string | number;
-    };
+export type FieldVisibilityType = FunctionOrValue<TFieldVisibility>;
 export type FieldClassNameType = string;
 export type FieldStyleType = React.CSSProperties;
-export type FieldDisabledType = boolean;
+export type FieldDisabledType = FunctionOrValue<TFieldDisabled>;
 export type FieldDefaultValueType = SupportedTypes;
 export type FieldPlaceholderType = string;
 export type FieldAutoCorrectType = "on" | "off";

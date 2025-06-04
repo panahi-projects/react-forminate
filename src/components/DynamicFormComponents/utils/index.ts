@@ -68,8 +68,8 @@ export const processFieldProps = <T extends BaseField>(
   values: Record<string, SupportedTypes> = {},
   formSchema: FormDataCollectionType
 ): ProcessedFieldProps<T> => {
-  return Object.entries(fieldProps).reduce((acc, [key, value]) => {
-    const evaluatedValue = getPropValue(value as FieldPropValue<any>, {
+  return Object.entries(fieldProps).reduce((acc, [key, prop]) => {
+    const evaluatedValue = getPropValue(prop as FieldPropValue<any>, {
       fieldId,
       values,
       fieldSchema: fieldProps,

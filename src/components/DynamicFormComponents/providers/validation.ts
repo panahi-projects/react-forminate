@@ -2,8 +2,10 @@ import {
   FormDataCollectionType,
   FormFieldType,
   SupportedTypes,
+  TFieldDisabled,
   TFieldRequiredMessage,
 } from "../types";
+import { processFieldProps } from "../utils";
 import { findFieldById } from "./fieldDependency";
 
 const isValueEmpty = (value: any): boolean => {
@@ -38,7 +40,10 @@ export const validateField = (
   if (!fieldSchema) return;
 
   // Skip validation if field is hidden
-  if (!shouldShowField(fieldSchema, values)) {
+  if (
+    !shouldShowField(fieldSchema, values) &&
+    !isDisableField(fieldSchema, values, formSchema)
+  ) {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[field];
@@ -130,22 +135,55 @@ export const validateField = (
 export const shouldShowField = (
   field: FormFieldType,
   values: Record<string, any>
-) => {
-  if (typeof field.visibility === "undefined" || field.visibility === true)
+): boolean => {
+  const fieldVisibility = field.visibility;
+  if (typeof fieldVisibility === "undefined" || fieldVisibility === true)
     return true;
-  if (typeof field.visibility === "boolean") return field.visibility;
+  if (typeof fieldVisibility === "boolean") return fieldVisibility;
 
-  const { dependsOn, condition, value } = field.visibility;
-  const parentValue = values[dependsOn];
+  if (
+    typeof fieldVisibility === "object" &&
+    "dependsOn" in fieldVisibility &&
+    "condition" in fieldVisibility &&
+    "value" in fieldVisibility
+  ) {
+    const { dependsOn, condition, value } = fieldVisibility;
+    const parentValue = values[dependsOn];
 
-  switch (condition) {
-    case "equals":
-      return parentValue === value;
-    case "not_equals":
-      return parentValue !== value;
-    default:
-      return true;
+    switch (condition) {
+      case "equals":
+        return parentValue === value;
+      case "not_equals":
+        return parentValue !== value;
+      default:
+        return true;
+    }
   }
+  return true;
+};
+
+export const isDisableField = (
+  field: FormFieldType,
+  values?: Record<string, SupportedTypes>,
+  formSchema?: FormDataCollectionType
+): TFieldDisabled => {
+  if (typeof field.disabled === "boolean") return field.disabled;
+  if (typeof field.disabled === "undefined") return false;
+  if (typeof field.disabled === "function") {
+    // If disabled is a function, we need to call it with the context
+    // Assuming we have a context or values to pass, you can modify this as needed
+    const foundField = processFieldProps(
+      field,
+      field.fieldId,
+      values,
+      formSchema as FormDataCollectionType
+    );
+    if (foundField) {
+      return (foundField.disabled as TFieldDisabled) || false; // Replace with actual context if available
+    }
+    return false;
+  }
+  return field.disabled === true;
 };
 
 export const validateForm = (
@@ -169,7 +207,10 @@ export const validateForm = (
       if (field.fields && field.fields.length > 0) {
         // Recursively validate nested fields
         validateFieldRecursive(field.fields);
-      } else if (shouldShowField(field, values)) {
+      } else if (
+        shouldShowField(field, values) &&
+        !isDisableField(field, values, form)
+      ) {
         const value = values[field.fieldId];
 
         const fieldSchema: FormFieldType | null = findFieldById(

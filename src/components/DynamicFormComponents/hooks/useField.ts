@@ -3,11 +3,11 @@ import { useForm } from "../providers/formContext";
 import {
   BaseField,
   FieldIdType,
-  FieldPropValue,
+  FormFieldType,
   ProcessedFieldProps,
   SupportedTypes,
 } from "../types";
-import { getPropValue, processFieldProps } from "../utils";
+import { processFieldProps } from "../utils";
 import { initFieldSetup } from "../utils/initFieldSetup";
 import { useDefaultFieldValue } from "./useDefaultFieldValue";
 
@@ -45,6 +45,7 @@ export const useField = <
     dynamicOptions,
     setValue,
     getFieldSchema,
+    shouldShowField,
   } = useForm();
   // const hasSetDefault = useRef(false);
   const fieldId: FieldIdType = fieldProps?.fieldId;
@@ -67,6 +68,8 @@ export const useField = <
   }); // Build event handlers for the field
 
   const fieldParams = initFieldSetup(fieldProps.type, processedProps); // Initialize field setup based on type and processed props
+  const isVisible = shouldShowField(processedProps as FormFieldType);
+  const isDisable = processedProps.disabled || false; // Determine if the field is disabled
 
   return {
     fieldId,
@@ -78,6 +81,8 @@ export const useField = <
     formSchema,
     dynamicOptions,
     eventHandlers,
+    isVisible,
+    isDisable,
     setValue,
     getFieldSchema,
   };
