@@ -1,4 +1,6 @@
 import {
+  FieldIdType,
+  FieldPropFunction,
   FormDataCollectionType,
   FormFieldType,
   SupportedTypes,
@@ -18,7 +20,7 @@ const isValueEmpty = (value: any): boolean => {
 };
 
 export const validateField = (
-  field: string,
+  fieldId: FieldIdType,
   value: SupportedTypes,
   formSchema: FormDataCollectionType,
   values: Record<string, any>,
@@ -31,7 +33,7 @@ export const validateField = (
   let errorMessage = "";
 
   const fieldSchema: FormFieldType | null = findFieldById(
-    field,
+    fieldId,
     formSchema.fields,
     values,
     formSchema
@@ -46,7 +48,7 @@ export const validateField = (
   ) {
     setErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[field];
+      delete newErrors[fieldId];
       return newErrors;
     });
     return;
@@ -69,7 +71,7 @@ export const validateField = (
             break;
           }
         } catch (e) {
-          console.warn(`Invalid regex for field "${field}":`, e);
+          console.warn(`Invalid regex for field "${fieldId}":`, e);
         }
       }
 
@@ -123,67 +125,13 @@ export const validateField = (
 
   setErrors((prev) => {
     if (errorMessage) {
-      return { ...prev, [field]: errorMessage };
+      return { ...prev, [fieldId]: errorMessage };
     } else {
       const newErrors = { ...prev };
-      delete newErrors[field];
+      delete newErrors[fieldId];
       return newErrors;
     }
   });
-};
-
-export const shouldShowField = (
-  field: FormFieldType,
-  values: Record<string, any>
-): boolean => {
-  const fieldVisibility = field.visibility;
-  if (typeof fieldVisibility === "undefined" || fieldVisibility === true)
-    return true;
-  if (typeof fieldVisibility === "boolean") return fieldVisibility;
-
-  if (
-    typeof fieldVisibility === "object" &&
-    "dependsOn" in fieldVisibility &&
-    "condition" in fieldVisibility &&
-    "value" in fieldVisibility
-  ) {
-    const { dependsOn, condition, value } = fieldVisibility;
-    const parentValue = values[dependsOn];
-
-    switch (condition) {
-      case "equals":
-        return parentValue === value;
-      case "not_equals":
-        return parentValue !== value;
-      default:
-        return true;
-    }
-  }
-  return true;
-};
-
-export const isDisableField = (
-  field: FormFieldType,
-  values?: Record<string, SupportedTypes>,
-  formSchema?: FormDataCollectionType
-): TFieldDisabled => {
-  if (typeof field.disabled === "boolean") return field.disabled;
-  if (typeof field.disabled === "undefined") return false;
-  if (typeof field.disabled === "function") {
-    // If disabled is a function, we need to call it with the context
-    // Assuming we have a context or values to pass, you can modify this as needed
-    const foundField = processFieldProps(
-      field,
-      field.fieldId,
-      values,
-      formSchema as FormDataCollectionType
-    );
-    if (foundField) {
-      return (foundField.disabled as TFieldDisabled) || false; // Replace with actual context if available
-    }
-    return false;
-  }
-  return field.disabled === true;
 };
 
 export const validateForm = (
@@ -311,4 +259,70 @@ export const validateForm = (
   validateFieldRecursive(form.fields);
   setErrors(newErrors);
   return isValid;
+};
+
+export const shouldShowField = (
+  field: FormFieldType,
+  values: Record<string, any>
+): boolean => {
+  const fieldVisibility = field.visibility;
+  if (typeof fieldVisibility === "undefined" || fieldVisibility === true)
+    return true;
+  if (typeof fieldVisibility === "boolean") return fieldVisibility;
+
+  if (
+    typeof fieldVisibility === "object" &&
+    "dependsOn" in fieldVisibility &&
+    "condition" in fieldVisibility &&
+    "value" in fieldVisibility
+  ) {
+    const { dependsOn, condition, value } = fieldVisibility;
+    const parentValue = values[dependsOn as FieldIdType];
+
+    switch (condition) {
+      case "equals":
+        return parentValue === value;
+      case "not_equals":
+        return parentValue !== value;
+      default:
+        return true;
+    }
+  }
+  return true;
+};
+
+export const isDisableField = (
+  field: FormFieldType,
+  values?: Record<string, SupportedTypes>,
+  formSchema?: FormDataCollectionType
+): TFieldDisabled => {
+  if (typeof field.disabled === "boolean") return field.disabled;
+  if (typeof field.disabled === "undefined") return false;
+  if (
+    typeof field.disabled === "object" &&
+    "fn" in field.disabled &&
+    typeof field.disabled.fn === "function"
+  ) {
+    return field.disabled.fn({
+      fieldId: field?.fieldId,
+      values: values as Record<string, SupportedTypes>,
+      fieldSchema: field,
+      formSchema: formSchema as FormDataCollectionType,
+    });
+  }
+  if (typeof field.disabled === "function") {
+    // If disabled is a function, we need to call it with the context
+    // Assuming we have a context or values to pass, you can modify this as needed
+    const foundField = processFieldProps(
+      field,
+      field.fieldId,
+      values,
+      formSchema as FormDataCollectionType
+    );
+    if (foundField) {
+      return (foundField.disabled as TFieldDisabled) || false; // Replace with actual context if available
+    }
+    return false;
+  }
+  return !!field.disabled;
 };

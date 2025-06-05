@@ -13,9 +13,17 @@ export type SupportedTypes =
   | SupportedArray
   | SupportedObject;
 
+export type ComputedValue<T> = {
+  fn: (context: FieldPropContext) => T;
+  dependsOn?: string[];
+  defaultValue?: T;
+  isAsync?: boolean;
+};
+
 export type FunctionOrValue<T extends SupportedTypes> =
   | T
-  | ((context: FieldPropContext) => T);
+  | ComputedValue<T> //if trying to use of function, this is the recommended type
+  | ((context: FieldPropContext) => T); //legacy support for functions
 
 export type TFieldLabel = string;
 export type TFieldRequired = boolean;
@@ -24,7 +32,7 @@ export type TFieldRequiredMessage = string;
 export type TFieldVisibility =
   | boolean
   | {
-      dependsOn: FieldIdType;
+      dependsOn: FieldIdType[] | FieldIdType;
       condition: VisibilityConditionType;
       value: string | number;
     };
@@ -119,3 +127,5 @@ export type MaxLengthType = number;
 export type ValidationCustomRuleType = (value: any) => boolean;
 export type ColumnsType = number;
 export type GapType = number;
+export type DependencyMap = Record<FieldIdType, Set<FieldIdType>>;
+export type DependencyMapTuple = [DependencyMap, DependencyMap];

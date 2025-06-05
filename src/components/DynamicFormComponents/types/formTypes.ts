@@ -13,6 +13,8 @@ import {
 import {
   BaseUrlType,
   ChildrenType,
+  DependencyMap,
+  DependencyMapTuple,
   DescriptionType,
   FieldClassNameType,
   FieldDynamicOptionsType,
@@ -49,6 +51,7 @@ export interface FormContextType {
   errors: FormErrorsType;
   dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
+  dependencyMap: DependencyMap;
   setValue: SetValueType;
   validateField: ValidateFieldType;
   validateForm: ValidateFormType;

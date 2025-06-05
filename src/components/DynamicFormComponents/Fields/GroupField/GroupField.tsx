@@ -19,7 +19,13 @@ const GroupField: React.FC<GroupFieldType> = ({
       data-testid="group-field"
       className={className}
       style={styles}
-      {...rest}
+      // Only pass 'disabled' if it's a boolean, otherwise omit it
+      {...(typeof rest.disabled === "boolean"
+        ? { disabled: rest.disabled }
+        : {})}
+      {...Object.fromEntries(
+        Object.entries(rest).filter(([key]) => key !== "disabled")
+      )}
     >
       {Component === "fieldset" && (
         <legend className={legendClassName} style={legendStyles}>

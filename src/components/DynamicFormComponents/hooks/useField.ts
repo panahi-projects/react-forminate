@@ -10,6 +10,7 @@ import {
 import { processFieldProps } from "../utils";
 import { initFieldSetup } from "../utils/initFieldSetup";
 import { useDefaultFieldValue } from "./useDefaultFieldValue";
+import { useFieldProcessor } from "./useFieldProcessor";
 
 const fallbackValue: { [key: string]: unknown } = {
   checkbox: [],
@@ -50,15 +51,8 @@ export const useField = <
   // const hasSetDefault = useRef(false);
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
-
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
-
-  const processedProps: ProcessedFieldProps<T> = processFieldProps(
-    fieldProps,
-    fieldId,
-    values,
-    formSchema
-  ); // Process props by evaluating functions or using default values
+  const processedProps: ProcessedFieldProps<T> = useFieldProcessor(fieldProps); // Process props by evaluating functions or using default values
 
   const eventHandlers = buildFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,

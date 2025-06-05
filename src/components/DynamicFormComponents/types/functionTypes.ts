@@ -60,7 +60,14 @@ export interface FieldPropFunction<P> {
   (params: FieldPropFunctionReturnParams): P;
 }
 
-export type FieldPropValue<T> = T | FieldPropFunction<T>;
+export type FieldPropValue<T> =
+  | T
+  | {
+      fn: FieldPropFunction<T>;
+      dependsOn?: string[];
+      defaultValue?: T;
+      isAsync?: boolean;
+    };
 
 export type ProcessedFieldProps<T extends BaseField> = {
   [K in keyof T]: T[K] extends FieldPropFunction<infer U>

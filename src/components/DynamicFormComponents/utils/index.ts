@@ -1,6 +1,7 @@
 import { JSX_ATTRIBUTES, TAG_TO_ELEMENT_TAG } from "../constants";
 import {
   BaseField,
+  DependencyMap,
   FieldIdType,
   FieldPropFunction,
   FieldPropFunctionReturnParams,
@@ -46,9 +47,14 @@ export const getPropValue = <P>(
   functionParams: FieldPropFunctionReturnParams,
   defaultValue?: P
 ): P => {
-  if (typeof prop === "function") {
+  if (
+    prop &&
+    typeof prop === "object" &&
+    "fn" in prop &&
+    typeof prop.fn === "function"
+  ) {
     try {
-      return (prop as FieldPropFunction<P>)({
+      return (prop.fn as FieldPropFunction<P>)({
         fieldId: functionParams?.fieldId,
         values: functionParams?.values,
         fieldSchema: functionParams.fieldSchema, //getFieldSchema(functionParams?.fieldId),
@@ -59,7 +65,16 @@ export const getPropValue = <P>(
       return defaultValue as P;
     }
   }
-  return prop !== undefined ? prop : (defaultValue as P);
+  // If prop is a function, call it with the provided parameters
+  if (typeof prop === "function") {
+    try {
+      return (prop as FieldPropFunction<P>)({ ...functionParams });
+    } catch (error) {
+      console.error("Error in field prop function:", error);
+      return defaultValue as P;
+    }
+  }
+  return prop !== undefined ? (prop as P) : (defaultValue as P);
 }; // Function to evaluate field prop values, handling functions and defaults
 
 export const processFieldProps = <T extends BaseField>(
@@ -81,4 +96,32 @@ export const processFieldProps = <T extends BaseField>(
       [key]: evaluatedValue,
     };
   }, {} as ProcessedFieldProps<T>);
+};
+
+export function flattenSchema(fields: FormFieldType[]): {
+  fieldIds: FieldIdType[];
+  fields: FormFieldType[];
+} {
+  const fieldIds: FieldIdType[] = [];
+  const flatFields: FormFieldType[] = [];
+
+  const traverse = (fieldList: FormFieldType[]) => {
+    for (const field of fieldList) {
+      fieldIds.push(field.fieldId);
+
+      if (Array.isArray(field.fields) && field.fields.length > 0) {
+        traverse(field.fields); // Recurse into nested group fields
+      } else {
+        flatFields.push(field); // Only push non-group fields
+      }
+    }
+  };
+
+  traverse(fields);
+
+  return { fieldIds, fields: flatFields };
+}
+
+export const isDependencyMapEmpty = (map: DependencyMap): boolean => {
+  return Object.values(map).some((set) => set.size === 0);
 };

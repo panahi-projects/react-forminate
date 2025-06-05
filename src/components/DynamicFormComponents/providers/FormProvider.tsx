@@ -1,5 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { FormFieldType, FormProviderType, SelectFieldType } from "../types";
+import { useContext, useEffect, useRef, useState } from "react";
+import {
+  DependencyMap,
+  DependencyMapTuple,
+  FieldIdType,
+  FormDataCollectionType,
+  FormFieldType,
+  FormProviderType,
+  SelectFieldType,
+  SupportedTypes,
+} from "../types";
 import { isSelectField } from "../utils";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
@@ -9,6 +18,7 @@ import {
   validateField as validateFieldOriginal,
   validateForm,
 } from "./validation";
+import { buildDependencyMap } from "../utils/fieldDependencyTracker";
 
 export const FormProvider: React.FC<FormProviderType> = ({
   children,
@@ -16,9 +26,12 @@ export const FormProvider: React.FC<FormProviderType> = ({
 }) => {
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [schema, setSchema] = useState<FormDataCollectionType>(formSchema);
   const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
-
+  const [dependencyMap] = useState<DependencyMap>(
+    buildDependencyMap(formSchema.fields)
+  );
   const existingContext = useContext(FormContext);
 
   // If context already exists, do NOT create a new one
@@ -26,9 +39,21 @@ export const FormProvider: React.FC<FormProviderType> = ({
     return <>{children}</>;
   }
 
+  const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
+    const newValues = { ...values, [fieldId]: value };
+    setValues(newValues);
+    validateField(fieldId, value);
+
+    Object.entries(dependencies).forEach(([key, val]) => {
+      if (val === fieldId || (Array.isArray(val) && val.includes(fieldId))) {
+        fetchDynamicOptions(key, newValues);
+      }
+    });
+  };
+
   // Wrap validateField to match expected signature (only takes field & value)
-  const validateField = (field: string, value: any) => {
-    validateFieldOriginal(field, value, formSchema, values, setErrors);
+  const validateField = (fieldId: FieldIdType, value: any) => {
+    validateFieldOriginal(fieldId, value, formSchema, values, setErrors);
   };
 
   // Wrapped validateForm so it takes zero arguments in the context
@@ -48,18 +73,6 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   const handleVisibility = (field: FormFieldType) => {
     return shouldShowField(field, values);
-  };
-
-  const setValue = (field: string, value: any) => {
-    const newValues = { ...values, [field]: value };
-    setValues(newValues);
-    validateField(field, value);
-
-    Object.entries(dependencies).forEach(([key, val]) => {
-      if (val === field || (Array.isArray(val) && val.includes(field))) {
-        fetchDynamicOptions(key, newValues);
-      }
-    });
   };
 
   const traverseAndFetch = (fields: FormFieldType[]) => {
@@ -86,13 +99,14 @@ export const FormProvider: React.FC<FormProviderType> = ({
         values,
         errors,
         dynamicOptions,
+        formSchema: schema,
+        dependencyMap,
         setValue,
         validateField,
         validateForm: validateFormWrapper,
         shouldShowField: handleVisibility,
         fetchDynamicOptions,
         getFieldSchema: getFieldSchemaById,
-        formSchema,
       }}
     >
       {children}
