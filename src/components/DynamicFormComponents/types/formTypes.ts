@@ -14,7 +14,6 @@ import {
   BaseUrlType,
   ChildrenType,
   DependencyMap,
-  DependencyMapTuple,
   DescriptionType,
   FieldClassNameType,
   FieldDynamicOptionsType,

@@ -125,3 +125,43 @@ export function flattenSchema(fields: FormFieldType[]): {
 export const isDependencyMapEmpty = (map: DependencyMap): boolean => {
   return Object.values(map).some((set) => set.size === 0);
 };
+
+export const isConvertableToNumber = (value: number | string) => {
+  if (typeof value === "number") return true;
+  if (typeof value === "string") {
+    const trimmedValue = value.trim();
+    //@ts-ignore
+    return !isNaN(trimmedValue) && !isNaN(parseFloat(trimmedValue));
+  }
+  return false;
+};
+
+export const getLegacyDependencies = (prop: unknown): string[] => {
+  const dependsOn: string[] = [];
+  // Legacy format - enhanced detection
+  const funcStr = (prop as any).toString();
+
+  // Detect values.xxx and formValues.xxx and values?.xxx patterns
+  const matches = funcStr.match(
+    /(values|formValues|values\?)\.([a-zA-Z0-9_]+)/g
+  );
+  if (matches) {
+    matches.forEach((match: string) => {
+      const dep: FieldIdType = match.split(".")[1]; // Extract the field name
+      dependsOn.push(dep);
+    });
+  }
+  return dependsOn;
+};
+
+export const convertLegacyFieldToNew = <T>(
+  prop: FieldPropFunction<T>
+): FieldPropValue<T> | null => {
+  if (typeof prop === "function") {
+    return {
+      fn: prop,
+      dependsOn: [...getLegacyDependencies(prop)],
+    } as FieldPropValue<T>;
+  }
+  return prop;
+};

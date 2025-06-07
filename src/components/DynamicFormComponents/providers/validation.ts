@@ -1,13 +1,15 @@
 import {
   FieldIdType,
-  FieldPropFunction,
   FormDataCollectionType,
   FormFieldType,
   SupportedTypes,
   TFieldDisabled,
   TFieldRequiredMessage,
+  ValidationRule,
 } from "../types";
 import { processFieldProps } from "../utils";
+import { FieldProcessor } from "../utils/fieldProcessor";
+import { validationEngine } from "../utils/validationStrategies";
 import { findFieldById } from "./fieldDependency";
 
 const isValueEmpty = (value: any): boolean => {
@@ -30,8 +32,7 @@ export const validateField = (
       | ((prev: Record<string, string>) => Record<string, string>)
   ) => void
 ) => {
-  let errorMessage = "";
-
+  const processor = FieldProcessor.getInstance();
   const fieldSchema: FormFieldType | null = findFieldById(
     fieldId,
     formSchema.fields,
@@ -41,7 +42,7 @@ export const validateField = (
 
   if (!fieldSchema) return;
 
-  // Skip validation if field is hidden
+  // Skip validation if field is hidden and not disabled
   if (
     !shouldShowField(fieldSchema, values) &&
     !isDisableField(fieldSchema, values, formSchema)
@@ -54,77 +55,37 @@ export const validateField = (
     return;
   }
 
-  if (fieldSchema.required && isValueEmpty(value)) {
-    errorMessage =
-      (fieldSchema.requiredMessage as TFieldRequiredMessage) ||
-      "This field is required.";
+  // Process the field to resolve any dynamic properties
+  const processedField = processor.process(fieldSchema, values, formSchema);
+
+  // Prepare validation rules
+  const validationRules: ValidationRule[] = [];
+
+  // Add required rule if needed
+  if (processedField.required) {
+    validationRules.push({
+      type: "required",
+      message:
+        (processedField.requiredMessage as TFieldRequiredMessage) ||
+        "This field is required.",
+    });
   }
 
-  if (!errorMessage && Array.isArray(fieldSchema.validation)) {
-    for (const rule of fieldSchema.validation) {
-      // Pattern validation
-      if (rule.pattern) {
-        try {
-          const regex = new RegExp(rule.pattern);
-          if (!regex.test(value as string)) {
-            errorMessage = rule.message || "Invalid format.";
-            break;
-          }
-        } catch (e) {
-          console.warn(`Invalid regex for field "${fieldId}":`, e);
-        }
-      }
-
-      if (
-        rule.min !== undefined &&
-        typeof +(value as string) === "number" &&
-        (value as number) < rule.min
-      ) {
-        errorMessage = rule.message || `Minimum value is ${rule.min}.`;
-        break;
-      }
-
-      if (
-        rule.max !== undefined &&
-        typeof +(value as string) === "number" &&
-        (value as number) > rule.max
-      ) {
-        errorMessage = rule.message || `Maximum value is ${rule.max}.`;
-        break;
-      }
-
-      if (
-        rule.minLength !== undefined &&
-        typeof value === "string" &&
-        value.length < rule.minLength
-      ) {
-        errorMessage =
-          rule.message || `Minimum length is ${rule.minLength} characters.`;
-        break;
-      }
-
-      if (
-        rule.maxLength !== undefined &&
-        typeof value === "string" &&
-        value.length > rule.maxLength
-      ) {
-        errorMessage =
-          rule.message || `Maximum length is ${rule.maxLength} characters.`;
-        break;
-      }
-
-      if (rule.custom && typeof rule.custom === "function") {
-        const passed = rule.custom(value);
-        if (!passed) {
-          errorMessage = rule.message || `Invalid input.`;
-          break;
-        }
-      }
-    }
+  // Add other validation rules
+  if (Array.isArray(processedField.validation)) {
+    validationRules.push(...processedField.validation);
   }
+
+  // Validate using the engine
+  const { isValid, message } = validationEngine.validate(
+    value,
+    validationRules
+  ); //.validate(value, validationRules);
 
   setErrors((prev) => {
-    if (errorMessage) {
+    if (!isValid) {
+      // Ensure we always have a string message
+      const errorMessage = message || "Validation failed";
       return { ...prev, [fieldId]: errorMessage };
     } else {
       const newErrors = { ...prev };
@@ -143,6 +104,7 @@ export const validateForm = (
       | ((prev: Record<string, string>) => Record<string, string>)
   ) => void
 ) => {
+  const processor = FieldProcessor.getInstance();
   let isValid = true;
   const newErrors: Record<string, string> = {};
 
@@ -151,106 +113,47 @@ export const validateForm = (
 
   const validateFieldRecursive = (fields: FormFieldType[]) => {
     if (!fields || fields.length === 0) return;
+
     fields.forEach((field) => {
       if (field.fields && field.fields.length > 0) {
+        if (!field.fieldId) {
+          throw new Error("`fieldId` is not provided for the field");
+        }
         // Recursively validate nested fields
         validateFieldRecursive(field.fields);
       } else if (
-        shouldShowField(field, values) &&
-        !isDisableField(field, values, form)
+        shouldShowField(field, values) && // Only validate visible fields
+        !isDisableField(field, values, form) // Skip disabled fields entirely
       ) {
+        const processedField = processor.process(field, values, form);
         const value = values[field.fieldId];
 
-        const fieldSchema: FormFieldType | null = findFieldById(
-          field.fieldId,
-          fields,
-          values,
-          form
+        // Prepare validation rules
+        const validationRules: ValidationRule[] = [];
+
+        if (processedField.required) {
+          validationRules.push({
+            type: "required",
+            message:
+              (processedField.requiredMessage as TFieldRequiredMessage) ||
+              "This field is required.",
+          });
+        }
+
+        if (Array.isArray(processedField.validation)) {
+          validationRules.push(...processedField.validation);
+        }
+
+        // Validate using the engine
+        const { isValid: fieldIsValid, message } = validationEngine.validate(
+          value,
+          validationRules
         );
-        if (!fieldSchema)
-          throw new Error(
-            "Something is wrong with field schema. It is undefined!"
-          );
 
-        if (fieldSchema.required && isValueEmpty(value)) {
-          newErrors[fieldSchema.fieldId as string] =
-            (fieldSchema.requiredMessage as TFieldRequiredMessage) ||
-            "This field is required.";
+        if (!fieldIsValid) {
+          const errorMessage = message || "Validation failed";
+          newErrors[field.fieldId] = errorMessage;
           isValid = false;
-        } else if (Array.isArray(fieldSchema.validation)) {
-          for (const rule of fieldSchema.validation) {
-            if (rule.pattern) {
-              try {
-                const regex = new RegExp(rule.pattern);
-                if (!regex.test(value as string)) {
-                  // If the value does not match the regex pattern
-                  newErrors[fieldSchema.fieldId] =
-                    rule.message || "Invalid format.";
-                  isValid = false;
-                  break;
-                }
-              } catch (e) {
-                console.warn(
-                  `Invalid regex in validateForm for ${field.fieldId}:`,
-                  e
-                );
-              }
-            }
-
-            if (
-              rule.min !== undefined &&
-              typeof value === "number" &&
-              value < rule.min
-            ) {
-              newErrors[fieldSchema.fieldId] =
-                rule.message || `Minimum value is ${rule.min}.`;
-              isValid = false;
-              break;
-            }
-
-            if (
-              rule.max !== undefined &&
-              typeof value === "number" &&
-              value > rule.max
-            ) {
-              newErrors[fieldSchema.fieldId] =
-                rule.message || `Maximum value is ${rule.max}.`;
-              isValid = false;
-              break;
-            }
-
-            if (
-              rule.minLength !== undefined &&
-              typeof value === "string" &&
-              value.length < rule.minLength
-            ) {
-              newErrors[fieldSchema.fieldId] =
-                rule.message || `Minimum length is ${rule.minLength}.`;
-              isValid = false;
-              break;
-            }
-
-            if (
-              rule.maxLength !== undefined &&
-              typeof value === "string" &&
-              value.length > rule.maxLength
-            ) {
-              newErrors[fieldSchema.fieldId] =
-                rule.message || `Maximum length is ${rule.maxLength}.`;
-              isValid = false;
-              break;
-            }
-
-            if (rule.custom && typeof rule.custom === "function") {
-              const passed = rule.custom(value);
-              if (!passed) {
-                newErrors[fieldSchema.fieldId] =
-                  rule.message || "Custom validation failed.";
-                isValid = false;
-                break;
-              }
-            }
-          }
         }
       }
     });
@@ -303,12 +206,13 @@ export const isDisableField = (
     "fn" in field.disabled &&
     typeof field.disabled.fn === "function"
   ) {
-    return field.disabled.fn({
+    const result = field.disabled.fn({
       fieldId: field?.fieldId,
       values: values as Record<string, SupportedTypes>,
       fieldSchema: field,
       formSchema: formSchema as FormDataCollectionType,
     });
+    return result;
   }
   if (typeof field.disabled === "function") {
     // If disabled is a function, we need to call it with the context
