@@ -13,6 +13,25 @@ export const findFieldById = (
 ): FormFieldType | null => {
   for (const field of fields) {
     if (field.fieldId === fieldId) {
+      return field;
+    }
+    if (field.fields && field.fields.length > 0) {
+      const found = findFieldById(fieldId, field.fields, values, formSchema);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
+};
+export const findProcessedFieldById = (
+  fieldId: string,
+  fields: FormFieldType[] = [],
+  values: Record<string, SupportedTypes> = {},
+  formSchema?: FormDataCollectionType
+): FormFieldType | null => {
+  for (const field of fields) {
+    if (field.fieldId === fieldId) {
       const processedField = processFieldProps(
         field,
         fieldId,
@@ -22,7 +41,12 @@ export const findFieldById = (
       if (processedField) return processedField;
     }
     if (field.fields && field.fields.length > 0) {
-      const found = findFieldById(fieldId, field.fields, values, formSchema);
+      const found = findProcessedFieldById(
+        fieldId,
+        field.fields,
+        values,
+        formSchema
+      );
       if (found) {
         return found;
       }

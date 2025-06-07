@@ -154,6 +154,29 @@ export const getLegacyDependencies = (prop: unknown): string[] => {
   return dependsOn;
 };
 
+export const getFieldDependencies = (field: FormFieldType): FieldIdType[] => {
+  if (!field || typeof field !== "object" || !("fieldId" in field)) return [];
+
+  const dependsOnSet = new Set<FieldIdType>();
+
+  Object.values(field).forEach((propValue) => {
+    if (propValue && typeof propValue === "object") {
+      // ✅ Add from propValue.dependsOn
+      if ("dependsOn" in propValue && Array.isArray(propValue.dependsOn)) {
+        propValue.dependsOn.forEach((dep: FieldIdType) =>
+          dependsOnSet.add(dep)
+        );
+      }
+
+      // ✅ Add from legacy dependents (your custom logic)
+      const legacy = getLegacyDependencies(propValue);
+      legacy.forEach((dep: FieldIdType) => dependsOnSet.add(dep));
+    }
+  });
+
+  return Array.from(dependsOnSet);
+};
+
 export const convertLegacyFieldToNew = <T>(
   prop: FieldPropFunction<T>
 ): FieldPropValue<T> | null => {
@@ -164,4 +187,51 @@ export const convertLegacyFieldToNew = <T>(
     } as FieldPropValue<T>;
   }
   return prop;
+};
+
+export const collectFieldDependencies = (
+  formFields: FormFieldType[],
+  parentMap: Record<string, Set<string>> = {}
+): Record<string, string[]> => {
+  function extractDependsOn(field: any): string[] {
+    const deps: string[] = [];
+    for (const key in field) {
+      if (
+        typeof field[key] === "object" &&
+        field[key] !== null &&
+        Array.isArray(field[key]?.dependsOn)
+      ) {
+        deps.push(...field[key].dependsOn);
+      }
+    }
+    return deps;
+  }
+
+  function traverse(fields: FormFieldType[]) {
+    for (const field of fields) {
+      if (!field.fieldId) continue;
+
+      const dependencies = extractDependsOn(field);
+      for (const dep of dependencies) {
+        if (!parentMap[dep]) {
+          parentMap[dep] = new Set();
+        }
+        parentMap[dep].add(field.fieldId);
+      }
+
+      if (Array.isArray(field.fields)) {
+        traverse(field.fields);
+      }
+    }
+  }
+
+  traverse(formFields);
+
+  // Convert sets to arrays
+  const result: Record<string, string[]> = {};
+  for (const key in parentMap) {
+    result[key] = Array.from(parentMap[key]);
+  }
+
+  return result;
 };

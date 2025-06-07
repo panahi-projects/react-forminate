@@ -28,13 +28,7 @@ export class FieldProcessor {
     values: Record<string, SupportedTypes>,
     formSchema: FormDataCollectionType
   ): ProcessedFieldProps<T> {
-    const context: FieldPropContext = {
-      fieldId: field.fieldId,
-      values,
-      fieldSchema: field,
-      formSchema,
-    };
-    const cacheKey = this.getCacheKey(field, values, context);
+    const cacheKey = this.getCacheKey(field, values);
 
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey)!;
@@ -53,7 +47,7 @@ export class FieldProcessor {
     return fields.map((field) => this.process(field, values, formSchema));
   }
 
-  private processField<T extends FormFieldType>(
+  public processField<T extends FormFieldType>(
     field: T,
     values: Record<string, SupportedTypes>,
     formSchema: FormDataCollectionType
@@ -80,8 +74,7 @@ export class FieldProcessor {
 
   private getCacheKey(
     field: FormFieldType,
-    values: Record<string, SupportedTypes>,
-    context?: FieldPropContext
+    values: Record<string, SupportedTypes>
   ): string {
     // Create a key based on field ID and relevant dependent values
     const dependencyKeys = this.getFieldDependencies(field);

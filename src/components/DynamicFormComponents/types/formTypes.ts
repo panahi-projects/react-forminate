@@ -26,7 +26,7 @@ import {
   SupportedTypes,
   TitleType,
 } from "./primitiveTypes";
-import { DependencyManager } from "../utils/dependencyManager";
+import { Observer } from "../utils/observer";
 
 export type SubmitDetailsType = {
   visibility?: boolean;
@@ -51,7 +51,7 @@ export interface FormContextType {
   errors: FormErrorsType;
   dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
-  dependencyManager: DependencyManager;
+  observer: Observer;
   setValue: SetValueType;
   validateField: ValidateFieldParams;
   validateForm: ValidateFormType;

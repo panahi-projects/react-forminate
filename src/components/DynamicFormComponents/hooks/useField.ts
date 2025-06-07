@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { buildFieldEventHandlers } from "../helpers/buildFieldEventHandlers";
 import { useForm } from "../providers/formContext";
 import {
@@ -7,7 +8,6 @@ import {
   ProcessedFieldProps,
   SupportedTypes,
 } from "../types";
-import { processFieldProps } from "../utils";
 import { initFieldSetup } from "../utils/initFieldSetup";
 import { useDefaultFieldValue } from "./useDefaultFieldValue";
 import { useFieldProcessor } from "./useFieldProcessor";
@@ -44,7 +44,7 @@ export const useField = <
     errors,
     formSchema,
     dynamicOptions,
-    dependencyManager,
+    observer,
     setValue,
     getFieldSchema,
     shouldShowField,
@@ -55,7 +55,16 @@ export const useField = <
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
-  const processedProps: ProcessedFieldProps<T> = useFieldProcessor(fieldProps); // Process props by evaluating functions or using default values
+  let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
+  processedProps = useFieldProcessor(fieldProps);
+
+  useEffect(() => {
+    const unsubscribe = observer.subscribe(fieldId, () => {
+      console.log(`[${fieldId}] Observer triggered!`);
+    });
+
+    return () => unsubscribe();
+  }, [fieldId, observer]);
 
   const eventHandlers = buildFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,
@@ -80,7 +89,7 @@ export const useField = <
     eventHandlers,
     isVisible,
     isDisable,
-    dependencyManager,
+    observer,
     setValue,
     getFieldSchema,
     validateForm,

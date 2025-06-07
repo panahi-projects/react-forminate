@@ -7,8 +7,8 @@ import {
   SelectFieldType,
   SupportedTypes,
 } from "../types";
-import { isSelectField } from "../utils";
-import { DependencyManager } from "../utils/dependencyManager";
+import { collectFieldDependencies, isSelectField } from "../utils";
+import { Observer } from "../utils/observer";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
 import { useDynamicOptions } from "./useDynamicOptions";
@@ -27,25 +27,25 @@ export const FormProvider: React.FC<FormProviderType> = ({
   const [schema] = useState<FormDataCollectionType>(formSchema);
   const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
-  const dependencyManager = new DependencyManager(schema.fields);
   const existingContext = useContext(FormContext);
+  const observer = new Observer();
+  const dependencyMap = collectFieldDependencies(schema.fields);
 
   // If context already exists, do NOT create a new one
   if (existingContext) {
     return <>{children}</>;
   }
 
-  useEffect(() => {
-    if (schema) {
-      console.info("[SCHEMA UPDATED]", schema);
-      dependencyManager.updateFields(schema.fields);
-    }
-  }, [schema]);
-
   const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
     const newValues = { ...values, [fieldId]: value };
     setValues(newValues);
-    dependencyManager.notify(fieldId);
+    const dependents = dependencyMap[fieldId];
+    if (dependents?.length) {
+      dependents.forEach((dep) => {
+        observer.notify(dep);
+      });
+    }
+
     validateField(fieldId, value);
 
     Object.entries(dependencies).forEach(([key, val]) => {
@@ -71,7 +71,6 @@ export const FormProvider: React.FC<FormProviderType> = ({
       values,
       formSchema
     ) as FormFieldType | null;
-    console.log("[Field Schema By ID]", fieldId, field);
     return field;
   };
 
@@ -104,7 +103,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
         errors,
         dynamicOptions,
         formSchema: schema,
-        dependencyManager,
+        observer,
         setValue,
         validateField,
         validateForm: validateFormWrapper,
