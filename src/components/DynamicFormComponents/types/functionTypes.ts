@@ -4,15 +4,19 @@ import { FieldIdType, SupportedTypes } from "./primitiveTypes";
 
 export type SetValueType = (field: string, value: any) => void;
 export type ValidateFieldType = (
-  field: string,
-  value: any,
+  field: FieldIdType,
+  value: SupportedTypes,
   formSchema: FormDataCollectionType,
-  values: Record<string, any>,
+  values: Record<string, SupportedTypes>,
   setErrors: (
     update:
       | Record<string, string>
       | ((prev: Record<string, string>) => Record<string, string>)
   ) => void
+) => void;
+export type ValidateFieldParams = (
+  field: FieldIdType,
+  value: SupportedTypes
 ) => void;
 export type ValidateFormType = (form: FormDataCollectionType) => boolean;
 export type ShouldShowFieldType = (field: FormFieldType) => boolean;

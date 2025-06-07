@@ -44,9 +44,12 @@ export const useField = <
     errors,
     formSchema,
     dynamicOptions,
+    dependencyManager,
     setValue,
     getFieldSchema,
     shouldShowField,
+    validateForm,
+    validateField,
   } = useForm();
   // const hasSetDefault = useRef(false);
   const fieldId: FieldIdType = fieldProps?.fieldId;
@@ -77,7 +80,10 @@ export const useField = <
     eventHandlers,
     isVisible,
     isDisable,
+    dependencyManager,
     setValue,
     getFieldSchema,
+    validateForm,
+    validateField,
   };
 };

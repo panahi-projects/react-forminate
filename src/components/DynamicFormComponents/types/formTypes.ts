@@ -7,7 +7,7 @@ import {
   OnSubmitType,
   SetValueType,
   ShouldShowFieldType,
-  ValidateFieldType,
+  ValidateFieldParams,
   ValidateFormType,
 } from "./functionTypes";
 import {
@@ -26,6 +26,7 @@ import {
   SupportedTypes,
   TitleType,
 } from "./primitiveTypes";
+import { DependencyManager } from "../utils/dependencyManager";
 
 export type SubmitDetailsType = {
   visibility?: boolean;
@@ -50,9 +51,9 @@ export interface FormContextType {
   errors: FormErrorsType;
   dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
-  dependencyMap: DependencyMap;
+  dependencyManager: DependencyManager;
   setValue: SetValueType;
-  validateField: ValidateFieldType;
+  validateField: ValidateFieldParams;
   validateForm: ValidateFormType;
   shouldShowField: ShouldShowFieldType;
   fetchDynamicOptions: FetchDynamicOptionsType;

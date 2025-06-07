@@ -92,7 +92,7 @@ export class FieldProcessor {
     return `${field.fieldId}|${valueHash}|${JSON.stringify(field)}`;
   }
 
-  private getFieldDependencies(field: FormFieldType): string[] {
+  public getFieldDependencies(field: FormFieldType): string[] {
     // Extract all dependencies from computed properties
     const dependencies = new Set<string>();
 

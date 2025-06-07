@@ -1,7 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
-  DependencyMap,
-  DependencyMapTuple,
   FieldIdType,
   FormDataCollectionType,
   FormFieldType,
@@ -10,6 +8,7 @@ import {
   SupportedTypes,
 } from "../types";
 import { isSelectField } from "../utils";
+import { DependencyManager } from "../utils/dependencyManager";
 import { findFieldById, getInitialDependencies } from "./fieldDependency";
 import { FormContext } from "./formContext";
 import { useDynamicOptions } from "./useDynamicOptions";
@@ -18,7 +17,6 @@ import {
   validateField as validateFieldOriginal,
   validateForm,
 } from "./validation";
-import { buildDependencyMap } from "../utils/fieldDependencyTracker";
 
 export const FormProvider: React.FC<FormProviderType> = ({
   children,
@@ -26,12 +24,10 @@ export const FormProvider: React.FC<FormProviderType> = ({
 }) => {
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [schema, setSchema] = useState<FormDataCollectionType>(formSchema);
+  const [schema] = useState<FormDataCollectionType>(formSchema);
   const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
-  const [dependencyMap] = useState<DependencyMap>(
-    buildDependencyMap(formSchema.fields)
-  );
+  const dependencyManager = new DependencyManager(schema.fields);
   const existingContext = useContext(FormContext);
 
   // If context already exists, do NOT create a new one
@@ -39,9 +35,17 @@ export const FormProvider: React.FC<FormProviderType> = ({
     return <>{children}</>;
   }
 
+  useEffect(() => {
+    if (schema) {
+      console.info("[SCHEMA UPDATED]", schema);
+      dependencyManager.updateFields(schema.fields);
+    }
+  }, [schema]);
+
   const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
     const newValues = { ...values, [fieldId]: value };
     setValues(newValues);
+    dependencyManager.notify(fieldId);
     validateField(fieldId, value);
 
     Object.entries(dependencies).forEach(([key, val]) => {
@@ -52,7 +56,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
   };
 
   // Wrap validateField to match expected signature (only takes field & value)
-  const validateField = (fieldId: FieldIdType, value: any) => {
+  const validateField = (fieldId: FieldIdType, value: SupportedTypes) => {
     validateFieldOriginal(fieldId, value, formSchema, values, setErrors);
   };
 
@@ -100,7 +104,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
         errors,
         dynamicOptions,
         formSchema: schema,
-        dependencyMap,
+        dependencyManager,
         setValue,
         validateField,
         validateForm: validateFormWrapper,

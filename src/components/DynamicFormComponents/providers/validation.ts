@@ -12,15 +12,6 @@ import { FieldProcessor } from "../utils/fieldProcessor";
 import { validationEngine } from "../utils/validationStrategies";
 import { findFieldById } from "./fieldDependency";
 
-const isValueEmpty = (value: any): boolean => {
-  return (
-    value === undefined ||
-    value === null ||
-    (typeof value === "string" && value.trim() === "") ||
-    (Array.isArray(value) && value.length === 0)
-  );
-};
-
 export const validateField = (
   fieldId: FieldIdType,
   value: SupportedTypes,

@@ -101,7 +101,7 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   skeleton,
   ...props
 }) => {
-  const { isVisible } = useField(props);
+  const { processedProps, errors, isVisible } = useField(props);
   const [showComponent, setShowComponent] = useState<boolean>(true);
 
   useEffect(() => {
@@ -110,11 +110,7 @@ const DynamicFormField: FC<ExtendedFormField> = ({
 
   // Get the corresponding field component dynamically
   const FieldComponent = fieldComponents[props.type];
-  if (!FieldComponent) return null;
-
-  const { processedProps, errors } = useField(props);
-
-  if (!showComponent) return null;
+  if (!FieldComponent || !showComponent) return null;
 
   return (
     <Suspense
