@@ -126,7 +126,7 @@ export interface TextareaFieldType
 
 export interface GroupFieldType extends BaseField {
   type: FieldGroupType;
-  as?: FieldAsHTMLContainerTagType;
+  as?: FieldAsHTMLContainerTagType | "fieldset";
   label: FieldLabelType;
   legendClassName?: FieldClassNameType;
   legendStyles?: FieldStyleType;

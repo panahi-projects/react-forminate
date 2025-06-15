@@ -79,7 +79,6 @@ export type FieldContainerType = "container";
 export type FieldTextareaRowsType = number;
 export type FieldTextareaColsType = number;
 export type FieldAsHTMLContainerTagType =
-  | "fieldset"
   | "div"
   | "section"
   | "article"

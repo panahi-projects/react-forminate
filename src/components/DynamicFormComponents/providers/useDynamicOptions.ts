@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import {
   FormDataCollectionType,
-  FormFieldType,
   GridViewFieldType,
   SelectFieldType,
 } from "../types";

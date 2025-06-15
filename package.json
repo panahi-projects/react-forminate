@@ -19,7 +19,8 @@
     "test:preview": "npx vite preview --outDir html",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "commit": "cz"
   },
   "keywords": [
     "react",
@@ -53,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^8.27.0",
     "@typescript-eslint/parser": "^8.27.0",
     "@vitest/ui": "^3.0.9",
+    "commitizen": "^4.3.1",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.4",

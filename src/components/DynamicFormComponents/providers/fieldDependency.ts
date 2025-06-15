@@ -54,7 +54,6 @@ export const findProcessedFieldById = (
   }
   return null;
 };
-
 export const getInitialDependencies = (
   fields: FormFieldType[]
 ): Record<string, string> => {

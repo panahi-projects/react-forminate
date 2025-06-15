@@ -1,7 +1,5 @@
-// fieldProcessor.ts
 import { convertLegacyFieldToNew } from ".";
 import {
-  FieldPropContext,
   FieldPropFunction,
   FormDataCollectionType,
   FormFieldType,

@@ -1,4 +1,5 @@
 import React from "react";
+import { Observer } from "../utils/observer";
 import { FormFieldType } from "./fieldTypes";
 import {
   FetchDynamicOptionsType,
@@ -13,7 +14,6 @@ import {
 import {
   BaseUrlType,
   ChildrenType,
-  DependencyMap,
   DescriptionType,
   FieldClassNameType,
   FieldDynamicOptionsType,
@@ -26,7 +26,6 @@ import {
   SupportedTypes,
   TitleType,
 } from "./primitiveTypes";
-import { Observer } from "../utils/observer";
 
 export type SubmitDetailsType = {
   visibility?: boolean;
