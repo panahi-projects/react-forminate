@@ -29,10 +29,6 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./setupTests.ts",
-    exclude: [
-      "node_modules",
-      "**/src/components/DynamicFormComponents/**/*",
-      "**/src/components/DynamicFormComponents/*",
-    ],
+    exclude: ["node_modules", "**/src/**/*", "**/src/*"],
   },
 });

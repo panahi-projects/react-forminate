@@ -1,12 +1,3 @@
-// export * from "./Button";
-// export * from "./DynamicFormComponents/types";
-// export {
-//   default as DynamicForm,
-//   useForm,
-//   FormContext,
-//   FormProvider,
-//   FieldWrapper,
-//   registerField,
-// } from "./DynamicFormComponents";
-
-export * from "./DynamicFormComponents";
+export { default as DynamicForm } from "./DynamicForm";
+export { registerField } from "./DynamicFormField";
+export { FieldWrapper } from "./FieldWrapper";
