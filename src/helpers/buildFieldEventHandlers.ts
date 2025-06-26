@@ -32,7 +32,22 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   onCustomMouseLeave,
   onCustomContextMenu,
 }: BuildFieldEventHandlersParams<T>) => {
-  const { setValue, handleCustomEvent } = useFieldEvents();
+  const { setValue, handleCustomEvent, setTouched, validateField } =
+    useFieldEvents();
+
+  const handleFocus = (e: React.FocusEvent<T>) => {
+    setTouched(fieldId, true);
+    handleCustomEvent(onCustomFocus, e, fieldId);
+  };
+
+  const handleBlur = (e: React.FocusEvent<T>) => {
+    // setTouched(fieldId, true);
+    handleCustomEvent(onCustomBlur, e, fieldId);
+    // Trigger validation on blur
+    setTimeout(() => {
+      validateField(fieldId, value);
+    }, 500);
+  };
 
   const handleChange = (e: React.ChangeEvent<T>) => {
     const newValue =
@@ -58,8 +73,8 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   return {
     onChange: handleChange,
     onClick: wrapHandler(onCustomClick),
-    onBlur: wrapHandler(onCustomBlur),
-    onFocus: wrapHandler(onCustomFocus),
+    onBlur: handleBlur,
+    onFocus: handleFocus,
     onKeyDown: wrapHandler(onCustomKeyDown),
     onKeyUp: wrapHandler(onCustomKeyUp),
     onMouseDown: wrapHandler(onCustomMouseDown),

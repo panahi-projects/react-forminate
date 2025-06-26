@@ -29,6 +29,8 @@ export const FormProvider: React.FC<FormProviderType> = ({
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [schema] = useState<FormDataCollectionType>(formSchema);
+  const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
+
   const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
   const existingContext = useContext(FormContext);
@@ -39,6 +41,10 @@ export const FormProvider: React.FC<FormProviderType> = ({
   if (existingContext) {
     return <>{children}</>;
   }
+
+  const setTouched = (fieldId: string, isTouched: boolean) => {
+    setTouchedState((prev) => ({ ...prev, [fieldId]: isTouched }));
+  };
 
   const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
     const newValues = { ...values, [fieldId]: value };
@@ -61,7 +67,15 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   // Wrap validateField to match expected signature (only takes field & value)
   const validateField = (fieldId: FieldIdType, value: SupportedTypes) => {
-    validateFieldOriginal(fieldId, value, formSchema, values, setErrors);
+    validateFieldOriginal(
+      fieldId,
+      value,
+      formSchema,
+      values,
+      setErrors,
+      touched,
+      false
+    );
   };
 
   // Wrapped validateForm so it takes zero arguments in the context
@@ -108,6 +122,8 @@ export const FormProvider: React.FC<FormProviderType> = ({
         dynamicOptions,
         formSchema: schema,
         observer,
+        touched,
+        setTouched,
         setValue,
         validateField,
         validateForm: validateFormWrapper,

@@ -15,7 +15,7 @@ export type ValidateFieldType = (
   ) => void
 ) => void;
 export type ValidateFieldParams = (
-  field: FieldIdType,
+  fieldId: FieldIdType,
   value: SupportedTypes
 ) => void;
 export type ValidateFormType = (form: FormDataCollectionType) => boolean;

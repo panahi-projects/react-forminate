@@ -3,11 +3,17 @@ import { CheckboxFieldType } from "@/types";
 import React from "react";
 
 const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
-  const { eventHandlers, processedProps, fieldParams, fieldValue, fieldId } =
-    useField(props);
+  const {
+    eventHandlers,
+    processedProps,
+    fieldParams,
+    fieldValue,
+    fieldId,
+    isTouched,
+  } = useField(props);
 
   return (
-    <div data-testid={fieldParams["data-testid"]}>
+    <div data-testid={fieldParams["data-testid"]} data-touched={isTouched}>
       {processedProps?.options?.map((option, index) => {
         const isString = typeof option === "string";
         const optionValue = isString ? option : option.value;

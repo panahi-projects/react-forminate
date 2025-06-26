@@ -14,7 +14,6 @@ export class Observer {
   }
 
   notify(fieldId: Identifier): void {
-    console.log("[Notify]:", fieldId, this.subscribers);
     const subs = this.subscribers.get(fieldId);
     if (subs) {
       subs.forEach((cb) => cb());

@@ -20,7 +20,9 @@ export const validateField = (
     update:
       | Record<string, string>
       | ((prev: Record<string, string>) => Record<string, string>)
-  ) => void
+  ) => void,
+  touchedFields?: Record<string, boolean>, // Add this parameter
+  validateUntouched: boolean = false // Add this parameter
 ) => {
   const processor = FieldProcessor.getInstance();
   const fieldSchema: FormFieldType | null = findFieldById(
@@ -32,11 +34,11 @@ export const validateField = (
 
   if (!fieldSchema) return;
 
-  // Skip validation if field is hidden and not disabled
-  if (
-    !shouldShowField(fieldSchema, values) &&
-    !isDisableField(fieldSchema, values, formSchema)
-  ) {
+  // Skip validation if field is hidden or disabled
+  const isVisible = shouldShowField(fieldSchema, values);
+  const isDisabled = isDisableField(fieldSchema, values, formSchema);
+
+  if (!isVisible || isDisabled) {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[fieldId];
@@ -45,8 +47,24 @@ export const validateField = (
     return;
   }
 
+  // Skip validation if field hasn't been touched and we're not forcing validation
+  if (!validateUntouched && touchedFields && !touchedFields[fieldId]) {
+    return;
+  }
+
   // Process the field to resolve any dynamic properties
   const processedField = processor.process(fieldSchema, values, formSchema);
+
+  // Skip validation for empty non-required fields
+  const isEmpty = value === "" || value === null || value === undefined;
+  if (isEmpty && !processedField.required) {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldId];
+      return newErrors;
+    });
+    return;
+  }
 
   // Prepare validation rules
   const validationRules: ValidationRule[] = [];
@@ -62,26 +80,33 @@ export const validateField = (
   }
 
   // Add other validation rules
-  if (Array.isArray(processedField.validation)) {
+  if (!isEmpty && Array.isArray(processedField.validation)) {
     validationRules.push(...processedField.validation);
+  }
+
+  // Skip validation if there are no rules
+  if (validationRules.length === 0) {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldId];
+      return newErrors;
+    });
+    return;
   }
 
   // Validate using the engine
   const { isValid, message } = validationEngine.validate(
     value,
     validationRules
-  ); //.validate(value, validationRules);
+  );
 
   setErrors((prev) => {
     if (!isValid) {
-      // Ensure we always have a string message
-      const errorMessage = message || "Validation failed";
-      return { ...prev, [fieldId]: errorMessage };
-    } else {
-      const newErrors = { ...prev };
-      delete newErrors[fieldId];
-      return newErrors;
+      return { ...prev, [fieldId]: message || "Validation failed" };
     }
+    const newErrors = { ...prev };
+    delete newErrors[fieldId];
+    return newErrors;
   });
 };
 
@@ -92,14 +117,13 @@ export const validateForm = (
     update:
       | Record<string, string>
       | ((prev: Record<string, string>) => Record<string, string>)
-  ) => void
+  ) => void,
+  touchedFields?: Record<string, boolean>,
+  forceValidateAll: boolean = false // Add this parameter
 ) => {
   const processor = FieldProcessor.getInstance();
   let isValid = true;
   const newErrors: Record<string, string> = {};
-
-  // Clear previous errors
-  setErrors({});
 
   const validateFieldRecursive = (fields: FormFieldType[]) => {
     if (!fields || fields.length === 0) return;
@@ -111,44 +135,66 @@ export const validateForm = (
         }
         // Recursively validate nested fields
         validateFieldRecursive(field.fields);
-      } else if (
-        shouldShowField(field, values) && // Only validate visible fields
-        !isDisableField(field, values, form) // Skip disabled fields entirely
-      ) {
-        const processedField = processor.process(field, values, form);
-        const value = values[field.fieldId];
+        return;
+      }
 
-        // Prepare validation rules
-        const validationRules: ValidationRule[] = [];
+      // Skip validation for hidden or disabled fields
+      const isVisible = shouldShowField(field, values);
+      const isDisabled = isDisableField(field, values, form);
 
-        if (processedField.required) {
-          validationRules.push({
-            type: "required",
-            message:
-              (processedField.requiredMessage as TFieldRequiredMessage) ||
-              "This field is required.",
-          });
-        }
+      if (!isVisible || isDisabled) {
+        return;
+      }
 
-        if (Array.isArray(processedField.validation)) {
-          validationRules.push(...processedField.validation);
-        }
+      // Skip validation if field hasn't been touched and we're not forcing validation
+      if (!forceValidateAll && touchedFields && !touchedFields[field.fieldId]) {
+        return;
+      }
 
-        // Validate using the engine
-        const { isValid: fieldIsValid, message } = validationEngine.validate(
-          value,
-          validationRules
-        );
+      const processedField = processor.process(field, values, form);
+      const value = values[field.fieldId];
 
-        if (!fieldIsValid) {
-          const errorMessage = message || "Validation failed";
-          newErrors[field.fieldId] = errorMessage;
-          isValid = false;
-        }
+      // Skip validation for empty non-required fields
+      const isEmpty = value === "" || value === null || value === undefined;
+      if (isEmpty && !processedField.required) {
+        return;
+      }
+
+      // Prepare validation rules
+      const validationRules: ValidationRule[] = [];
+
+      if (processedField.required) {
+        validationRules.push({
+          type: "required",
+          message:
+            (processedField.requiredMessage as TFieldRequiredMessage) ||
+            "This field is required.",
+        });
+      }
+
+      if (!isEmpty && Array.isArray(processedField.validation)) {
+        validationRules.push(...processedField.validation);
+      }
+
+      // Skip if no validation rules
+      if (validationRules.length === 0) {
+        return;
+      }
+
+      const { isValid: fieldIsValid, message } = validationEngine.validate(
+        value,
+        validationRules
+      );
+
+      if (!fieldIsValid) {
+        newErrors[field.fieldId] = message || "Validation failed";
+        isValid = false;
       }
     });
   };
 
+  // Clear previous errors before validation
+  setErrors({});
   validateFieldRecursive(form.fields);
   setErrors(newErrors);
   return isValid;

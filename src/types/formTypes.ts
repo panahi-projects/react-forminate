@@ -51,6 +51,8 @@ export interface FormContextType {
   dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
   observer: Observer;
+  touched: Record<FieldIdType, boolean>;
+  setTouched: (fieldId: FieldIdType, isTouched: boolean) => void;
   setValue: SetValueType;
   validateField: ValidateFieldParams;
   validateForm: ValidateFormType;

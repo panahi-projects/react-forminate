@@ -15,7 +15,7 @@ import { useDefaultFieldValue } from "./useDefaultFieldValue";
 import { useFieldProcessor } from "./useFieldProcessor";
 
 //External libraries & tools import
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const useField = <
   T extends BaseField,
@@ -35,8 +35,10 @@ export const useField = <
     shouldShowField,
     validateForm,
     validateField,
+    touched,
+    setTouched,
   } = useForm();
-  // const hasSetDefault = useRef(false);
+  const [hasBeenFocused, setHasBeenFocused] = useState(false);
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
@@ -51,11 +53,39 @@ export const useField = <
     return () => unsubscribe();
   }, [fieldId, observer]);
 
+  const handleFocus = (e: React.FocusEvent<E>) => {
+    setHasBeenFocused(true);
+    if (fieldProps.events?.onCustomFocus) {
+      fieldProps.events.onCustomFocus(
+        e,
+        fieldId,
+        values,
+        fieldProps,
+        formSchema
+      );
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<E>) => {
+    setTouched(fieldProps.fieldId, true);
+    if (fieldProps.events?.onCustomBlur) {
+      fieldProps.events.onCustomBlur(
+        e,
+        fieldId,
+        values,
+        fieldProps,
+        formSchema
+      );
+    }
+  };
+
   const eventHandlers = buildFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,
     type: fieldProps.type,
     value: fieldValue,
     ...fieldProps.events,
+    onCustomBlur: handleBlur, // Override the blur handler
+    onCustomFocus: handleFocus, // Override the focus handler
   }); // Build event handlers for the field
 
   const fieldParams = initFieldSetup(fieldProps.type, processedProps); // Initialize field setup based on type and processed props
@@ -75,6 +105,8 @@ export const useField = <
     isVisible,
     isDisable,
     observer,
+    isTouched: touched[fieldProps.fieldId] || false,
+    hasBeenFocused,
     setValue,
     getFieldSchema,
     validateForm,

@@ -10,6 +10,7 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
     fieldValue,
     fieldId,
     dynamicOptions,
+    isTouched,
   } = useField<SelectFieldType, HTMLSelectElement>(props);
 
   const [selectOptions, setSelectOptions] = useState<OptionsType[]>(
@@ -36,7 +37,12 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
   }, [dynamicOptions, fieldId, processedProps.options]);
 
   return (
-    <select {...fieldParams} {...eventHandlers} value={fieldValue || ""}>
+    <select
+      {...fieldParams}
+      {...eventHandlers}
+      value={fieldValue || ""}
+      data-touched={isTouched}
+    >
       <option value="" disabled>
         {processedProps.placeholder
           ? processedProps.placeholder

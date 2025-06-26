@@ -3,11 +3,11 @@ import { RadioFieldType } from "@/types";
 import React from "react";
 
 const RadioField: React.FC<RadioFieldType> = (props) => {
-  const { eventHandlers, processedProps, fieldParams, fieldValue } =
+  const { eventHandlers, processedProps, fieldParams, fieldValue, isTouched } =
     useField(props);
 
   return (
-    <div data-testid={fieldParams["data-testid"]}>
+    <div data-testid={fieldParams["data-testid"]} data-touched={isTouched}>
       {props.options?.map((option, index) => {
         const isString = typeof option === "string";
         const optionValue = isString ? option : option.value;
