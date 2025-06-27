@@ -1,4 +1,4 @@
-import { FieldTypeType } from "@/types";
+import { FieldDescriptionType, FieldTypeType } from "@/types";
 import React, { ReactNode, memo } from "react";
 import styled from "styled-components";
 
@@ -13,6 +13,7 @@ interface FieldWrapperProps {
   labelClassName?: string;
   labelStyles?: React.CSSProperties;
   type?: FieldTypeType;
+  description?: FieldDescriptionType;
 }
 
 const FieldContainer = styled.div`
@@ -24,6 +25,13 @@ const FieldContainer = styled.div`
 const StyledErrorMessage = styled.span`
   color: #f00;
   font-size: small;
+  display: inline-block;
+  margin: 0;
+`;
+
+const StyledDescription = styled.span`
+  font-size: small;
+  color: #828282;
   display: inline-block;
   margin: 0;
 `;
@@ -40,6 +48,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     labelClassName = "",
     labelStyles = {},
     type,
+    description,
   }) => {
     {
       // Determine if we should add htmlFor (not for radio or checkbox)
@@ -58,6 +67,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
             </label>
           )}
           {children}
+          {description && <StyledDescription>{description}</StyledDescription>}
           {error && <StyledErrorMessage>{error}</StyledErrorMessage>}
         </FieldContainer>
       );

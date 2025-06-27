@@ -161,6 +161,7 @@ const DynamicFormField: FC<ExtendedFormField> = ({
         labelClassName={processedProps.labelClassName}
         labelStyles={processedProps.labelStyles}
         type={processedProps.type}
+        description={processedProps.description}
       >
         <FieldComponent {...processedProps} />
       </FieldWrapper>

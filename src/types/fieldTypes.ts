@@ -19,6 +19,7 @@ import {
   FieldContainerType,
   FieldDatepickerType,
   FieldDefaultValueType,
+  FieldDescriptionType,
   FieldDisabledType,
   FieldGridViewType,
   FieldGroupType,
@@ -77,6 +78,7 @@ export interface BaseField extends CustomEventHandlers {
   validation?: ValidationRule[];
   disabled?: FieldDisabledType;
   _defaultValue?: FieldDefaultValueType;
+  description?: FieldDescriptionType;
 }
 
 export interface TextFieldType

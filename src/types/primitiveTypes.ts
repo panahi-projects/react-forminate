@@ -150,3 +150,5 @@ export type FileStorageFormatType =
   | "arrayBuffer" // ArrayBuffer
   | "remoteUrl" // Remote URL string
   | "metadata"; // Custom metadata object;
+
+export type FieldDescriptionType = string;
