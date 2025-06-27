@@ -30,12 +30,14 @@ export const FormProvider: React.FC<FormProviderType> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [schema] = useState<FormDataCollectionType>(formSchema);
   const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
+  const [blurred, setBlurredState] = useState<Record<FieldIdType, boolean>>({});
 
   const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
   const existingContext = useContext(FormContext);
   const observer = new Observer();
   const dependencyMap = collectFieldDependencies(schema.fields);
+  const { options = {} } = formSchema;
 
   // If context already exists, do NOT create a new one
   if (existingContext) {
@@ -44,6 +46,10 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   const setTouched = (fieldId: string, isTouched: boolean) => {
     setTouchedState((prev) => ({ ...prev, [fieldId]: isTouched }));
+  };
+
+  const setBlurred = (fieldId: string, isBlurred: boolean) => {
+    setBlurredState((prev) => ({ ...prev, [fieldId]: isBlurred }));
   };
 
   const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
@@ -56,7 +62,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
       });
     }
 
-    validateField(fieldId, value);
+    // validateField(fieldId, value);
 
     Object.entries(dependencies).forEach(([key, val]) => {
       if (val === fieldId || (Array.isArray(val) && val.includes(fieldId))) {
@@ -80,7 +86,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   // Wrapped validateForm so it takes zero arguments in the context
   const validateFormWrapper = () => {
-    return validateForm(formSchema, values, setErrors);
+    return validateForm(formSchema, values, setErrors, touched, true);
   };
   const getFieldSchemaById = (fieldId: string) => {
     const field = findFieldById(
@@ -122,8 +128,11 @@ export const FormProvider: React.FC<FormProviderType> = ({
         dynamicOptions,
         formSchema: schema,
         observer,
+        formOptions: options,
         touched,
+        blurred,
         setTouched,
+        setBlurred,
         setValue,
         validateField,
         validateForm: validateFormWrapper,

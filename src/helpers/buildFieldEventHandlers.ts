@@ -1,4 +1,5 @@
 import { useFieldEvents } from "@/hooks";
+import { SupportedValueType } from "node:sqlite";
 import React from "react";
 
 interface BuildFieldEventHandlersParams<T = HTMLInputElement> {
@@ -32,8 +33,15 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   onCustomMouseLeave,
   onCustomContextMenu,
 }: BuildFieldEventHandlersParams<T>) => {
-  const { setValue, handleCustomEvent, setTouched, validateField } =
-    useFieldEvents();
+  const {
+    formOptions,
+    blurred,
+    setBlurred,
+    setValue,
+    handleCustomEvent,
+    setTouched,
+    validateField,
+  } = useFieldEvents();
 
   const handleFocus = (e: React.FocusEvent<T>) => {
     setTouched(fieldId, true);
@@ -41,29 +49,44 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   };
 
   const handleBlur = (e: React.FocusEvent<T>) => {
-    // setTouched(fieldId, true);
-    handleCustomEvent(onCustomBlur, e, fieldId);
+    setBlurred(fieldId, true);
+
+    if (onCustomBlur) {
+      handleCustomEvent(onCustomBlur, e, fieldId);
+    }
+
     // Trigger validation on blur
     setTimeout(() => {
-      validateField(fieldId, value);
+      // Validate on blur if the option is enabled
+      if (formOptions?.validateFieldsOnBlur !== false) {
+        validateField(fieldId, value);
+      }
     }, 500);
   };
 
   const handleChange = (e: React.ChangeEvent<T>) => {
     const newValue =
       type === "number" ? +(e.target as any).value : (e.target as any).value;
+    let newFieldValue: SupportedValueType = newValue;
+
     if (type === "checkbox") {
       const checked = (e.target as any).checked;
       const currentValue = value || [];
       const newValueArray = checked
         ? [...currentValue, newValue]
         : currentValue.filter((item: any) => item !== newValue);
-      setValue(fieldId, newValueArray);
-      handleCustomEvent(onCustomChange, e, fieldId, newValueArray);
-    } else {
-      setValue(fieldId, newValue);
-      handleCustomEvent(onCustomChange, e, fieldId, newValue);
+
+      newFieldValue = newValueArray;
     }
+
+    // Always update value
+    setValue(fieldId, newFieldValue);
+
+    // Validate immediately if validateFieldsOnBlur is false [OR] the field is touched once before
+    if (formOptions?.validateFieldsOnBlur === false || blurred[fieldId]) {
+      validateField(fieldId, newValue);
+    }
+    handleCustomEvent(onCustomChange, e, fieldId, newFieldValue);
   };
 
   const wrapHandler = (handler: any) => {

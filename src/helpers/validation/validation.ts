@@ -22,7 +22,7 @@ export const validateField = (
       | ((prev: Record<string, string>) => Record<string, string>)
   ) => void,
   touchedFields?: Record<string, boolean>, // Add this parameter
-  validateUntouched: boolean = false // Add this parameter
+  forceValidate: boolean = false // Add this parameter
 ) => {
   const processor = FieldProcessor.getInstance();
   const fieldSchema: FormFieldType | null = findFieldById(
@@ -33,6 +33,18 @@ export const validateField = (
   );
 
   if (!fieldSchema) return;
+
+  // Skip validation if field hasn't been touched and we're not forcing validation
+  // UNLESS validateFieldsOnBlur is false (we want immediate validation)
+  const shouldSkipDueToTouch =
+    formSchema.options?.validateFieldsOnBlur !== false &&
+    !forceValidate &&
+    touchedFields &&
+    !touchedFields[fieldId];
+
+  if (shouldSkipDueToTouch) {
+    return;
+  }
 
   // Skip validation if field is hidden or disabled
   const isVisible = shouldShowField(fieldSchema, values);
@@ -48,7 +60,7 @@ export const validateField = (
   }
 
   // Skip validation if field hasn't been touched and we're not forcing validation
-  if (!validateUntouched && touchedFields && !touchedFields[fieldId]) {
+  if (!forceValidate && touchedFields && !touchedFields[fieldId]) {
     return;
   }
 

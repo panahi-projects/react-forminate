@@ -30,6 +30,7 @@ export const useField = <
     formSchema,
     dynamicOptions,
     observer,
+    formOptions = {},
     setValue,
     getFieldSchema,
     shouldShowField,
@@ -39,6 +40,7 @@ export const useField = <
     setTouched,
   } = useForm();
   const [hasBeenFocused, setHasBeenFocused] = useState(false);
+
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
@@ -68,6 +70,9 @@ export const useField = <
 
   const handleBlur = (e: React.FocusEvent<E>) => {
     setTouched(fieldProps.fieldId, true);
+    if (hasBeenFocused && formOptions.validateFieldsOnBlur !== false) {
+      validateField(fieldProps.fieldId, values[fieldProps.fieldId]);
+    }
     if (fieldProps.events?.onCustomBlur) {
       fieldProps.events.onCustomBlur(
         e,

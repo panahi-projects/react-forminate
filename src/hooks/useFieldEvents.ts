@@ -7,6 +7,10 @@ export const useFieldEvents = () => {
     values,
     errors,
     formSchema,
+    formOptions,
+    touched,
+    blurred,
+    setBlurred,
     setValue,
     getFieldSchema,
     setTouched,
@@ -34,9 +38,13 @@ export const useFieldEvents = () => {
   };
 
   return {
+    formOptions,
+    touched,
+    blurred,
     setValue,
     handleCustomEvent,
     setTouched,
+    setBlurred,
     validateField,
   };
 };

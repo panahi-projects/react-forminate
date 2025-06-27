@@ -37,12 +37,17 @@ export type SubmitDetailsType = {
 };
 export type CustomProviderType = React.FC<FormProviderType>;
 
+export interface FormOptions {
+  validateFieldsOnBlur?: boolean;
+}
+
 export interface FormDataCollectionType {
   formId: FormIdType;
   title: TitleType;
   fields: FormFieldType[];
   baseUrl?: BaseUrlType;
   description?: DescriptionType;
+  options?: FormOptions;
 }
 
 export interface FormContextType {
@@ -51,8 +56,11 @@ export interface FormContextType {
   dynamicOptions: FieldDynamicOptionsType;
   formSchema: FormDataCollectionType;
   observer: Observer;
+  formOptions?: FormOptions;
   touched: Record<FieldIdType, boolean>;
   setTouched: (fieldId: FieldIdType, isTouched: boolean) => void;
+  blurred: Record<FieldIdType, boolean>;
+  setBlurred: (fieldId: FieldIdType, isTouched: boolean) => void;
   setValue: SetValueType;
   validateField: ValidateFieldParams;
   validateForm: ValidateFormType;

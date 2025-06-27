@@ -1,3 +1,4 @@
+import { FieldTypeType } from "@/types";
 import React, { ReactNode, memo } from "react";
 import styled from "styled-components";
 
@@ -11,6 +12,7 @@ interface FieldWrapperProps {
   styles?: React.CSSProperties;
   labelClassName?: string;
   labelStyles?: React.CSSProperties;
+  type?: FieldTypeType;
 }
 
 const FieldContainer = styled.div`
@@ -37,19 +39,29 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     styles = {},
     labelClassName = "",
     labelStyles = {},
+    type,
   }) => {
-    return (
-      <FieldContainer className={className} style={styles}>
-        {label && (
-          <label htmlFor={id} className={labelClassName} style={labelStyles}>
-            <span>{label}</span>{" "}
-            {required && <StyledErrorMessage>*</StyledErrorMessage>}
-          </label>
-        )}
-        {children}
-        {error && <StyledErrorMessage>{error}</StyledErrorMessage>}
-      </FieldContainer>
-    );
+    {
+      // Determine if we should add htmlFor (not for radio or checkbox)
+      const shouldAddHtmlFor = type !== "radio" && type !== "checkbox";
+
+      return (
+        <FieldContainer className={className} style={styles}>
+          {label && (
+            <label
+              {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
+              className={labelClassName}
+              style={labelStyles}
+            >
+              <span>{label}</span>{" "}
+              {required && <StyledErrorMessage>*</StyledErrorMessage>}
+            </label>
+          )}
+          {children}
+          {error && <StyledErrorMessage>{error}</StyledErrorMessage>}
+        </FieldContainer>
+      );
+    }
   }
 );
 

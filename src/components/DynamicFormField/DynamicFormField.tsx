@@ -1,5 +1,10 @@
 import { useField } from "@/hooks";
-import { FormFieldType, TFieldLabel, TFieldRequired } from "@/types";
+import {
+  FormErrorsType,
+  FormFieldType,
+  TFieldLabel,
+  TFieldRequired,
+} from "@/types";
 import {
   ComponentType,
   FC,
@@ -101,8 +106,27 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   skeleton,
   ...props
 }) => {
-  const { processedProps, errors, isVisible } = useField(props);
+  const {
+    processedProps,
+    errors,
+    isVisible,
+    // observer,
+    // fieldId,
+    // values,
+    // validateField,
+  } = useField(props);
+  const [fieldErrors, setFieldErrors] = useState<FormErrorsType>();
   const [showComponent, setShowComponent] = useState<boolean>(true);
+
+  useEffect(() => {
+    setFieldErrors(errors);
+  }, [errors]);
+
+  // observer.subscribe(fieldId, () => {
+  //   console.log("This field is subscribed: ", fieldId);
+  //   validateField(fieldId, values[fieldId]);
+  //   errors[fieldId] = "";
+  // });
 
   useEffect(() => {
     setShowComponent(isVisible);
@@ -126,11 +150,12 @@ const DynamicFormField: FC<ExtendedFormField> = ({
         id={processedProps.fieldId}
         label={processedProps.label as TFieldLabel}
         required={processedProps.required as TFieldRequired}
-        error={errors?.[processedProps.fieldId]}
+        error={fieldErrors?.[processedProps.fieldId]}
         className={processedProps.containerClassName}
         styles={processedProps.containerStyles}
         labelClassName={processedProps.labelClassName}
         labelStyles={processedProps.labelStyles}
+        type={processedProps.type}
       >
         <FieldComponent {...processedProps} />
       </FieldWrapper>
