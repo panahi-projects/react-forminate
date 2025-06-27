@@ -117,7 +117,11 @@ class CustomValidationStrategy implements ValidationStrategy {
 
 class RequiredValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
-    const isValid = value !== undefined && value !== null && value !== "";
+    const isValid =
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      value.length !== 0;
     return {
       isValid,
       message: isValid ? undefined : rule.message || "This field is required.",

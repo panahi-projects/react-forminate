@@ -67,8 +67,15 @@ export const validateField = (
   // Process the field to resolve any dynamic properties
   const processedField = processor.process(fieldSchema, values, formSchema);
 
+  // Special handling for checkbox/radio arrays
+  const isArrayField = ["checkbox", "radio"].includes(fieldSchema.type);
+  const isEmptyArray =
+    isArrayField && Array.isArray(value) && value.length === 0;
+
   // Skip validation for empty non-required fields
-  const isEmpty = value === "" || value === null || value === undefined;
+  const isEmpty =
+    value === "" || value === null || value === undefined || isEmptyArray;
+
   if (isEmpty && !processedField.required) {
     setErrors((prev) => {
       const newErrors = { ...prev };
@@ -166,8 +173,13 @@ export const validateForm = (
       const processedField = processor.process(field, values, form);
       const value = values[field.fieldId];
 
-      // Skip validation for empty non-required fields
-      const isEmpty = value === "" || value === null || value === undefined;
+      // Special handling for checkbox/radio arrays
+      const isArrayField = ["checkbox", "radio"].includes(field.type);
+      const isEmptyArray =
+        isArrayField && Array.isArray(value) && value.length === 0;
+      const isEmpty =
+        value === "" || value === null || value === undefined || isEmptyArray;
+
       if (isEmpty && !processedField.required) {
         return;
       }
