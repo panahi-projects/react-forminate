@@ -1,32 +1,23 @@
 # 🧩 React Forminate
 
-The ultimate plug-and-play form engine for modern React apps.
+The ultimate plug-and-play form engine for modern React apps. Build fully dynamic, schema-based forms in seconds with advanced features like conditional logic, file uploads, and real-time validation.
 
-Build fully dynamic, schema-based forms in seconds — no boilerplate, no repetitive wiring, and full TypeScript support out of the box.
+## ✨ What's New
 
-A dynamic form generator for React and Next.js, enabling you to build powerful forms using JSON-like structures. It supports validation, grouping, API-driven select fields, custom styling (including Tailwind CSS), and dynamic field behaviors.
+- File Upload Support with multiple storage formats (Base64, Blob URLs, etc.)
+- Enhanced Validation with blur/change timing control
+- Improved TypeScript Support for all field types
+- Custom Event Handlers for file operations
+- Dynamic Field Processing with function-based properties
 
-## 💡 Why use `react-forminate`?
+## 💡 Key Features?
 
-- ✅ Zero setup required – Just provide a JSON schema and you're good to go.
-- ⚙️ Highly customizable – Use your own field components, layouts, and skeletons.
-- 🔌 API-powered fields – Support for dynamic options, remote filtering, and paginated data.
-- 🧠 Smart schema system – Add logic, validation, conditions, and dynamic queries right in your config.
-- 🧱 Composable – Works great with any UI library (Tailwind, shadcn, Material UI, etc.)
-- 🛠️ Built for real-world apps – Perfect for dashboards, admin panels, CMS forms, onboarding flows, and more.
-- 🔄 Live preview + local development support – Test your custom fields and forms locally before publishing.
-
-## ✨ Features
-
-- 🧩 **Dynamic Form Rendering** using JSON schema (`FormDataCollection`)
-- 🧠 **Built-in Validation** with custom messages and regex
-- 🧱 **Grouped Fields** for logical sections
-- 📅 **Date, Text, Select, Radio, Checkbox** support
-- 🔁 **API-Driven Selects** with dependent fields
-- 🧩 **Extensible with Plugins** for custom components
-- 🎯 **Conditional Visibility** & dependencies
-- 💨 **Lazy Field Loading** to boost performance
-- 🎨 **Custom Styling** via TailwindCSS or inline styles
+- ✅ **Zero-Boilerplate Forms** - JSON schema to fully functional forms
+- ⚡ **Real-Time Validation** - Control when validation triggers (on blur or change)
+- 📁 **File Handling** - Multiple storage formats with previews
+- 🧠 **Smart Dependencies** - Fields that react to other fields' values
+- 🛠️ **Extensible Architecture** - Add custom components and validators
+- 🎨 **Style Control** - Tailwind, CSS modules, or inline styles
 
 ---
 
@@ -43,46 +34,32 @@ yarn add react-forminate
 **✅ Basic Usage**
 
 ```ts
-import { DynamicForm, FormProvider } from "react-forminate";
+import { DynamicForm } from "react-forminate";
 
 const formData = {
-  formId: "SimpleForm",
-  title: "Simple Form Example",
+  formId: "userProfile",
   fields: [
     {
       fieldId: "name",
-      label: "Name",
       type: "text",
-      required: true,
-      placeholder: "Enter your name",
+      label: "Full Name",
+      required: true
     },
     {
-      fieldId: "email",
-      label: "Email",
-      type: "text",
-      required: true,
-      placeholder: "Enter your email",
-    },
-    {
-      fieldId: "dob",
-      label: "Date of Birth",
-      type: "date",
-    },
-  ],
+      fieldId: "avatar",
+      type: "file",
+      accept: "image/*",
+      storageFormat: "base64"
+    }
+  ]
 };
 
-const App = () => {
-  const handleSubmit = (values: any, isValid: boolean) => {
-    console.log("Form Data:", values, "Is Valid:", isValid);
-  };
-
-  return <DynamicForm formData={formData} onSubmit={handleSubmit} />;
-};
-
-export default App;
+export default () => <DynamicForm formData={formData} onSubmit={console.log} />;
 ```
 
-## 📂 Advanced Example (Grouped + API Options)
+### 📂 Advanced Example
+
+Grouped + API Options
 
 ```ts
 import { DynamicForm, FormDataCollection } from "react-forminate";
@@ -143,7 +120,7 @@ const AdvancedGroupAndAPIForm = () => {
   return (
     <DynamicForm
       formData={formData}
-      onSubmit={(value, valid) => console.log(value, valid)}
+      onSubmit={(value, isValid) => console.log(value, isValid)}
     />
   );
 };
@@ -151,7 +128,68 @@ const AdvancedGroupAndAPIForm = () => {
 export default AdvancedGroupAndAPIForm;
 ```
 
-## 🎨 TailwindCSS Styling Support
+File Uploads with Custom Handlers:
+
+```ts
+{
+  fieldId: "documents",
+  type: "file",
+  multiple: true,
+  accept: ".pdf,.docx",
+  storageFormat: "blobUrl", // or "base64", "file", etc.
+  events: {
+    onCustomUpload: (files, fieldId) => {
+      console.log(`${files.length} files uploaded to ${fieldId}`);
+      // Upload to server here
+    },
+    onCustomRemove: (file) => {
+      console.log("Removed file:", file.name);
+    }
+  }
+}
+```
+
+Dynamic Field Properties:
+
+```ts
+{
+  fieldId: "dynamicLabel",
+  type: "text",
+  label: {
+    fn: ({ values }) => values.firstName
+      ? `${values.firstName}'s Custom Field`
+      : "Default Label"
+  },
+  required: {
+    fn: ({ values }) => values.requireExtraFields
+  }
+}
+```
+
+Validation Control:
+
+```ts
+{
+  formId: "myForm",
+  options: {
+    validateFieldsOnBlur: false // Validate immediately on change
+  },
+  fields: [
+    {
+      fieldId: "username",
+      type: "text",
+      validation: [
+        {
+          pattern: "^\\w{4,20}$",
+          message: "4-20 alphanumeric characters"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 🎨 TailwindCSS Styling Support
 
 Fields support custom `className`, `labelClassName`, and even inline `styles`.
 
@@ -188,9 +226,10 @@ You can also apply inline styles:
 
 | Type        | Description                                                              |
 | ----------- | ------------------------------------------------------------------------ |
-| `text`      | Single-line input field                                                  |
+| `text`      | Single-line input field: text, email, password, etc.                     |
 | `number`    | Numeric input                                                            |
 | `date`      | Date picker                                                              |
+| `file`      | File uploader                                                            |
 | `select`    | Dropdown select (static/dynamic)                                         |
 | `radio`     | Radio button group                                                       |
 | `checkbox`  | Checkbox list                                                            |
@@ -239,6 +278,21 @@ or
     pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     message: "Invalid email format",
   }],
+}
+```
+
+Custom Validation Function:
+
+```ts
+{
+  fieldId: "password",
+  type: "password",
+  validation: [
+    {
+      custom: (value) => value.length >= 8,
+      message: "Password must be 8+ characters"
+    }
+  ]
 }
 ```
 
