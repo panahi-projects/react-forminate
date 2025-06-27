@@ -39,7 +39,7 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
   return (
     <select
       {...fieldParams}
-      {...eventHandlers}
+      {...eventHandlers.htmlHandlers}
       value={fieldValue || ""}
       data-touched={isTouched}
     >

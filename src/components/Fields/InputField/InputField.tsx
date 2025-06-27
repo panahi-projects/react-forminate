@@ -7,7 +7,7 @@ const InputField: React.FC<TextFieldType> = (props) => {
   return (
     <input
       {...fieldParams}
-      {...eventHandlers}
+      {...eventHandlers.htmlHandlers}
       value={fieldValue ?? ""}
       data-touched={isTouched}
     />

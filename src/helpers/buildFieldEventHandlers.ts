@@ -1,6 +1,15 @@
 import { useFieldEvents } from "@/hooks";
+import { FieldIdType } from "@/types";
 import { SupportedValueType } from "node:sqlite";
 import React from "react";
+
+export interface EventHandlersResult<T = HTMLElement> {
+  htmlHandlers: React.HTMLAttributes<T>; // For standard HTML events
+  customHandlers: {
+    onUpload?: (files: File[], fieldId: FieldIdType) => void;
+    onRemove?: (file: File | string, fieldId: FieldIdType) => void;
+  };
+}
 
 interface BuildFieldEventHandlersParams<T = HTMLInputElement> {
   fieldId: string;
@@ -16,6 +25,18 @@ interface BuildFieldEventHandlersParams<T = HTMLInputElement> {
   onCustomMouseEnter?: (e: React.MouseEvent<T>, ...args: any[]) => void;
   onCustomMouseLeave?: (e: React.MouseEvent<T>, ...args: any[]) => void;
   onCustomContextMenu?: (e: React.MouseEvent<T>, ...args: any[]) => void;
+  onCustomUpload?: (
+    files: File[],
+    fieldId: string,
+    event?: React.SyntheticEvent<T>,
+    ...args: any[]
+  ) => void;
+
+  onCustomRemove?: (
+    file: File | string, // Could be file object or file name/id
+    fieldId: string,
+    ...args: any[]
+  ) => void;
 }
 
 export const buildFieldEventHandlers = <T = HTMLInputElement>({
@@ -32,7 +53,9 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   onCustomMouseEnter,
   onCustomMouseLeave,
   onCustomContextMenu,
-}: BuildFieldEventHandlersParams<T>) => {
+  onCustomUpload,
+  onCustomRemove,
+}: BuildFieldEventHandlersParams<T>): EventHandlersResult<T> => {
   const {
     formOptions,
     blurred,
@@ -89,20 +112,41 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
     handleCustomEvent(onCustomChange, e, fieldId, newFieldValue);
   };
 
+  const handleUpload = (files: FileList | File[]) => {
+    const fileArray = Array.from(files instanceof FileList ? files : files);
+    if (onCustomUpload) {
+      onCustomUpload(fileArray, fieldId);
+    }
+    setValue(fieldId, fileArray);
+  };
+
+  const handleRemove = (file: File | string) => {
+    if (onCustomRemove) {
+      onCustomRemove(file, fieldId);
+    }
+    // Update form value logic would need current value
+  };
+
   const wrapHandler = (handler: any) => {
     return (e: any) => handleCustomEvent(handler, e, fieldId, value);
   };
 
   return {
-    onChange: handleChange,
-    onClick: wrapHandler(onCustomClick),
-    onBlur: handleBlur,
-    onFocus: handleFocus,
-    onKeyDown: wrapHandler(onCustomKeyDown),
-    onKeyUp: wrapHandler(onCustomKeyUp),
-    onMouseDown: wrapHandler(onCustomMouseDown),
-    onMouseEnter: wrapHandler(onCustomMouseEnter),
-    onMouseLeave: wrapHandler(onCustomMouseLeave),
-    onContextMenu: wrapHandler(onCustomContextMenu),
+    htmlHandlers: {
+      onChange: handleChange,
+      onClick: wrapHandler(onCustomClick),
+      onBlur: handleBlur,
+      onFocus: handleFocus,
+      onKeyDown: wrapHandler(onCustomKeyDown),
+      onKeyUp: wrapHandler(onCustomKeyUp),
+      onMouseDown: wrapHandler(onCustomMouseDown),
+      onMouseEnter: wrapHandler(onCustomMouseEnter),
+      onMouseLeave: wrapHandler(onCustomMouseLeave),
+      onContextMenu: wrapHandler(onCustomContextMenu),
+    },
+    customHandlers: {
+      onUpload: onCustomUpload ? handleUpload : undefined,
+      onRemove: onCustomRemove ? handleRemove : undefined,
+    },
   };
 };

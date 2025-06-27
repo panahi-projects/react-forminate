@@ -10,7 +10,7 @@ const TextareaField: React.FC<TextareaFieldType> = (props) => {
   return (
     <textarea
       {...fieldParams}
-      {...eventHandlers}
+      {...eventHandlers.htmlHandlers}
       value={fieldValue || ""}
       data-touched={isTouched}
     />

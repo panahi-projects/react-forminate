@@ -76,6 +76,7 @@ export type FieldGroupType = "group";
 export type FieldGridViewType = "gridview";
 export type FieldSpacerType = "spacer";
 export type FieldContainerType = "container";
+export type FieldInputFileType = "file";
 export type FieldTextareaRowsType = number;
 export type FieldTextareaColsType = number;
 export type FieldAsHTMLContainerTagType =
@@ -128,3 +129,24 @@ export type ColumnsType = number;
 export type GapType = number;
 export type DependencyMap = Record<FieldIdType, Set<FieldIdType>>;
 export type DependencyMapTuple = [DependencyMap, DependencyMap];
+
+export type FileAcceptType = string | string[];
+export type FileMultipleType = boolean;
+export type FileMaxSizeMBType = number;
+export type FileMinFilesType = number;
+export type FilePreviewType = boolean;
+export type FileUploadUrlType = string;
+export type FileUploadHeadersType = string;
+export type FileUploadMethodType = "POST" | "PUT" | "PATCH";
+export type FilePresignedUrlFnType = string;
+export type FileFileTypesType = string[];
+export type FileRenameFileType = boolean;
+export type FileStoreLocallyType = boolean;
+export type FileStorageFormatType =
+  | "file" // Raw File object
+  | "fileList" // FileList
+  | "base64" // Base64 string
+  | "blobUrl" // Blob URL
+  | "arrayBuffer" // ArrayBuffer
+  | "remoteUrl" // Remote URL string
+  | "metadata"; // Custom metadata object;

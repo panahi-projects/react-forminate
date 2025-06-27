@@ -30,6 +30,7 @@ const defaultFieldsSetupByType: DefaultFieldPropsType = {
   radio: { ...baseFieldConfig("input", "radio") },
   checkbox: { ...baseFieldConfig("input", "checkbox") },
   select: { ...baseFieldConfig("select", "select") },
+  file: { ...baseFieldConfig("input", "file") },
 };
 
 export const initFieldSetup = (

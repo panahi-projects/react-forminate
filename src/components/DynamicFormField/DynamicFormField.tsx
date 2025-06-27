@@ -50,6 +50,10 @@ const SpacerField = lazy(() =>
   import("../Fields").then((module) => ({ default: module.SpacerField }))
 );
 
+const FileField = lazy(() =>
+  import("../Fields").then((module) => ({ default: module.InputFileField }))
+);
+
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
   group: GroupField,
@@ -68,6 +72,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   container: ContainerField,
   textarea: TextareaField,
   spacer: SpacerField,
+  file: FileField,
   // Add other fields here as needed
 };
 

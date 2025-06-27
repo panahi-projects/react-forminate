@@ -8,7 +8,7 @@ const DatePickerField: React.FC<DateFieldType> = (props) => {
   return (
     <input
       {...fieldParams}
-      {...eventHandlers}
+      {...eventHandlers.htmlHandlers}
       value={fieldValue || ""}
       data-touched={isTouched}
     />

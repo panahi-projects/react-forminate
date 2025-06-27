@@ -21,7 +21,7 @@ const RadioField: React.FC<RadioFieldType> = (props) => {
           >
             <input
               {...fieldParams}
-              {...eventHandlers}
+              {...eventHandlers.htmlHandlers}
               {...(!isString ? option : {})}
               value={optionValue}
               checked={fieldValue === optionValue}

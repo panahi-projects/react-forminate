@@ -8,6 +8,7 @@ import GridViewField from "./GridViewField";
 import ContainerField from "./ContainerField";
 import TextareaField from "./TextareaField";
 import SpacerField from "./SpacerField";
+import InputFileField from "./InputFileField";
 
 export {
   InputField,
@@ -20,6 +21,7 @@ export {
   ContainerField,
   TextareaField,
   SpacerField,
+  InputFileField,
   // Add other fields here as needed
   // e.g., TextAreaField, ToggleField, etc.
   // TextAreaField,

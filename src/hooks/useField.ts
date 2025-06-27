@@ -91,6 +91,14 @@ export const useField = <
     ...fieldProps.events,
     onCustomBlur: handleBlur, // Override the blur handler
     onCustomFocus: handleFocus, // Override the focus handler
+    onCustomUpload: fieldProps.events?.onCustomUpload as
+      | ((
+          files: File[],
+          fieldId: string,
+          event?: React.SyntheticEvent<E>,
+          ...args: any[]
+        ) => void)
+      | undefined,
   }); // Build event handlers for the field
 
   const fieldParams = initFieldSetup(fieldProps.type, processedProps); // Initialize field setup based on type and processed props

@@ -115,5 +115,6 @@ export const TAG_TO_ELEMENT_TAG: Record<string, keyof HTMLElementTagNameMap> = {
   img: "img",
   radio: "input",
   checkbox: "input",
+  file: "input",
   // Add more if needed
 };

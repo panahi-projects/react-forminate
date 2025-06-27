@@ -49,7 +49,9 @@ export type CustomEventHandlers = {
       | "onCustomMouseEnter"
       | "onCustomMouseLeave"
       | "onCustomMouseDown"
-      | "onCustomContextMenu"]: FormEventHandler<any>;
+      | "onCustomContextMenu"
+      | "onCustomUpload"
+      | "onCustomRemove"]: FormEventHandler<any>;
   }>;
 };
 

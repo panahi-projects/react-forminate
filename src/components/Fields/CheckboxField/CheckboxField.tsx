@@ -28,7 +28,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
           >
             <input
               {...fieldParams}
-              {...eventHandlers}
+              {...eventHandlers.htmlHandlers}
               id={`${fieldId}-item-${optionValue}`}
               value={optionValue}
               checked={fieldValue?.includes(optionValue) || false}

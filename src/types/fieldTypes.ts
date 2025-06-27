@@ -23,6 +23,7 @@ import {
   FieldGridViewType,
   FieldGroupType,
   FieldIdType,
+  FieldInputFileType,
   FieldInputType,
   FieldLabelType,
   FieldPlaceholderType,
@@ -39,6 +40,19 @@ import {
   FieldTextareaType,
   FieldTypeType,
   FieldVisibilityType,
+  FileAcceptType,
+  FileFileTypesType,
+  FileMaxSizeMBType,
+  FileMinFilesType,
+  FileMultipleType,
+  FilePresignedUrlFnType,
+  FilePreviewType,
+  FileRenameFileType,
+  FileStorageFormatType,
+  FileStoreLocallyType,
+  FileUploadHeadersType,
+  FileUploadMethodType,
+  FileUploadUrlType,
   GapType,
   HeightType,
   OptionsType,
@@ -148,6 +162,28 @@ export interface SpacerFieldType extends BaseField {
   children?: ChildrenType;
 }
 
+export interface InputFileType
+  extends BaseField,
+    Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      "required" | "disabled" | "accept"
+    > {
+  type: FieldInputFileType;
+  accept?: FileAcceptType;
+  multiple?: FileMultipleType;
+  maxSizeMB?: FileMaxSizeMBType;
+  minFiles?: FileMinFilesType;
+  preview?: FilePreviewType;
+  uploadUrl?: FileUploadUrlType;
+  uploadHeaders?: FileUploadHeadersType;
+  uploadMethod?: FileUploadMethodType;
+  presignedUrlFn?: FilePresignedUrlFnType;
+  fileTypes?: FileFileTypesType;
+  renameFile?: FileRenameFileType;
+  storeLocally?: FileStoreLocallyType;
+  storageFormat?: FileStorageFormatType;
+}
+
 export interface BaseContainerField<T extends FormFieldType[]>
   extends Omit<BaseField, "fields"> {
   type: FieldContainerType;
@@ -181,4 +217,5 @@ export type FormFieldType =
   | GridViewFieldType
   | ContainerFieldType
   | TextareaFieldType
-  | SpacerFieldType;
+  | SpacerFieldType
+  | InputFileType;
