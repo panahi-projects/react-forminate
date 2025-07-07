@@ -27,11 +27,14 @@ import {
   FieldInputFileType,
   FieldInputType,
   FieldLabelType,
+  FieldLayout,
   FieldPlaceholderType,
   FieldRadioType,
   FieldRequiredMessageType,
   FieldRequiredType,
   FieldSelectType,
+  FieldSingleNegativeAnswerValue,
+  FieldSinglePositiveAnswerValue,
   FieldSpacerType,
   FieldSpellCheckType,
   FieldStepType,
@@ -122,9 +125,12 @@ export interface CheckboxFieldType
       "required" | "type" | "disabled"
     > {
   type: FieldCheckboxType;
-  options: OptionsType[];
-  itemsClassName: FieldClassNameType;
-  itemsStyles: FieldStyleType;
+  options?: OptionsType[];
+  itemsClassName?: FieldClassNameType;
+  itemsStyles?: FieldStyleType;
+  singlePositiveAnswerValue?: FieldSinglePositiveAnswerValue;
+  singleNegativeAnswerValue?: FieldSingleNegativeAnswerValue;
+  layout?: FieldLayout;
 }
 
 export interface TextareaFieldType
