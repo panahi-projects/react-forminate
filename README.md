@@ -1,6 +1,6 @@
 <div align="center">
         <a href="#" title="React-Forminate">
-            <img src="./public/assets/React-Forminate.jpg" width="600" alt="React Forminate Header" />
+            <img src="./public/assets/React-Forminate.jpg" width="800" alt="React Forminate Header" />
         </a>
 </div>
 
