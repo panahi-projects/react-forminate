@@ -1,3 +1,9 @@
+<div align="center">
+        <a href="#" title="React-Forminate">
+            <img src="./public/assets/React-Forminate.jpg" width="600" alt="React Forminate Header" />
+        </a>
+</div>
+
 # 🧩 React Forminate
 
 The ultimate plug-and-play form engine for modern React apps. Build fully dynamic, schema-based forms in seconds with advanced features like conditional logic, file uploads, and real-time validation.
