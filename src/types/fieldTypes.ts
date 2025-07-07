@@ -114,8 +114,9 @@ export interface SelectFieldType
 export interface RadioFieldType extends BaseField {
   type: FieldRadioType;
   options: OptionsType[];
-  itemsClassName: FieldClassNameType;
-  itemsStyles: FieldStyleType;
+  itemsClassName?: FieldClassNameType;
+  itemsStyles?: FieldStyleType;
+  layout?: FieldLayout;
 }
 
 export interface CheckboxFieldType
