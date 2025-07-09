@@ -88,7 +88,6 @@
     "url": "https://github.com/panahi-projects/react-forminate.git"
   },
   "dependencies": {
-    "fast-equals": "^5.2.2",
     "react-loading-skeleton": "^3.5.0"
   }
 }
