@@ -100,6 +100,32 @@ class MaxNumberValidationStrategy implements ValidationStrategy {
   }
 }
 
+class RangeValidationStrategy implements ValidationStrategy {
+  validate(value: any, rule: ValidationRule): ValidationResponseType {
+    if (isConvertableToNumber(value) === false) {
+      return { isValid: false, message: "Value must be a number." };
+    }
+
+    const numValue = typeof value === "string" ? parseFloat(value) : value;
+    let isValid = true;
+
+    // Check min if defined
+    if (rule.min !== undefined && numValue < rule.min) {
+      isValid = false;
+    }
+
+    // Check max if defined
+    if (rule.max !== undefined && numValue > rule.max) {
+      isValid = false;
+    }
+
+    return {
+      isValid,
+      message: isValid ? undefined : rule.message,
+    };
+  }
+}
+
 class CustomValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
     if (typeof rule.custom !== "function") {
@@ -167,6 +193,40 @@ class MaxDateValidationStrategy implements ValidationStrategy {
   }
 }
 
+class DateRangeValidationStrategy implements ValidationStrategy {
+  validate(value: any, rule: ValidationRule): ValidationResponseType {
+    if (!(value instanceof Date)) {
+      return { isValid: false, message: "Value must be a date." };
+    }
+
+    let isValid = true;
+
+    // Check minDate if defined
+    if (rule.minDate !== undefined) {
+      const minDate = new Date(rule.minDate);
+      if (value < minDate) {
+        isValid = false;
+      }
+    }
+
+    // Check maxDate if defined
+    if (rule.maxDate !== undefined) {
+      const maxDate = new Date(rule.maxDate);
+      if (value > maxDate) {
+        isValid = false;
+      }
+    }
+
+    return {
+      isValid,
+      message: isValid
+        ? undefined
+        : rule.message ||
+          `Date must be between ${rule.minDate} and ${rule.maxDate}.`,
+    };
+  }
+}
+
 class MinItemsValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
     if (!Array.isArray(value)) {
@@ -220,10 +280,12 @@ export class ValidationEngine {
     this.registerStrategy("maxLength", new MaxLengthValidationStrategy());
     this.registerStrategy("min", new MinNumberValidationStrategy());
     this.registerStrategy("max", new MaxNumberValidationStrategy());
+    this.registerStrategy("range", new RangeValidationStrategy());
     this.registerStrategy("custom", new CustomValidationStrategy());
     this.registerStrategy("required", new RequiredValidationStrategy());
     this.registerStrategy("minDate", new MinDateValidationStrategy());
     this.registerStrategy("maxDate", new MaxDateValidationStrategy());
+    this.registerStrategy("dateRange", new DateRangeValidationStrategy());
     this.registerStrategy("minItems", new MinItemsValidationStrategy());
     this.registerStrategy("maxItems", new MaxItemsValidationStrategy());
   }
@@ -231,6 +293,13 @@ export class ValidationEngine {
   private determineRuleType(rule: ValidationRule): string {
     // If rule has explicit type, use that
     if (rule.type) return rule.type;
+
+    // Check for range validation (both min and max)
+    if (rule.min !== undefined && rule.max !== undefined) return "range";
+
+    // Check for date range validation (both minDate and maxDate)
+    if (rule.minDate !== undefined && rule.maxDate !== undefined)
+      return "dateRange";
 
     // Otherwise infer from rule properties
     if (rule.pattern) return "pattern";

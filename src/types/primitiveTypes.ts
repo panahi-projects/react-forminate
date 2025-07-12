@@ -58,7 +58,8 @@ export type FieldAutoCapitalizeType =
   | "off"
   | "sentences"
   | "words"
-  | "characters";
+  | "characters"
+  | "none";
 export type FieldSpellCheckType = boolean;
 export type FieldAutoFocusType = boolean;
 export type FieldStepType = number;
