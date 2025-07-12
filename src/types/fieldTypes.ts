@@ -65,23 +65,33 @@ import {
 import { ValidationRule } from "./validationsTypes";
 
 export interface BaseField extends CustomEventHandlers {
-  fieldId: FieldIdType;
-  type: FieldTypeType;
-  label?: FieldLabelType;
-  required?: FieldRequiredType;
-  requiredMessage?: FieldRequiredMessageType;
-  visibility?: FieldVisibilityType;
-  fields?: FormFieldType[];
-  className?: FieldClassNameType;
-  containerClassName?: FieldClassNameType;
-  styles?: FieldStyleType;
-  containerStyles?: FieldStyleType;
-  labelClassName?: FieldClassNameType;
-  labelStyles?: FieldStyleType;
-  validation?: ValidationRule[];
-  disabled?: FieldDisabledType;
-  _defaultValue?: FieldDefaultValueType;
-  description?: FieldDescriptionType;
+  fieldId: FieldIdType; // Unique identifier for the field (e.g., "user.email")
+  type: FieldTypeType; // Field type (e.g., "text", "select", "file")
+
+  // Presentation
+  label?: FieldLabelType; // Display text or dynamic label function
+  description?: FieldDescriptionType; // Help text shown below field
+
+  // Validation
+  required?: FieldRequiredType; // Whether field is mandatory
+  requiredMessage?: FieldRequiredMessageType; // Custom required error message
+  validation?: ValidationRule[]; // Array of validation rules
+
+  // Layout & Styling
+  className?: FieldClassNameType; // CSS classes for input element
+  containerClassName?: FieldClassNameType; // CSS classes for wrapper div
+  styles?: FieldStyleType; // Inline styles for input element
+  containerStyles?: FieldStyleType; // Inline styles for wrapper
+  labelClassName?: FieldClassNameType; // CSS classes for label
+  labelStyles?: FieldStyleType; // Inline styles for label
+
+  // Behavior
+  visibility?: FieldVisibilityType; // Conditional display rules
+  disabled?: FieldDisabledType; // Disabled state (static or dynamic)
+
+  // Advanced
+  fields?: FormFieldType[]; // Child fields (for group/container types)
+  _defaultValue?: FieldDefaultValueType; // Initial value (internal use)
 }
 
 export interface TextFieldType
