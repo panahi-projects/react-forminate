@@ -51,6 +51,7 @@ export type FieldSingleNegativeAnswerValue = string;
 export type FieldLayout = "inline" | "" | null;
 export type FieldDisabledType = FunctionOrValue<TFieldDisabled>;
 export type FieldDefaultValueType = SupportedTypes;
+export type BaseFieldParams = Record<string, unknown>;
 export type FieldPlaceholderType = string;
 export type FieldAutoCorrectType = "on" | "off";
 export type FieldAutoCapitalizeType =

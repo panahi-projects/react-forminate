@@ -7,6 +7,7 @@ import {
 import { dynamicOptionsType } from "./apiTypes";
 import { CustomEventHandlers } from "./functionTypes";
 import {
+  BaseFieldParams,
   ChildrenType,
   ColumnsType,
   ExtractFieldIds,
@@ -92,6 +93,7 @@ export interface BaseField extends CustomEventHandlers {
   // Advanced
   fields?: FormFieldType[]; // Child fields (for group/container types)
   _defaultValue?: FieldDefaultValueType; // Initial value (internal use)
+  params?: BaseFieldParams;
 }
 
 export interface TextFieldType
