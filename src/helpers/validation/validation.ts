@@ -10,8 +10,9 @@ import {
 } from "@/types";
 import { findFieldById, processFieldProps } from "@/utils";
 import { FieldProcessor } from "../../utils/fieldProcessorUtils";
+import { ARRAY_FIELD_TYPES } from "@/constants";
 
-export const validateField = (
+export const validateField = async (
   fieldId: FieldIdType,
   value: SupportedTypes,
   formSchema: FormDataCollectionType,
@@ -68,7 +69,7 @@ export const validateField = (
   const processedField = processor.process(fieldSchema, values, formSchema);
 
   // Special handling for checkbox/radio arrays
-  const isArrayField = ["checkbox", "radio"].includes(fieldSchema.type);
+  const isArrayField = ARRAY_FIELD_TYPES.includes(fieldSchema.type);
   const isEmptyArray =
     isArrayField && Array.isArray(value) && value.length === 0;
 
@@ -114,7 +115,7 @@ export const validateField = (
   }
 
   // Validate using the engine
-  const { isValid, message } = validationEngine.validate(
+  const { isValid, message } = await validationEngine.validate(
     value,
     validationRules
   );
@@ -129,7 +130,7 @@ export const validateField = (
   });
 };
 
-export const validateForm = (
+export const validateForm = async (
   form: FormDataCollectionType,
   values: Record<string, SupportedTypes>,
   setErrors: (
@@ -138,23 +139,28 @@ export const validateForm = (
       | ((prev: Record<string, string>) => Record<string, string>)
   ) => void,
   touchedFields?: Record<string, boolean>,
-  forceValidateAll: boolean = false // Add this parameter
+  forceValidateAll: boolean = false
 ) => {
   const processor = FieldProcessor.getInstance();
-  let isValid = true;
   const newErrors: Record<string, string> = {};
 
-  const validateFieldRecursive = (fields: FormFieldType[]) => {
-    if (!fields || fields.length === 0) return;
+  const validateFieldRecursive = async (
+    fields: FormFieldType[]
+  ): Promise<boolean> => {
+    if (!fields || fields.length === 0) return true;
 
-    fields.forEach((field) => {
+    let formIsValid = true;
+
+    // Use for...of instead of forEach to properly handle async/await
+    for (const field of fields) {
       if (field.fields && field.fields.length > 0) {
         if (!field.fieldId) {
           throw new Error("`fieldId` is not provided for the field");
         }
-        // Recursively validate nested fields
-        validateFieldRecursive(field.fields);
-        return;
+        // Recursively validate nested fields and combine results
+        const nestedValid = await validateFieldRecursive(field.fields);
+        formIsValid = formIsValid && nestedValid;
+        continue;
       }
 
       // Skip validation for hidden or disabled fields
@@ -162,26 +168,26 @@ export const validateForm = (
       const isDisabled = isDisableField(field, values, form);
 
       if (!isVisible || isDisabled) {
-        return;
+        continue;
       }
 
       // Skip validation if field hasn't been touched and we're not forcing validation
       if (!forceValidateAll && touchedFields && !touchedFields[field.fieldId]) {
-        return;
+        continue;
       }
 
       const processedField = processor.process(field, values, form);
       const value = values[field.fieldId];
 
       // Special handling for checkbox/radio arrays
-      const isArrayField = ["checkbox", "radio"].includes(field.type);
+      const isArrayField = ARRAY_FIELD_TYPES.includes(field.type);
       const isEmptyArray =
         isArrayField && Array.isArray(value) && value.length === 0;
       const isEmpty =
         value === "" || value === null || value === undefined || isEmptyArray;
 
       if (isEmpty && !processedField.required) {
-        return;
+        continue;
       }
 
       // Prepare validation rules
@@ -202,24 +208,24 @@ export const validateForm = (
 
       // Skip if no validation rules
       if (validationRules.length === 0) {
-        return;
+        continue;
       }
 
-      const { isValid: fieldIsValid, message } = validationEngine.validate(
-        value,
-        validationRules
-      );
+      const { isValid: fieldIsValid, message } =
+        await validationEngine.validate(value, validationRules);
 
       if (!fieldIsValid) {
         newErrors[field.fieldId] = message || "Validation failed";
-        isValid = false;
+        formIsValid = false;
       }
-    });
+    }
+
+    return formIsValid;
   };
 
   // Clear previous errors before validation
   setErrors({});
-  validateFieldRecursive(form.fields);
+  const isValid = await validateFieldRecursive(form.fields);
   setErrors(newErrors);
   return isValid;
 };

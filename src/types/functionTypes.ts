@@ -18,7 +18,9 @@ export type ValidateFieldParams = (
   fieldId: FieldIdType,
   value: SupportedTypes
 ) => void;
-export type ValidateFormType = (form: FormDataCollectionType) => boolean;
+export type ValidateFormType = (
+  form: FormDataCollectionType
+) => Promise<boolean>;
 export type ShouldShowFieldType = (field: FormFieldType) => boolean;
 export type FetchDynamicOptionsType = (
   fieldId: FieldIdType,

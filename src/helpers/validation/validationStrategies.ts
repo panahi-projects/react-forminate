@@ -2,8 +2,12 @@ import { ValidationResponseType, ValidationRule } from "@/types";
 import { isConvertableToNumber } from "@/utils";
 
 interface ValidationStrategy {
-  validate(value: any, rule: ValidationRule): ValidationResponseType;
+  validate(
+    value: any,
+    rule: ValidationRule
+  ): ValidationResponseType | Promise<ValidationResponseType>;
 }
+
 class PatternValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
     if (typeof value !== "string") {
@@ -127,16 +131,37 @@ class RangeValidationStrategy implements ValidationStrategy {
 }
 
 class CustomValidationStrategy implements ValidationStrategy {
-  validate(value: any, rule: ValidationRule): ValidationResponseType {
+  async validate(
+    value: any,
+    rule: ValidationRule
+  ): Promise<ValidationResponseType> {
     if (typeof rule.custom !== "function") {
-      return { isValid: true }; // No custom validation provided
+      return { isValid: true };
     }
-    const isValid = rule.custom(value);
+
+    const result = rule.custom(value);
+
+    if (result instanceof Promise) {
+      try {
+        const isValid = await result;
+        return {
+          isValid,
+          message: isValid
+            ? undefined
+            : rule.message || "Custom validation failed.",
+        };
+      } catch (error) {
+        console.error(error);
+        return {
+          isValid: false,
+          message: "Validation error occurred",
+        };
+      }
+    }
+
     return {
-      isValid,
-      message: isValid
-        ? undefined
-        : rule.message || "Custom validation failed.",
+      isValid: result,
+      message: result ? undefined : rule.message || "Custom validation failed.",
     };
   }
 }
@@ -157,14 +182,21 @@ class RequiredValidationStrategy implements ValidationStrategy {
 
 class MinDateValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
-    if (!(value instanceof Date)) {
+    let dateValue;
+    try {
+      dateValue = new Date(value);
+    } catch (err) {
+      return { isValid: false, message: "Date format is not valid." };
+    }
+
+    if (!(dateValue instanceof Date)) {
       return { isValid: false, message: "Value must be a date." };
     }
     // ✅ Only apply rule if it's defined
     if (rule.minDate === undefined) {
       return { isValid: true }; // Or throw an error if it's required in this context
     }
-    const isValid = value >= new Date(rule.minDate);
+    const isValid = dateValue >= new Date(rule.minDate);
     return {
       isValid,
       message: isValid
@@ -176,14 +208,21 @@ class MinDateValidationStrategy implements ValidationStrategy {
 
 class MaxDateValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
-    if (!(value instanceof Date)) {
+    let dateValue;
+    try {
+      dateValue = new Date(value);
+    } catch (err) {
+      return { isValid: false, message: "Date format is not valid." };
+    }
+
+    if (!(dateValue instanceof Date)) {
       return { isValid: false, message: "Value must be a date." };
     }
     // ✅ Only apply rule if it's defined
     if (rule.maxDate === undefined) {
       return { isValid: true }; // Or throw an error if it's required in this context
     }
-    const isValid = value <= new Date(rule.maxDate);
+    const isValid = dateValue <= new Date(rule.maxDate);
     return {
       isValid,
       message: isValid
@@ -195,16 +234,22 @@ class MaxDateValidationStrategy implements ValidationStrategy {
 
 class DateRangeValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
-    if (!(value instanceof Date)) {
-      return { isValid: false, message: "Value must be a date." };
+    let dateValue;
+    try {
+      dateValue = new Date(value);
+    } catch (err) {
+      return { isValid: false, message: "Date format is not valid." };
     }
 
+    if (!(dateValue instanceof Date)) {
+      return { isValid: false, message: "Value must be a date." };
+    }
     let isValid = true;
 
     // Check minDate if defined
     if (rule.minDate !== undefined) {
       const minDate = new Date(rule.minDate);
-      if (value < minDate) {
+      if (dateValue < minDate) {
         isValid = false;
       }
     }
@@ -212,7 +257,7 @@ class DateRangeValidationStrategy implements ValidationStrategy {
     // Check maxDate if defined
     if (rule.maxDate !== undefined) {
       const maxDate = new Date(rule.maxDate);
-      if (value > maxDate) {
+      if (dateValue > maxDate) {
         isValid = false;
       }
     }
@@ -320,18 +365,27 @@ export class ValidationEngine {
     this.strategies[name] = strategy;
   }
 
-  public validate(value: any, rules: ValidationRule[]): ValidationResponseType {
+  public async validate(
+    value: any,
+    rules: ValidationRule[]
+  ): Promise<ValidationResponseType> {
     if (!rules || rules.length === 0) {
       return { isValid: true };
     }
 
     for (const rule of rules) {
-      // Determine the rule type (either explicit type or inferred from rule properties)
       const ruleType = this.determineRuleType(rule);
       const strategy = this.strategies[ruleType];
 
       if (strategy) {
-        const result = strategy.validate(value, rule);
+        const validationResult = strategy.validate(value, rule);
+
+        // Handle both sync and async results
+        const result =
+          validationResult instanceof Promise
+            ? await validationResult
+            : validationResult;
+
         if (!result.isValid) {
           return result;
         }

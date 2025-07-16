@@ -83,6 +83,7 @@ export interface BaseField extends CustomEventHandlers {
   className?: FieldClassNameType; // CSS classes for input element
   containerClassName?: FieldClassNameType; // CSS classes for wrapper div
   style?: FieldStyleType; // Inline styles for input element
+  styles?: FieldStyleType; // Inline styles for input element
   containerStyles?: FieldStyleType; // Inline styles for wrapper
   labelClassName?: FieldClassNameType; // CSS classes for label
   labelStyles?: FieldStyleType; // Inline styles for label
@@ -167,6 +168,7 @@ export interface GroupFieldType extends BaseField {
   label: FieldLabelType;
   legendClassName?: FieldClassNameType;
   legendStyles?: FieldStyleType;
+  styles?: FieldStyleType;
 }
 
 export interface GridViewFieldType extends BaseField {
@@ -175,6 +177,7 @@ export interface GridViewFieldType extends BaseField {
   dynamicOptions?: dynamicOptionsType;
   itemsClassName?: FieldClassNameType;
   itemsStyles?: FieldStyleType;
+  styles?: FieldStyleType;
 }
 
 export interface SpacerFieldType extends BaseField {
@@ -214,6 +217,7 @@ export interface BaseContainerField<T extends FormFieldType[]>
   columns?: ColumnsType;
   gap?: GapType;
   fields: T;
+  styles?: FieldStyleType;
   itemsStyles?: FieldStyleType;
   itemsClassName?: FieldClassNameType;
   children?: ChildrenType;

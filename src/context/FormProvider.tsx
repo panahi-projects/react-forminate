@@ -85,8 +85,8 @@ export const FormProvider: React.FC<FormProviderType> = ({
   };
 
   // Wrapped validateForm so it takes zero arguments in the context
-  const validateFormWrapper = () => {
-    return validateForm(formSchema, values, setErrors, touched, true);
+  const validateFormWrapper = async () => {
+    return await validateForm(formSchema, values, setErrors, touched, true);
   };
   const getFieldSchemaById = (fieldId: string) => {
     const field = findFieldById(

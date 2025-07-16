@@ -13,9 +13,9 @@ const FormContent: React.FC<DynamicFormType> = ({
 }) => {
   const { values, validateForm } = useForm();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isValid = validateForm(formData);
+    const isValid = await validateForm(formData);
     if (onSubmit) {
       onSubmit(values, isValid);
     }

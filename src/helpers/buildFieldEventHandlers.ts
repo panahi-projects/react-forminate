@@ -1,3 +1,4 @@
+import { ARRAY_FIELD_TYPES } from "@/constants";
 import { useFieldEvents } from "@/hooks";
 import { FieldIdType, SupportedTypes } from "@/types";
 import React from "react";
@@ -76,14 +77,6 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
     if (onCustomBlur) {
       handleCustomEvent(onCustomBlur, e, fieldId);
     }
-
-    // Trigger validation on blur
-    setTimeout(() => {
-      // Validate on blur if the option is enabled
-      if (formOptions?.validateFieldsOnBlur !== false) {
-        validateField(fieldId, value);
-      }
-    }, 500);
   };
 
   const handleChange = (e: React.ChangeEvent<T>) => {
@@ -91,7 +84,7 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
       type === "number" ? +(e.target as any).value : (e.target as any).value;
     let newFieldValue: SupportedTypes = newValue;
 
-    if (type === "checkbox") {
+    if (ARRAY_FIELD_TYPES.includes(type as string)) {
       const checked = (e.target as any).checked;
       const currentValue = value || [];
       const newValueArray = checked
@@ -106,7 +99,7 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
 
     // Validate immediately if validateFieldsOnBlur is false [OR] the field is touched once before
     if (formOptions?.validateFieldsOnBlur === false || blurred[fieldId]) {
-      validateField(fieldId, newValue);
+      validateField(fieldId, newFieldValue);
     }
     handleCustomEvent(onCustomChange, e, fieldId, newFieldValue);
   };

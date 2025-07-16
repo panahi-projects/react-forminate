@@ -120,3 +120,5 @@ export const TAG_TO_ELEMENT_TAG: Record<string, keyof HTMLElementTagNameMap> = {
   file: "input",
   // Add more if needed
 };
+
+export const ARRAY_FIELD_TYPES = ["checkbox", "multi-select"] as string[];
