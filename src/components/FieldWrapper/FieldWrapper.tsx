@@ -56,7 +56,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
       return (
         <FieldContainer className={className} style={styles}>
-          {label && (
+          {label && type !== "group" && (
             <label
               {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
               className={labelClassName}
