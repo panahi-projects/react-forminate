@@ -1,6 +1,5 @@
 import { useFieldEvents } from "@/hooks";
-import { FieldIdType } from "@/types";
-import { SupportedValueType } from "node:sqlite";
+import { FieldIdType, SupportedTypes } from "@/types";
 import React from "react";
 
 export interface EventHandlersResult<T = HTMLElement> {
@@ -90,7 +89,7 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   const handleChange = (e: React.ChangeEvent<T>) => {
     const newValue =
       type === "number" ? +(e.target as any).value : (e.target as any).value;
-    let newFieldValue: SupportedValueType = newValue;
+    let newFieldValue: SupportedTypes = newValue;
 
     if (type === "checkbox") {
       const checked = (e.target as any).checked;

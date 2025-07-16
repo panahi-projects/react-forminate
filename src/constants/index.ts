@@ -68,6 +68,8 @@ export const JSX_ATTRIBUTES = [
   "formTarget",
   "inputMode",
   "list",
+  "rows",
+  "cols",
 
   // Common HTML attributes
   "id",
