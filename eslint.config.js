@@ -29,6 +29,7 @@ export default [
         { vars: "all", args: "after-used", ignoreRestSiblings: false },
       ],
       "no-undef": ["warn"],
+      "no-useless-escape": "off",
     },
   },
   prettier,

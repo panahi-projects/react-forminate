@@ -49,7 +49,7 @@ export interface ValidationRule {
   minLength?: MinLengthType;
   maxLength?: MaxLengthType;
   custom?: ValidationCustomRuleType;
-  type?: "password" | "required" | "email" | "equalTo"; // Optional type to specify the validation type
+  type?: "password" | "required" | "email" | "equalTo" | "url"; // Optional type to specify the validation type
   minDate?: DateTimePatternType;
   maxDate?: DateTimePatternType;
   minItems?: number;
@@ -60,6 +60,10 @@ export interface ValidationRule {
   requireSpecialChar?: boolean;
   caseSensitive?: boolean;
   equalTo?: string | ((context: any) => string);
+  requireAbsolute?: boolean;
+  requireHttps?: boolean;
+  allowRelative?: boolean;
+  validateAs?: "ip" | "ipPort";
 }
 
 export interface ValidationResponseType {

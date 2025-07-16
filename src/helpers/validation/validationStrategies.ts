@@ -133,6 +133,131 @@ class EqualToValidationStrategy extends BaseValidationStrategy {
   }
 }
 
+// Email validation
+class EmailValidationStrategy extends BaseValidationStrategy {
+  private emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  validate(value: any, rule: ValidationRule): ValidationResponseType {
+    if (this.isEmpty(value)) return { isValid: true };
+    if (!this.isString(value)) {
+      return { isValid: false, message: "Value must be a string." };
+    }
+    const isValid = this.emailRegex.test(value);
+    return {
+      isValid,
+      message: isValid ? undefined : rule.message || "Invalid email format.",
+    };
+  }
+}
+
+// URL validation
+class UrlValidationStrategy extends BaseValidationStrategy {
+  validate(value: any, rule: ValidationRule): ValidationResponseType {
+    if (this.isEmpty(value)) return { isValid: true };
+    if (!this.isString(value)) {
+      return { isValid: false, message: "Value must be a string." };
+    }
+
+    const trimmedValue = value.trim();
+
+    // All supported patterns
+    const patterns = {
+      // IP and IP:Port patterns
+      ip: /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+      ipPort:
+        /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(\d{1,5})$/,
+
+      // URL patterns
+      absolute: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/,
+      relative: /^([\/\w.-]+)+(\/)?(\?[\w.%-=&]*)?(#[\w-]*)?$/,
+      protocolRelative: /^\/\/[\w.-]+\.[a-z]{2,}(\/.*)?$/,
+      localhost: /^(https?:\/\/)?localhost(:\d+)?([\/\w.-]*)*\/?$/,
+      ipUrl: /^(https?:\/\/)?(\d{1,3}\.){3}\d{1,3}(:\d+)?([\/\w.-]*)*\/?$/,
+    };
+
+    // Determine validation mode
+    const validateAsIp =
+      rule.validateAs === "ip" || patterns.ip.test(trimmedValue);
+    const validateAsIpPort =
+      rule.validateAs === "ipPort" || patterns.ipPort.test(trimmedValue);
+
+    // 1. Handle IP-specific validation
+    if (validateAsIp) {
+      const isValid = patterns.ip.test(trimmedValue);
+      return {
+        isValid,
+        message: isValid
+          ? undefined
+          : rule.message || "Invalid IP address format (e.g., 192.168.1.1)",
+      };
+    }
+
+    // 2. Handle IP:Port-specific validation
+    if (validateAsIpPort) {
+      const isValid = patterns.ipPort.test(trimmedValue);
+      if (isValid) {
+        const port = parseInt(trimmedValue.split(":")[1]);
+        if (port < 1 || port > 65535) {
+          return {
+            isValid: false,
+            message: rule.message || "Port must be between 1 and 65535",
+          };
+        }
+      }
+      return {
+        isValid,
+        message: isValid
+          ? undefined
+          : rule.message || "Invalid IP:Port format (e.g., 192.168.1.1:8080)",
+      };
+    }
+
+    // 3. Handle URL validation with all previous modes
+    const isAbsolute =
+      patterns.absolute.test(trimmedValue) ||
+      patterns.protocolRelative.test(trimmedValue) ||
+      patterns.ipUrl.test(trimmedValue);
+    const isRelative = patterns.relative.test(trimmedValue);
+    const isHttps = trimmedValue.startsWith("https://");
+    const hasProtocol = /^https?:\/\//i.test(trimmedValue);
+
+    // Apply validation rules
+    if (rule.requireAbsolute && !isAbsolute) {
+      return {
+        isValid: false,
+        message:
+          rule.message || "Absolute URL with http:// or https:// is required.",
+      };
+    }
+
+    if (rule.requireHttps && (!isHttps || !hasProtocol)) {
+      return {
+        isValid: false,
+        message: rule.message || "HTTPS URL is required.",
+      };
+    }
+
+    if (rule.allowRelative === false && isRelative) {
+      return {
+        isValid: false,
+        message: rule.message || "Relative paths are not allowed.",
+      };
+    }
+
+    // Default URL validation
+    const isValid =
+      isAbsolute ||
+      isRelative ||
+      patterns.localhost.test(trimmedValue) ||
+      patterns.ipUrl.test(trimmedValue);
+
+    return {
+      isValid,
+      message: isValid ? undefined : rule.message || "Invalid URL format",
+    };
+  }
+}
+
 class PatternValidationStrategy implements ValidationStrategy {
   validate(value: any, rule: ValidationRule): ValidationResponseType {
     if (typeof value !== "string") {
@@ -460,6 +585,8 @@ export class ValidationEngine {
     this.registerStrategy("maxItems", new MaxItemsValidationStrategy());
     this.registerStrategy("password", new PasswordValidationStrategy());
     this.registerStrategy("equalTo", new EqualToValidationStrategy());
+    this.registerStrategy("email", new EmailValidationStrategy());
+    this.registerStrategy("url", new UrlValidationStrategy());
   }
 
   private determineRuleType(rule: ValidationRule): string {
