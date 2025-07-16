@@ -31,4 +31,9 @@ export default defineConfig({
     setupFiles: "./setupTests.ts",
     exclude: ["node_modules", "**/src/**/*", "**/src/*"],
   },
+  css: {
+    modules: {
+      localsConvention: "camelCase", // or 'dashes' depending on your preference
+    },
+  },
 });
