@@ -1,60 +1,105 @@
+import {
+  RadioContainer,
+  RadioInput,
+  RadioLabel,
+  RadioLabelText,
+} from "@/components/StyledElements";
 import { useField } from "@/hooks";
-import { RadioFieldType } from "@/types";
+import { OptionsType, RadioFieldType } from "@/types";
 import React from "react";
 
 const RadioField: React.FC<RadioFieldType> = (props) => {
-  const { eventHandlers, processedProps, fieldParams, fieldValue, isTouched } =
-    useField(props);
-  // Determine layout mode (defaults to 'column' if not specified)
+  const {
+    eventHandlers,
+    processedProps,
+    fieldParams,
+    fieldValue,
+    isTouched,
+    hasDefaultStyling = true,
+    fieldId,
+    errors,
+  } = useField(props);
+
   const layout = processedProps?.layout || "inline";
+  const hasError = !!errors[fieldId];
 
-  // Container style based on layout
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: layout === "inline" ? "row" : "column",
-    gap: layout === "inline" ? "24px" : "8px", // More gap for inline, less for column
-    flexWrap: "wrap",
-    ...(processedProps?.containerStyles as React.CSSProperties),
+  // Common props for both styled and unstyled inputs
+  const commonInputProps = {
+    ...fieldParams,
+    ...eventHandlers.htmlHandlers,
+    "data-touched": isTouched,
   };
 
-  // Label style (applies to both single and multiple checkboxes)
-  const labelStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "4px", // Space between checkbox and label
-    cursor: "pointer",
-    ...processedProps?.itemsStyles,
+  const renderRadioOption = (option: OptionsType, index: number) => {
+    const isString = typeof option === "string";
+    const optionValue = isString ? option : option.value;
+    const optionLabel = isString ? option : option.label;
+    const key = isString ? option : `${option.value}-${index}`;
+    const additionalProps = !isString ? option : {};
+
+    return hasDefaultStyling ? (
+      <RadioLabel
+        key={key}
+        style={processedProps?.itemsStyles}
+        className={processedProps?.itemsClassName}
+      >
+        <RadioInput
+          {...commonInputProps}
+          {...additionalProps}
+          value={optionValue}
+          checked={fieldValue === optionValue}
+        />
+        <RadioLabelText>{optionLabel}</RadioLabelText>
+      </RadioLabel>
+    ) : (
+      <label
+        key={key}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          cursor: "pointer",
+          ...processedProps?.itemsStyles,
+        }}
+        className={processedProps?.itemsClassName}
+      >
+        <input
+          type="radio"
+          {...commonInputProps}
+          {...additionalProps}
+          value={optionValue}
+          checked={fieldValue === optionValue}
+          className={hasError ? "error" : ""}
+        />
+        <span>{optionLabel}</span>
+      </label>
+    );
   };
-  return (
+
+  const containerProps = {
+    "data-testid": fieldParams["data-testid"],
+    "data-touched": isTouched,
+    style: processedProps?.containerStyles,
+  };
+
+  return hasDefaultStyling ? (
+    <RadioContainer $layout={layout} {...containerProps}>
+      {props.options?.map(renderRadioOption)}
+    </RadioContainer>
+  ) : (
     <div
-      data-testid={fieldParams["data-testid"]}
-      data-touched={isTouched}
-      style={containerStyle}
+      {...containerProps}
+      style={{
+        display: "flex",
+        flexDirection: layout === "inline" ? "row" : "column",
+        gap: layout === "inline" ? "24px" : "8px",
+        flexWrap: "wrap",
+        ...processedProps?.containerStyles,
+      }}
     >
-      {props.options?.map((option, index) => {
-        const isString = typeof option === "string";
-        const optionValue = isString ? option : option.value;
-        const optionLabel = isString ? option : option.label;
-
-        return (
-          <label
-            key={isString ? option : `${option.value}-${index}`}
-            style={labelStyle}
-            className={processedProps.itemsClassName}
-          >
-            <input
-              {...fieldParams}
-              {...eventHandlers.htmlHandlers}
-              {...(!isString ? option : {})}
-              value={optionValue}
-              checked={fieldValue === optionValue}
-            />
-            <span>{optionLabel}</span>
-          </label>
-        );
-      })}
+      {props.options?.map(renderRadioOption)}
     </div>
   );
 };
 
-export default RadioField;
+export default React.memo(RadioField);

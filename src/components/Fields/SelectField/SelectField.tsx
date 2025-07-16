@@ -1,6 +1,7 @@
+import { Select } from "@/components/StyledElements";
 import { useField } from "@/hooks";
 import { OptionsType, SelectFieldType } from "@/types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const SelectField: React.FC<SelectFieldType> = (props) => {
   const {
@@ -10,60 +11,62 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
     fieldValue,
     fieldId,
     dynamicOptions,
-    isTouched,
+    fieldErrors,
+    hasDefaultStyling,
   } = useField<SelectFieldType, HTMLSelectElement>(props);
 
   const [selectOptions, setSelectOptions] = useState<OptionsType[]>(
     processedProps.options || []
   );
 
-  // Update options when dynamicOptions are loaded
-  useEffect(() => {
-    if (dynamicOptions && dynamicOptions[fieldId]) {
-      setSelectOptions(dynamicOptions[fieldId]);
-    }
-  }, [dynamicOptions, fieldId]);
-
-  useEffect(() => {
-    let raw = dynamicOptions?.[fieldId] || processedProps.options || [];
-
-    // Normalize string[] to { label, value }[]
-    const normalized =
-      typeof raw[0] === "string"
-        ? raw.map((opt: string) => ({ label: opt, value: opt }))
-        : raw;
-
-    setSelectOptions(normalized);
+  // Normalize options to { label, value } format
+  const normalizedOptions = useMemo(() => {
+    const rawOptions =
+      dynamicOptions?.[fieldId] || processedProps.options || [];
+    return typeof rawOptions[0] === "string"
+      ? rawOptions.map((opt: string) => ({ label: opt, value: opt }))
+      : rawOptions;
   }, [dynamicOptions, fieldId, processedProps.options]);
 
-  return (
-    <select
-      {...fieldParams}
-      {...eventHandlers.htmlHandlers}
-      value={fieldValue || ""}
-      data-touched={isTouched}
-    >
+  // Update options when they change
+  useEffect(() => {
+    setSelectOptions(normalizedOptions);
+  }, [normalizedOptions]);
+
+  // Common select props
+  const commonSelectProps = {
+    ...fieldParams,
+    ...eventHandlers.htmlHandlers,
+    value: fieldValue || "",
+    $hasError: !!fieldErrors,
+  };
+
+  // Options rendering
+  const renderOptions = () => (
+    <>
       <option value="" disabled>
-        {processedProps.placeholder
-          ? processedProps.placeholder
-          : `Select an option`}
+        {processedProps.placeholder || "Select an option"}
       </option>
       {selectOptions.map((option, index) => {
-        const isString = typeof option === "string";
-        const optionValue = isString ? option : option.value;
-        const optionLabel = isString ? option : option.label;
+        const optionValue = typeof option === "string" ? option : option.value;
+        const optionLabel = typeof option === "string" ? option : option.label;
+        const key =
+          typeof option === "string" ? option : `${option.value}-${index}`;
 
         return (
-          <option
-            key={isString ? option : `${option.value}-${index}`}
-            value={optionValue}
-          >
+          <option key={key} value={optionValue}>
             {optionLabel}
           </option>
         );
       })}
-    </select>
+    </>
+  );
+
+  return hasDefaultStyling ? (
+    <Select {...commonSelectProps}>{renderOptions()}</Select>
+  ) : (
+    <select {...commonSelectProps}>{renderOptions()}</select>
   );
 };
 
-export default SelectField;
+export default React.memo(SelectField);

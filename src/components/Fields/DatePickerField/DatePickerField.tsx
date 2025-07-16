@@ -1,18 +1,29 @@
+import { Input } from "@/components/StyledElements";
 import { useField } from "@/hooks";
 import { DateFieldType } from "@/types";
 import React from "react";
 
 const DatePickerField: React.FC<DateFieldType> = (props) => {
-  const { eventHandlers, fieldParams, fieldValue, isTouched } = useField(props);
+  const {
+    eventHandlers,
+    fieldParams,
+    fieldValue,
+    fieldErrors,
+    hasDefaultStyling,
+  } = useField(props);
 
-  return (
-    <input
-      {...fieldParams}
-      {...eventHandlers.htmlHandlers}
-      value={fieldValue || ""}
-      data-touched={isTouched}
-    />
+  // Common input props
+  const commonInputProps = {
+    ...fieldParams,
+    ...eventHandlers.htmlHandlers,
+    value: fieldValue ?? "",
+  };
+
+  return hasDefaultStyling ? (
+    <Input {...commonInputProps} $hasError={!!fieldErrors} />
+  ) : (
+    <input {...commonInputProps} />
   );
 };
 
-export default DatePickerField;
+export default React.memo(DatePickerField);
