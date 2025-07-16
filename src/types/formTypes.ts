@@ -16,6 +16,7 @@ import {
   ChildrenType,
   DescriptionType,
   FieldClassNameType,
+  FieldDisableDefaultStyling,
   FieldDynamicOptionsType,
   FieldIdType,
   FieldStyleType,
@@ -39,6 +40,7 @@ export type CustomProviderType = React.FC<FormProviderType>;
 
 export interface FormOptions {
   validateFieldsOnBlur?: boolean;
+  disableDefaultStyling?: FieldDisableDefaultStyling;
 }
 
 export interface FormDataCollectionType {

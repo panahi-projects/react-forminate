@@ -35,7 +35,9 @@ const defaultFieldsSetupByType: DefaultFieldPropsType = {
 
 export const initFieldSetup = (
   fieldType: FieldTypeType,
-  props: Record<string, any>
+  props: Record<string, any>,
+  isTouched?: boolean,
+  hasError?: boolean
 ): Partial<Record<string, any>> => {
   const fieldConfig =
     defaultFieldsSetupByType[fieldType] || defaultFieldsSetupByType.text;
@@ -46,8 +48,10 @@ export const initFieldSetup = (
         props,
         fieldConfig.excludedProps
       ),
-      "data-testid": fieldConfig["data-testid"],
       id: props.fieldId || props.id || "",
+      "data-testid": fieldConfig["data-testid"],
+      "data-touched": isTouched,
+      "data-error": hasError,
     };
   }
   return {};

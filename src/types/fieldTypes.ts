@@ -21,6 +21,7 @@ import {
   FieldDatepickerType,
   FieldDefaultValueType,
   FieldDescriptionType,
+  FieldDisableDefaultStyling,
   FieldDisabledType,
   FieldGridViewType,
   FieldGroupType,
@@ -81,10 +82,11 @@ export interface BaseField extends CustomEventHandlers {
   // Layout & Styling
   className?: FieldClassNameType; // CSS classes for input element
   containerClassName?: FieldClassNameType; // CSS classes for wrapper div
-  styles?: FieldStyleType; // Inline styles for input element
+  style?: FieldStyleType; // Inline styles for input element
   containerStyles?: FieldStyleType; // Inline styles for wrapper
   labelClassName?: FieldClassNameType; // CSS classes for label
   labelStyles?: FieldStyleType; // Inline styles for label
+  disableDefaultStyling?: FieldDisableDefaultStyling;
 
   // Behavior
   visibility?: FieldVisibilityType; // Conditional display rules

@@ -43,9 +43,12 @@ export const useField = <
 
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
+
   useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
   let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
   processedProps = useFieldProcessor(fieldProps);
+
+  const fieldErrors = errors[fieldId];
 
   useEffect(() => {
     const unsubscribe = observer.subscribe(fieldId, () => {
@@ -101,7 +104,18 @@ export const useField = <
       | undefined,
   }); // Build event handlers for the field
 
-  const fieldParams = initFieldSetup(fieldProps.type, processedProps); // Initialize field setup based on type and processed props
+  const fieldParams = initFieldSetup(
+    fieldProps.type,
+    processedProps,
+    touched[fieldId],
+    !!fieldErrors
+  ); // Initialize field setup based on type and processed props
+
+  //Automatically adds a default and empty className to the field if the field has validation error
+  if (fieldErrors) {
+    fieldParams.className = `${fieldParams.className ? `${fieldParams.className} ` : ""}field-validation-error`;
+  }
+
   const isVisible = shouldShowField(processedProps as FormFieldType);
   const isDisable = processedProps.disabled || false; // Determine if the field is disabled
 
@@ -111,6 +125,7 @@ export const useField = <
     fieldParams,
     fieldValue,
     values,
+    fieldErrors,
     errors,
     formSchema,
     dynamicOptions,
@@ -120,6 +135,7 @@ export const useField = <
     observer,
     isTouched: touched[fieldProps.fieldId] || false,
     hasBeenFocused,
+    hasDefaultStyling: !processedProps.disableDefaultStyling,
     setValue,
     getFieldSchema,
     validateForm,
