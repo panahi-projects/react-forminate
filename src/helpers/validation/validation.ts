@@ -12,6 +12,26 @@ import { findFieldById, processFieldProps } from "@/utils";
 import { FieldProcessor } from "../../utils/fieldProcessorUtils";
 import { ARRAY_FIELD_TYPES } from "@/constants";
 
+const processValidationRules = (
+  rules: ValidationRule[],
+  values: Record<string, any>
+): ValidationRule[] => {
+  return rules.map((rule) => {
+    if (
+      rule.type === "equalTo" &&
+      typeof rule.equalTo === "string" &&
+      rule.equalTo.startsWith("{{")
+    ) {
+      const fieldId = rule.equalTo.replace(/[{}]/g, "");
+      return {
+        ...rule,
+        equalTo: values[fieldId],
+      };
+    }
+    return rule;
+  });
+};
+
 export const validateField = async (
   fieldId: FieldIdType,
   value: SupportedTypes,
@@ -101,7 +121,9 @@ export const validateField = async (
 
   // Add other validation rules
   if (!isEmpty && Array.isArray(processedField.validation)) {
-    validationRules.push(...processedField.validation);
+    validationRules.push(
+      ...processValidationRules(processedField.validation, values)
+    );
   }
 
   // Skip validation if there are no rules
@@ -117,7 +139,8 @@ export const validateField = async (
   // Validate using the engine
   const { isValid, message } = await validationEngine.validate(
     value,
-    validationRules
+    validationRules,
+    values
   );
 
   setErrors((prev) => {
@@ -203,7 +226,9 @@ export const validateForm = async (
       }
 
       if (!isEmpty && Array.isArray(processedField.validation)) {
-        validationRules.push(...processedField.validation);
+        validationRules.push(
+          ...processValidationRules(processedField.validation, values)
+        );
       }
 
       // Skip if no validation rules
@@ -212,7 +237,7 @@ export const validateForm = async (
       }
 
       const { isValid: fieldIsValid, message } =
-        await validationEngine.validate(value, validationRules);
+        await validationEngine.validate(value, validationRules, values);
 
       if (!fieldIsValid) {
         newErrors[field.fieldId] = message || "Validation failed";

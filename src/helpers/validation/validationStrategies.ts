@@ -4,8 +4,133 @@ import { isConvertableToNumber } from "@/utils";
 interface ValidationStrategy {
   validate(
     value: any,
+    rule: ValidationRule,
+    context?: any
+  ): ValidationResponseType | Promise<ValidationResponseType>;
+}
+
+// Base validation strategy with common utilities
+abstract class BaseValidationStrategy implements ValidationStrategy {
+  abstract validate(
+    value: any,
     rule: ValidationRule
   ): ValidationResponseType | Promise<ValidationResponseType>;
+
+  protected isEmpty(value: any): boolean {
+    return value === undefined || value === null || value === "";
+  }
+
+  protected isString(value: any): boolean {
+    return typeof value === "string";
+  }
+
+  protected isNumber(value: any): boolean {
+    return typeof value === "number" || isConvertableToNumber(value);
+  }
+
+  protected isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
+
+  protected isDate(value: any): boolean {
+    return !isNaN(new Date(value).getTime());
+  }
+}
+
+// Password strength validation
+class PasswordValidationStrategy extends BaseValidationStrategy {
+  validate(value: any, rule: ValidationRule): ValidationResponseType {
+    if (this.isEmpty(value)) return { isValid: true };
+    if (!this.isString(value)) {
+      return { isValid: false, message: "Value must be a string." };
+    }
+
+    // Default requirements (can be overridden by rule)
+    const requirements = {
+      minLength: rule.minLength ?? 8,
+      requireUpperCase: rule.requireUpperCase ?? true,
+      requireLowerCase: rule.requireLowerCase ?? true,
+      requireNumber: rule.requireNumber ?? true,
+      requireSpecialChar: rule.requireSpecialChar ?? true,
+    };
+
+    // Perform checks based on requirements
+    const checks = {
+      length: value.length >= requirements.minLength,
+      upperCase: requirements.requireUpperCase ? /[A-Z]/.test(value) : true,
+      lowerCase: requirements.requireLowerCase ? /[a-z]/.test(value) : true,
+      number: requirements.requireNumber ? /\d/.test(value) : true,
+      specialChar: requirements.requireSpecialChar
+        ? /[!@#$%^&*(),.?":{}|<>]/.test(value)
+        : true,
+    };
+
+    const isValid = Object.values(checks).every(Boolean);
+
+    if (!isValid) {
+      // Build helpful error message
+      const missingRequirements = [];
+      if (!checks.length)
+        missingRequirements.push(
+          `at least ${requirements.minLength} characters`
+        );
+      if (!checks.upperCase) missingRequirements.push("one uppercase letter");
+      if (!checks.lowerCase) missingRequirements.push("one lowercase letter");
+      if (!checks.number) missingRequirements.push("one number");
+      if (!checks.specialChar)
+        missingRequirements.push("one special character");
+
+      return {
+        isValid: false,
+        message:
+          rule.message ||
+          `Password must contain ${missingRequirements.join(", ")}.`,
+      };
+    }
+
+    return { isValid: true };
+  }
+}
+
+// Equality validation (confirm password, etc.)
+class EqualToValidationStrategy extends BaseValidationStrategy {
+  validate(
+    value: any,
+    rule: ValidationRule,
+    context?: any
+  ): ValidationResponseType {
+    if (this.isEmpty(value)) return { isValid: true };
+
+    // Get the field to compare against
+    let compareValue;
+
+    if (typeof rule.equalTo === "function") {
+      // If equalTo is a function, call it with context
+      compareValue = rule.equalTo(context);
+    } else {
+      // Otherwise use the value directly
+      compareValue = rule.equalTo;
+    }
+
+    if (compareValue === undefined) return { isValid: true };
+
+    // Handle case sensitivity (default: true)
+    const caseSensitive = rule.caseSensitive ?? true;
+
+    // Perform comparison
+    let isValid;
+    if (caseSensitive) {
+      isValid = value === compareValue;
+    } else {
+      isValid =
+        String(value).toLowerCase() === String(compareValue).toLowerCase();
+    }
+
+    return {
+      isValid,
+      message: isValid ? undefined : rule.message || "Values do not match.",
+    };
+  }
 }
 
 class PatternValidationStrategy implements ValidationStrategy {
@@ -333,6 +458,8 @@ export class ValidationEngine {
     this.registerStrategy("dateRange", new DateRangeValidationStrategy());
     this.registerStrategy("minItems", new MinItemsValidationStrategy());
     this.registerStrategy("maxItems", new MaxItemsValidationStrategy());
+    this.registerStrategy("password", new PasswordValidationStrategy());
+    this.registerStrategy("equalTo", new EqualToValidationStrategy());
   }
 
   private determineRuleType(rule: ValidationRule): string {
@@ -367,7 +494,8 @@ export class ValidationEngine {
 
   public async validate(
     value: any,
-    rules: ValidationRule[]
+    rules: ValidationRule[],
+    context?: any
   ): Promise<ValidationResponseType> {
     if (!rules || rules.length === 0) {
       return { isValid: true };
@@ -378,7 +506,7 @@ export class ValidationEngine {
       const strategy = this.strategies[ruleType];
 
       if (strategy) {
-        const validationResult = strategy.validate(value, rule);
+        const validationResult = strategy.validate(value, rule, context);
 
         // Handle both sync and async results
         const result =
