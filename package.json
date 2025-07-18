@@ -19,7 +19,8 @@
     "test:preview": "npx vite preview --outDir html",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "analyze": "tsc && vite build && npx vite-bundle-visualizer"
   },
   "keywords": [
     "react",
@@ -86,9 +87,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/panahi-projects/react-forminate.git"
-  },
-  "dependencies": {
-    "react-loading-skeleton": "^3.5.0"
   },
   "homepage": "https://react-forminate.netlify.app/"
 }

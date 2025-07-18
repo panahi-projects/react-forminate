@@ -3,6 +3,7 @@ import {
   FieldPropFunction,
   FieldPropFunctionReturnParams,
   FieldPropValue,
+  FieldTypes,
   FormDataCollectionType,
   FormFieldType,
   SelectFieldType,
@@ -143,4 +144,29 @@ export const findProcessedFieldById = (
     }
   }
   return null;
+};
+
+export const extractFieldTypes = (
+  formSchema: FormDataCollectionType
+): FieldTypes[] => {
+  if (!formSchema?.fields) return []; // Handle undefined/null
+
+  const types = new Set<FieldTypes>();
+
+  // Iterative stack-based approach avoids recursion limits
+  const stack = [...formSchema.fields];
+
+  while (stack.length) {
+    const field = stack.pop()!;
+
+    if (typeof field?.type === "string") {
+      // Validate field shape
+      types.add(field.type);
+      if (Array.isArray(field.fields)) {
+        stack.push(...field.fields);
+      }
+    }
+  }
+
+  return Array.from(types);
 };

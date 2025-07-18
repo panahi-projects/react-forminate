@@ -15,12 +15,14 @@ import {
 } from "@/types";
 import {
   collectFieldDependencies,
+  extractFieldTypes,
   findFieldById,
   getInitialDependencies,
   isSelectField,
 } from "@/utils";
 import { useContext, useEffect, useState } from "react";
 import { FormContext } from "./formContext";
+import { preloadFields } from "@/utils/preload";
 
 export const FormProvider: React.FC<FormProviderType> = ({
   children,
@@ -43,6 +45,16 @@ export const FormProvider: React.FC<FormProviderType> = ({
   if (existingContext) {
     return <>{children}</>;
   }
+
+  useEffect(() => {
+    // Extract unique field types from schema
+    const fieldTypes = extractFieldTypes(formSchema);
+
+    // Preload when idle to avoid blocking render
+    requestIdleCallback(() => {
+      preloadFields(fieldTypes);
+    });
+  }, [formSchema]);
 
   const setTouched = (fieldId: string, isTouched: boolean) => {
     setTouchedState((prev) => ({ ...prev, [fieldId]: isTouched }));

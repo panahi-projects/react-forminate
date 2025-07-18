@@ -66,6 +66,20 @@ import {
 } from "./primitiveTypes";
 import { ValidationRule } from "./validationsTypes";
 
+export type FieldTypes =
+  | FieldInputType
+  | "select"
+  | "checkbox"
+  | "radio"
+  | "container"
+  | "group"
+  | "date"
+  | "gridview"
+  | "file"
+  | "spacer"
+  | "textarea"
+  | string;
+
 export interface BaseField extends CustomEventHandlers {
   fieldId: FieldIdType; // Unique identifier for the field (e.g., "user.email")
   type: FieldTypeType; // Field type (e.g., "text", "select", "file")

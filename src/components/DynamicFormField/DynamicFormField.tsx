@@ -1,5 +1,6 @@
 import { useField } from "@/hooks";
 import {
+  FieldTypes,
   FormErrorsType,
   FormFieldType,
   TFieldLabel,
@@ -8,71 +9,44 @@ import {
 import {
   ComponentType,
   FC,
+  JSX,
   lazy,
   ReactNode,
   Suspense,
   useEffect,
   useState,
 } from "react";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { FieldWrapper } from "../FieldWrapper";
-
-// Lazy load field components for better performance
-const InputField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.InputField }))
-);
-const DatePickerField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.DatePickerField }))
-);
-const GroupField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.GroupField }))
-);
-const SelectField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.SelectField }))
-);
-const RadioField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.RadioField }))
-);
-const CheckboxField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.CheckboxField }))
-);
-const GridViewField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.GridViewField }))
-);
-const ContainerField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.ContainerField }))
-);
-const TextareaField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.TextareaField }))
-);
-const SpacerField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.SpacerField }))
-);
-
-const FileField = lazy(() =>
-  import("../Fields").then((module) => ({ default: module.InputFileField }))
-);
+import {
+  CheckboxSkeleton,
+  DefaultSkeleton,
+  FileInputSkeleton,
+  GroupSkeleton,
+  InputSkeleton,
+  RadioSkeleton,
+  SelectSkeleton,
+  TextareaSkeleton,
+} from "../ui";
 
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
-  group: GroupField,
-  text: InputField,
-  number: InputField,
-  email: InputField,
-  tel: InputField,
-  url: InputField,
-  password: InputField,
-  search: InputField,
-  date: DatePickerField,
-  select: SelectField,
-  radio: RadioField,
-  checkbox: CheckboxField,
-  gridview: GridViewField,
-  container: ContainerField,
-  textarea: TextareaField,
-  spacer: SpacerField,
-  file: FileField,
+  group: lazy(() => import("../Fields/GroupField")),
+  text: lazy(() => import("../Fields/InputField")),
+  number: lazy(() => import("../Fields/InputField")),
+  email: lazy(() => import("../Fields/InputField")),
+  tel: lazy(() => import("../Fields/InputField")),
+  url: lazy(() => import("../Fields/InputField")),
+  password: lazy(() => import("../Fields/InputField")),
+  search: lazy(() => import("../Fields/InputField")),
+  date: lazy(() => import("../Fields/DatePickerField")),
+  select: lazy(() => import("../Fields/SelectField")),
+  radio: lazy(() => import("../Fields/RadioField")),
+  checkbox: lazy(() => import("../Fields/CheckboxField")),
+  gridview: lazy(() => import("../Fields/GridViewField")),
+  container: lazy(() => import("../Fields/ContainerField")),
+  textarea: lazy(() => import("../Fields/TextareaField")),
+  spacer: lazy(() => import("../Fields/SpacerField")),
+  file: lazy(() => import("../Fields/InputFileField")),
   // Add other fields here as needed
 };
 
@@ -89,21 +63,17 @@ type ExtendedFormField = FormFieldType & {
   skeleton?: ReactNode;
 };
 
-// Default skeleton
-const DefaultSkeleton = () => (
-  <div>
-    <Skeleton
-      height={15}
-      width={"25%"}
-      style={{ opacity: 0.2, marginTop: "10px" }}
-    />
-    <Skeleton
-      height={40}
-      width={"100%"}
-      style={{ opacity: 0.5, marginBottom: "15px" }}
-    />
-  </div>
-);
+const skeletonComponents: Record<FieldTypes, () => JSX.Element> = {
+  text: InputSkeleton,
+  email: InputSkeleton,
+  select: SelectSkeleton,
+  checkbox: CheckboxSkeleton,
+  group: GroupSkeleton,
+  radio: RadioSkeleton,
+  file: FileInputSkeleton,
+  textarea: TextareaSkeleton,
+  // Add mappings for all your field types
+};
 
 // Generic DynamicFormField component
 const DynamicFormField: FC<ExtendedFormField> = ({
@@ -111,45 +81,24 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   skeleton,
   ...props
 }) => {
-  const {
-    processedProps,
-    errors,
-    isVisible,
-    // observer,
-    // fieldId,
-    // values,
-    // validateField,
-  } = useField(props);
+  const { processedProps, errors, isVisible } = useField(props);
   const [fieldErrors, setFieldErrors] = useState<FormErrorsType>();
   const [showComponent, setShowComponent] = useState<boolean>(true);
 
   useEffect(() => {
     setFieldErrors(errors);
-  }, [errors]);
-
-  // observer.subscribe(fieldId, () => {
-  //   console.log("This field is subscribed: ", fieldId);
-  //   validateField(fieldId, values[fieldId]);
-  //   errors[fieldId] = "";
-  // });
-
-  useEffect(() => {
     setShowComponent(isVisible);
-  }, [isVisible]);
+  }, [isVisible, errors]);
 
   // Get the corresponding field component dynamically
   const FieldComponent = fieldComponents[props.type];
   if (!FieldComponent || !showComponent) return null;
 
+  const SkeletonComponent = skeletonComponents[props.type] || DefaultSkeleton;
+
   return (
     <Suspense
-      fallback={
-        showSkeletonLoading && skeleton !== undefined ? (
-          skeleton
-        ) : showSkeletonLoading ? (
-          <DefaultSkeleton />
-        ) : null
-      }
+      fallback={showSkeletonLoading ? skeleton || <SkeletonComponent /> : null}
     >
       <FieldWrapper
         id={processedProps.fieldId}
