@@ -1,1 +1,2 @@
-export * from "./Skeleton";
+import SkeletonComponent from "./SkeletonComponent";
+export { SkeletonComponent };

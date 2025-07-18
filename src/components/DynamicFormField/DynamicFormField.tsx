@@ -1,6 +1,5 @@
 import { useField } from "@/hooks";
 import {
-  FieldTypes,
   FormErrorsType,
   FormFieldType,
   TFieldLabel,
@@ -9,7 +8,6 @@ import {
 import {
   ComponentType,
   FC,
-  JSX,
   lazy,
   ReactNode,
   Suspense,
@@ -17,16 +15,7 @@ import {
   useState,
 } from "react";
 import { FieldWrapper } from "../FieldWrapper";
-import {
-  CheckboxSkeleton,
-  DefaultSkeleton,
-  FileInputSkeleton,
-  GroupSkeleton,
-  InputSkeleton,
-  RadioSkeleton,
-  SelectSkeleton,
-  TextareaSkeleton,
-} from "../ui";
+import { SkeletonComponent } from "../ui";
 
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
@@ -63,18 +52,6 @@ type ExtendedFormField = FormFieldType & {
   skeleton?: ReactNode;
 };
 
-const skeletonComponents: Record<FieldTypes, () => JSX.Element> = {
-  text: InputSkeleton,
-  email: InputSkeleton,
-  select: SelectSkeleton,
-  checkbox: CheckboxSkeleton,
-  group: GroupSkeleton,
-  radio: RadioSkeleton,
-  file: FileInputSkeleton,
-  textarea: TextareaSkeleton,
-  // Add mappings for all your field types
-};
-
 // Generic DynamicFormField component
 const DynamicFormField: FC<ExtendedFormField> = ({
   showSkeletonLoading = true,
@@ -93,8 +70,6 @@ const DynamicFormField: FC<ExtendedFormField> = ({
   // Get the corresponding field component dynamically
   const FieldComponent = fieldComponents[props.type];
   if (!FieldComponent || !showComponent) return null;
-
-  const SkeletonComponent = skeletonComponents[props.type] || DefaultSkeleton;
 
   return (
     <Suspense

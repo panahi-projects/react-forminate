@@ -88,5 +88,8 @@
     "type": "git",
     "url": "https://github.com/panahi-projects/react-forminate.git"
   },
-  "homepage": "https://react-forminate.netlify.app/"
+  "homepage": "https://react-forminate.netlify.app/",
+  "dependencies": {
+    "react-loading-skeleton": "^3.5.0"
+  }
 }
