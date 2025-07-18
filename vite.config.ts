@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
 import path from "path";
+import { defineConfig } from "vite";
+import viteCompression from "vite-plugin-compression";
+import dts from "vite-plugin-dts";
 import { peerDependencies } from "./package.json";
 
 export default defineConfig({
@@ -23,8 +24,22 @@ export default defineConfig({
     },
     sourcemap: true, // Generates source maps for debugging.
     emptyOutDir: true, // Clears the output directory before building.
+    minify: "esbuild",
   },
-  plugins: [dts()], // Uses the 'vite-plugin-dts' plugin for generating TypeScript declaration files (d.ts).
+  plugins: [
+    dts(),
+    viteCompression({
+      algorithm: "gzip",
+      ext: ".gz",
+      threshold: 10240, // Compress assets larger than 10KB
+      deleteOriginFile: false, // Keep original files
+    }),
+    viteCompression({
+      algorithm: "brotliCompress",
+      ext: ".br",
+      threshold: 10240,
+    }),
+  ], // Uses the 'vite-plugin-dts' plugin for generating TypeScript declaration files (d.ts).
   test: {
     globals: true,
     environment: "jsdom",

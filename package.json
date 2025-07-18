@@ -69,6 +69,7 @@
     "styled-components": "^6.1.17",
     "typescript": "^5.8.2",
     "vite": "^6.2.3",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-dts": "^4.5.3",
     "vitest": "^3.0.9"
   },
