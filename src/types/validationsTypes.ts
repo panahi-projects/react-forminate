@@ -58,6 +58,7 @@ export interface ValidationRule {
   requireLowerCase?: boolean;
   requireNumber?: boolean;
   requireSpecialChar?: boolean;
+  specialCharsPattern?: string | RegExp;
   caseSensitive?: boolean;
   equalTo?: string | ((context: any) => string);
   requireAbsolute?: boolean;
