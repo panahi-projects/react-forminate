@@ -8,8 +8,6 @@ const FormContent: React.FC<DynamicFormType> = ({
   onSubmit,
   isLoading,
   submitDetails,
-  showSkeletonLoading = true,
-  skeleton,
 }) => {
   const { values, validateForm } = useForm();
 
@@ -28,8 +26,8 @@ const FormContent: React.FC<DynamicFormType> = ({
         <DynamicFormField
           key={field.fieldId}
           {...field}
-          skeleton={skeleton}
-          showSkeletonLoading={showSkeletonLoading}
+          skeleton={formData.options?.skeleton?.component}
+          showSkeletonLoading={formData.options?.skeleton?.showSkeletonLoading}
         />
       ))}
       {submitDetails?.visibility !== false && (

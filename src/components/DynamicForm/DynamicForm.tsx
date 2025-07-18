@@ -15,8 +15,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
   isLoading = false,
   submitDetails,
   customProvider,
-  showSkeletonLoading = true,
-  skeleton,
 }) => {
   const existingContext = useContext(FormContext);
   const Provider = customProvider || DefaultFormProvider; // Use the custom provider if available
@@ -28,8 +26,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
       onSubmit={onSubmit}
       isLoading={isLoading}
       submitDetails={submitDetails}
-      showSkeletonLoading={showSkeletonLoading}
-      skeleton={skeleton}
     />
   ) : (
     <Provider formSchema={formData} formId={formId}>
@@ -39,8 +35,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
         onSubmit={onSubmit}
         isLoading={isLoading}
         submitDetails={submitDetails}
-        showSkeletonLoading={showSkeletonLoading}
-        skeleton={skeleton}
       />
     </Provider>
   );

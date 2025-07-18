@@ -41,11 +41,15 @@ export type CustomProviderType = React.FC<FormProviderType>;
 export interface FormOptions {
   validateFieldsOnBlur?: boolean;
   disableDefaultStyling?: FieldDisableDefaultStyling;
+  skeleton?: {
+    showSkeletonLoading: ShowSkeletonLoadingType;
+    component?: ChildrenType;
+  };
 }
 
 export interface FormDataCollectionType {
   formId: FormIdType;
-  title: TitleType;
+  title?: TitleType;
   fields: FormFieldType[];
   baseUrl?: BaseUrlType;
   description?: DescriptionType;
@@ -84,8 +88,6 @@ export interface DynamicFormType {
   isLoading?: IsLoadingType;
   submitDetails?: SubmitDetailsType;
   customProvider?: CustomProviderType;
-  skeleton?: ChildrenType;
-  showSkeletonLoading?: ShowSkeletonLoadingType;
 }
 
 export interface FieldPropContext {
