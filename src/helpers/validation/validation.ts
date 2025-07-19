@@ -9,7 +9,7 @@ import {
   ValidationRule,
 } from "@/types";
 import { findFieldById, processFieldProps } from "@/utils";
-import { FieldProcessor } from "../../utils/fieldProcessorUtils";
+import { FieldProcessor } from "@/utils/fieldProcessorUtils";
 import { ARRAY_FIELD_TYPES } from "@/constants";
 
 const processValidationRules = (

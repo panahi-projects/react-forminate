@@ -56,15 +56,8 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   onCustomUpload,
   onCustomRemove,
 }: BuildFieldEventHandlersParams<T>): EventHandlersResult<T> => {
-  const {
-    formOptions,
-    blurred,
-    setBlurred,
-    setValue,
-    handleCustomEvent,
-    setTouched,
-    validateField,
-  } = useFieldEvents();
+  const { setBlurred, setValue, handleCustomEvent, setTouched } =
+    useFieldEvents();
 
   const handleFocus = (e: React.FocusEvent<T>) => {
     setTouched(fieldId, true);
@@ -97,10 +90,6 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
     // Always update value
     setValue(fieldId, newFieldValue);
 
-    // Validate immediately if validateFieldsOnBlur is false [OR] the field is touched once before
-    if (formOptions?.validateFieldsOnBlur === false || blurred[fieldId]) {
-      validateField(fieldId, newFieldValue);
-    }
     handleCustomEvent(onCustomChange, e, fieldId, newFieldValue);
   };
 

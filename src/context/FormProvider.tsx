@@ -4,7 +4,7 @@ import {
   validateField as validateFieldOriginal,
   validateForm,
 } from "@/helpers";
-import { useDynamicOptions } from "@/hooks";
+import { useDebouncedCallback, useDynamicOptions } from "@/hooks";
 import {
   FieldIdType,
   FormDataCollectionType,
@@ -20,7 +20,7 @@ import {
   getInitialDependencies,
   isSelectField,
 } from "@/utils";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { FormContext } from "./formContext";
 import { preloadFields } from "@/utils/preload";
 
@@ -34,12 +34,21 @@ export const FormProvider: React.FC<FormProviderType> = ({
   const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
   const [blurred, setBlurredState] = useState<Record<FieldIdType, boolean>>({});
 
-  const dependencies = getInitialDependencies(formSchema.fields);
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
   const existingContext = useContext(FormContext);
   const observer = new Observer();
-  const dependencyMap = collectFieldDependencies(schema.fields);
-  const { options = {} } = formSchema;
+  const { options } = formSchema;
+
+  const dependencies = useMemo(
+    () => getInitialDependencies(formSchema.fields),
+    [formSchema.fields]
+  );
+
+  // Memoize expensive computations
+  const dependencyMap = useMemo(
+    () => collectFieldDependencies(formSchema.fields),
+    [formSchema.fields]
+  );
 
   // If context already exists, do NOT create a new one
   if (existingContext) {
@@ -64,23 +73,34 @@ export const FormProvider: React.FC<FormProviderType> = ({
     setBlurredState((prev) => ({ ...prev, [fieldId]: isBlurred }));
   };
 
-  const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
-    const newValues = { ...values, [fieldId]: value };
-    setValues(newValues);
-    const dependents = dependencyMap[fieldId];
-    if (dependents?.length) {
-      dependents.forEach((dep) => {
-        observer.notify(dep);
-      });
-    }
+  // Immediate state update
+  const setValueImmediate = (fieldId: FieldIdType, value: SupportedTypes) => {
+    setValues((prev) => ({ ...prev, [fieldId]: value }));
+  };
 
-    // validateField(fieldId, value);
-
-    Object.entries(dependencies).forEach(([key, val]) => {
-      if (val === fieldId || (Array.isArray(val) && val.includes(fieldId))) {
-        fetchDynamicOptions(key, newValues);
+  // Debounced validation and side effects only
+  const debouncedValidation = useDebouncedCallback(
+    (fieldId: FieldIdType, value: SupportedTypes) => {
+      const dependents = dependencyMap[fieldId];
+      if (dependents?.length) {
+        dependents.forEach((dep) => observer.notify(dep));
       }
-    });
+      if (options?.validateFieldsOnBlur === false || blurred[fieldId]) {
+        validateField(fieldId, value);
+      }
+      Object.entries(dependencies).forEach(([key, val]) => {
+        if (val === fieldId || (Array.isArray(val) && val.includes(fieldId))) {
+          fetchDynamicOptions(key, values);
+        }
+      });
+    },
+    500 // Slightly longer delay for validation
+  );
+
+  // Combined setValue handler
+  const setValue = (fieldId: FieldIdType, value: SupportedTypes) => {
+    setValueImmediate(fieldId, value); // Immediate UI update
+    debouncedValidation(fieldId, value); // Debounced heavy operations
   };
 
   // Wrap validateField to match expected signature (only takes field & value)

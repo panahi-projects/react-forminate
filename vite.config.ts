@@ -25,19 +25,20 @@ export default defineConfig({
     sourcemap: true, // Generates source maps for debugging.
     emptyOutDir: true, // Clears the output directory before building.
     minify: "esbuild",
+    polyfillModulePreload: false,
   },
   plugins: [
     dts(),
     viteCompression({
       algorithm: "gzip",
       ext: ".gz",
-      threshold: 10240, // Compress assets larger than 10KB
+      threshold: 1024, // Compress assets larger than 10KB
       deleteOriginFile: false, // Keep original files
     }),
     viteCompression({
       algorithm: "brotliCompress",
       ext: ".br",
-      threshold: 10240,
+      threshold: 1024,
     }),
   ], // Uses the 'vite-plugin-dts' plugin for generating TypeScript declaration files (d.ts).
   test: {
