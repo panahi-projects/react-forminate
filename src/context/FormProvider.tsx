@@ -131,7 +131,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
   };
 
   const handleVisibility = (field: FormFieldType) => {
-    return shouldShowField(field, values);
+    return shouldShowField(field, values, formSchema);
   };
 
   const traverseAndFetch = (fields: FormFieldType[]) => {

@@ -3,75 +3,109 @@ import {
   FieldIdType,
   FormDataCollectionType,
   FormFieldType,
+  SetErrorsFn,
   SupportedTypes,
-  TFieldDisabled,
   TFieldRequiredMessage,
+  ValidationContext,
   ValidationRule,
 } from "@/types";
-import { findFieldById, processFieldProps } from "@/utils";
-import { FieldProcessor } from "@/utils/fieldProcessorUtils";
 import { ARRAY_FIELD_TYPES } from "@/constants";
+import { FieldProcessor, findFieldById } from "@/utils";
 
-const processValidationRules = (
-  rules: ValidationRule[],
-  values: Record<string, any>
-): ValidationRule[] => {
-  return rules.map((rule) => {
-    if (
-      rule.type === "equalTo" &&
-      typeof rule.equalTo === "string" &&
-      rule.equalTo.startsWith("{{")
-    ) {
-      const fieldId = rule.equalTo.replace(/[{}]/g, "");
-      return {
-        ...rule,
-        equalTo: values[fieldId],
-      };
-    }
-    return rule;
-  });
+// Helper functions
+const shouldSkipValidation = (
+  field: FormFieldType,
+  value: SupportedTypes,
+  context: ValidationContext,
+  processedField: FormFieldType,
+  formSchema: FormDataCollectionType
+): boolean => {
+  const { touchedFields, forceValidate, validateFieldsOnBlur } = context;
+
+  // Skip if not touched and not forcing validation
+  if (
+    validateFieldsOnBlur !== false &&
+    !forceValidate &&
+    touchedFields &&
+    !touchedFields[field.fieldId]
+  ) {
+    return true;
+  }
+
+  // Skip if hidden or disabled
+  if (
+    !shouldShowField(field, context.values, formSchema) ||
+    isDisableField(field, context.values, formSchema)
+  ) {
+    return true;
+  }
+
+  // Skip empty non-required fields
+  const isEmptyArray =
+    ARRAY_FIELD_TYPES.includes(field.type) &&
+    Array.isArray(value) &&
+    value.length === 0;
+  const isEmpty = (!value && value !== 0 && value !== false) || isEmptyArray;
+  return isEmpty && !processedField.required;
 };
 
+const prepareValidationRules = (
+  field: FormFieldType,
+  values: Record<string, any>
+): ValidationRule[] => {
+  const rules: ValidationRule[] = [];
+
+  if (field.required) {
+    rules.push({
+      type: "required",
+      message:
+        (field.requiredMessage as TFieldRequiredMessage) ||
+        "This field is required",
+    });
+  }
+
+  if (field.validation?.length) {
+    rules.push(
+      ...field.validation.map((rule) =>
+        rule.type === "equalTo" &&
+        typeof rule.equalTo === "string" &&
+        rule.equalTo.startsWith("{{")
+          ? { ...rule, equalTo: values[rule.equalTo.replace(/[{}]/g, "")] }
+          : rule
+      )
+    );
+  }
+
+  return rules;
+};
+
+// Main validation functions
 export const validateField = async (
   fieldId: FieldIdType,
   value: SupportedTypes,
   formSchema: FormDataCollectionType,
   values: Record<string, any>,
-  setErrors: (
-    update:
-      | Record<string, string>
-      | ((prev: Record<string, string>) => Record<string, string>)
-  ) => void,
-  touchedFields?: Record<string, boolean>, // Add this parameter
-  forceValidate: boolean = false // Add this parameter
+  setErrors: SetErrorsFn,
+  touchedFields?: Record<string, boolean>,
+  forceValidate: boolean = false
 ) => {
-  const processor = FieldProcessor.getInstance();
-  const fieldSchema: FormFieldType | null = findFieldById(
-    fieldId,
-    formSchema.fields,
+  const field = findFieldById(fieldId, formSchema.fields, values, formSchema);
+  if (!field) return;
+
+  const context: ValidationContext = {
+    values,
+    touchedFields,
+    forceValidate,
+    validateFieldsOnBlur: formSchema.options?.validateFieldsOnBlur,
+  };
+
+  const processedField = FieldProcessor.getInstance().process(
+    field,
     values,
     formSchema
   );
 
-  if (!fieldSchema) return;
-
-  // Skip validation if field hasn't been touched and we're not forcing validation
-  // UNLESS validateFieldsOnBlur is false (we want immediate validation)
-  const shouldSkipDueToTouch =
-    formSchema.options?.validateFieldsOnBlur !== false &&
-    !forceValidate &&
-    touchedFields &&
-    !touchedFields[fieldId];
-
-  if (shouldSkipDueToTouch) {
-    return;
-  }
-
-  // Skip validation if field is hidden or disabled
-  const isVisible = shouldShowField(fieldSchema, values);
-  const isDisabled = isDisableField(fieldSchema, values, formSchema);
-
-  if (!isVisible || isDisabled) {
+  if (shouldSkipValidation(field, value, context, processedField, formSchema)) {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[fieldId];
@@ -80,24 +114,8 @@ export const validateField = async (
     return;
   }
 
-  // Skip validation if field hasn't been touched and we're not forcing validation
-  if (!forceValidate && touchedFields && !touchedFields[fieldId]) {
-    return;
-  }
-
-  // Process the field to resolve any dynamic properties
-  const processedField = processor.process(fieldSchema, values, formSchema);
-
-  // Special handling for checkbox/radio arrays
-  const isArrayField = ARRAY_FIELD_TYPES.includes(fieldSchema.type);
-  const isEmptyArray =
-    isArrayField && Array.isArray(value) && value.length === 0;
-
-  // Skip validation for empty non-required fields
-  const isEmpty =
-    value === "" || value === null || value === undefined || isEmptyArray;
-
-  if (isEmpty && !processedField.required) {
+  const rules = prepareValidationRules(processedField, values);
+  if (!rules.length) {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[fieldId];
@@ -106,218 +124,164 @@ export const validateField = async (
     return;
   }
 
-  // Prepare validation rules
-  const validationRules: ValidationRule[] = [];
-
-  // Add required rule if needed
-  if (processedField.required) {
-    validationRules.push({
-      type: "required",
-      message:
-        (processedField.requiredMessage as TFieldRequiredMessage) ||
-        "This field is required.",
-    });
-  }
-
-  // Add other validation rules
-  if (!isEmpty && Array.isArray(processedField.validation)) {
-    validationRules.push(
-      ...processValidationRules(processedField.validation, values)
-    );
-  }
-
-  // Skip validation if there are no rules
-  if (validationRules.length === 0) {
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[fieldId];
-      return newErrors;
-    });
-    return;
-  }
-
-  // Validate using the engine
   const { isValid, message } = await validationEngine.validate(
     value,
-    validationRules,
+    rules,
     values
   );
-
   setErrors((prev) => {
-    if (!isValid) {
-      return { ...prev, [fieldId]: message || "Validation failed" };
-    }
     const newErrors = { ...prev };
-    delete newErrors[fieldId];
+    if (isValid) {
+      delete newErrors[fieldId];
+    } else {
+      newErrors[fieldId] = message || "Invalid value";
+    }
     return newErrors;
   });
 };
 
 export const validateForm = async (
-  form: FormDataCollectionType,
+  formSchema: FormDataCollectionType,
   values: Record<string, SupportedTypes>,
-  setErrors: (
-    update:
-      | Record<string, string>
-      | ((prev: Record<string, string>) => Record<string, string>)
-  ) => void,
+  setErrors: (errors: Record<string, string>) => void,
   touchedFields?: Record<string, boolean>,
   forceValidateAll: boolean = false
 ) => {
+  const errors: Record<string, string> = {};
   const processor = FieldProcessor.getInstance();
-  const newErrors: Record<string, string> = {};
+  const context: ValidationContext = {
+    values,
+    touchedFields,
+    forceValidate: forceValidateAll,
+    validateFieldsOnBlur: formSchema.options?.validateFieldsOnBlur,
+  };
 
-  const validateFieldRecursive = async (
-    fields: FormFieldType[]
-  ): Promise<boolean> => {
-    if (!fields || fields.length === 0) return true;
+  const validateFields = async (fields: FormFieldType[]): Promise<boolean> => {
+    let isValid = true;
 
-    let formIsValid = true;
-
-    // Use for...of instead of forEach to properly handle async/await
     for (const field of fields) {
-      if (field.fields && field.fields.length > 0) {
-        if (!field.fieldId) {
-          throw new Error("`fieldId` is not provided for the field");
-        }
-        // Recursively validate nested fields and combine results
-        const nestedValid = await validateFieldRecursive(field.fields);
-        formIsValid = formIsValid && nestedValid;
+      if (field.fields?.length) {
+        isValid = (await validateFields(field.fields)) && isValid;
         continue;
       }
 
-      // Skip validation for hidden or disabled fields
-      const isVisible = shouldShowField(field, values);
-      const isDisabled = isDisableField(field, values, form);
-
-      if (!isVisible || isDisabled) {
-        continue;
-      }
-
-      // Skip validation if field hasn't been touched and we're not forcing validation
-      if (!forceValidateAll && touchedFields && !touchedFields[field.fieldId]) {
-        continue;
-      }
-
-      const processedField = processor.process(field, values, form);
+      const processedField = processor.process(field, values, formSchema);
       const value = values[field.fieldId];
 
-      // Special handling for checkbox/radio arrays
-      const isArrayField = ARRAY_FIELD_TYPES.includes(field.type);
-      const isEmptyArray =
-        isArrayField && Array.isArray(value) && value.length === 0;
-      const isEmpty =
-        value === "" || value === null || value === undefined || isEmptyArray;
-
-      if (isEmpty && !processedField.required) {
+      if (
+        shouldSkipValidation(field, value, context, processedField, formSchema)
+      ) {
         continue;
       }
 
-      // Prepare validation rules
-      const validationRules: ValidationRule[] = [];
+      const rules = prepareValidationRules(processedField, values);
+      if (!rules.length) continue;
 
-      if (processedField.required) {
-        validationRules.push({
-          type: "required",
-          message:
-            (processedField.requiredMessage as TFieldRequiredMessage) ||
-            "This field is required.",
-        });
-      }
-
-      if (!isEmpty && Array.isArray(processedField.validation)) {
-        validationRules.push(
-          ...processValidationRules(processedField.validation, values)
-        );
-      }
-
-      // Skip if no validation rules
-      if (validationRules.length === 0) {
-        continue;
-      }
-
-      const { isValid: fieldIsValid, message } =
-        await validationEngine.validate(value, validationRules, values);
-
-      if (!fieldIsValid) {
-        newErrors[field.fieldId] = message || "Validation failed";
-        formIsValid = false;
+      const { isValid: fieldValid, message } = await validationEngine.validate(
+        value,
+        rules,
+        values
+      );
+      if (!fieldValid) {
+        errors[field.fieldId] = message || "Invalid value";
+        isValid = false;
       }
     }
 
-    return formIsValid;
+    return isValid;
   };
 
-  // Clear previous errors before validation
-  setErrors({});
-  const isValid = await validateFieldRecursive(form.fields);
-  setErrors(newErrors);
-  return isValid;
+  await validateFields(formSchema.fields);
+  setErrors(errors);
+  return Object.keys(errors).length === 0;
 };
 
+// Field visibility and state utilities
+// Update your shouldShowField function with proper type guards
 export const shouldShowField = (
   field: FormFieldType,
-  values: Record<string, any>
+  values: Record<string, any>,
+  formSchema: FormDataCollectionType
 ): boolean => {
   const fieldVisibility = field.visibility;
-  if (typeof fieldVisibility === "undefined" || fieldVisibility === true)
-    return true;
+
+  // Handle boolean case
   if (typeof fieldVisibility === "boolean") return fieldVisibility;
 
+  // Handle undefined case
+  if (typeof fieldVisibility === "undefined") return true;
+
+  // Handle function case
+  if (typeof fieldVisibility === "function") {
+    return fieldVisibility({
+      fieldId: field.fieldId,
+      values,
+      fieldSchema: field,
+      formSchema,
+    }) as boolean;
+  }
+
+  // Handle ComputedValue case
   if (
+    fieldVisibility &&
+    typeof fieldVisibility === "object" &&
+    "fn" in fieldVisibility
+  ) {
+    return fieldVisibility.fn({
+      fieldId: field.fieldId,
+      values,
+      fieldSchema: field,
+      formSchema,
+    }) as boolean;
+  }
+
+  // Handle object case with proper type guard
+  if (
+    fieldVisibility &&
     typeof fieldVisibility === "object" &&
     "dependsOn" in fieldVisibility &&
     "condition" in fieldVisibility &&
     "value" in fieldVisibility
   ) {
     const { dependsOn, condition, value } = fieldVisibility;
-    const parentValue = values[dependsOn as FieldIdType];
+    const parentValue = Array.isArray(dependsOn)
+      ? dependsOn.map((dep) => values[dep])
+      : values[dependsOn];
 
     switch (condition) {
       case "equals":
-        return parentValue === value;
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) => val === value)
+          : parentValue === value;
       case "not_equals":
-        return parentValue !== value;
+        return Array.isArray(parentValue)
+          ? parentValue.every((val) => val !== value)
+          : parentValue !== value;
       default:
         return true;
     }
   }
+
   return true;
 };
 
 export const isDisableField = (
   field: FormFieldType,
-  values?: Record<string, SupportedTypes>,
-  formSchema?: FormDataCollectionType
-): TFieldDisabled => {
+  values: Record<string, SupportedTypes>,
+  formSchema: FormDataCollectionType
+): boolean => {
   if (typeof field.disabled === "boolean") return field.disabled;
-  if (typeof field.disabled === "undefined") return false;
   if (
     typeof field.disabled === "object" &&
     "fn" in field.disabled &&
-    typeof field.disabled.fn === "function"
+    typeof field.disabled?.fn === "function"
   ) {
-    const result = field.disabled.fn({
-      fieldId: field?.fieldId,
-      values: values as Record<string, SupportedTypes>,
+    return field.disabled.fn({
+      fieldId: field.fieldId,
+      values: values || {},
       fieldSchema: field,
-      formSchema: formSchema as FormDataCollectionType,
+      formSchema: formSchema,
     });
-    return result;
   }
-  if (typeof field.disabled === "function") {
-    // If disabled is a function, we need to call it with the context
-    // Assuming we have a context or values to pass, you can modify this as needed
-    const foundField = processFieldProps(
-      field,
-      field.fieldId,
-      values,
-      formSchema as FormDataCollectionType
-    );
-    if (foundField) {
-      return (foundField.disabled as TFieldDisabled) || false; // Replace with actual context if available
-    }
-    return false;
-  }
-  return !!field.disabled;
+  return false;
 };

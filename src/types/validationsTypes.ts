@@ -71,3 +71,14 @@ export interface ValidationResponseType {
   isValid: boolean;
   message?: string;
 }
+
+export type SetErrorsFn = (
+  update: (prev: Record<string, string>) => Record<string, string>
+) => void;
+
+export type ValidationContext = {
+  values: Record<string, any>;
+  touchedFields?: Record<string, boolean>;
+  forceValidate: boolean;
+  validateFieldsOnBlur?: boolean;
+};
