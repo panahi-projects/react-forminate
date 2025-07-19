@@ -6,12 +6,10 @@ import {
   FieldIdType,
   FormFieldType,
   ProcessedFieldProps,
-  SupportedTypes,
 } from "@/types";
 import { fallbackValue } from "@/utils";
 
 //Relative internal import
-import { useDefaultFieldValue } from "./useDefaultFieldValue";
 import { useFieldProcessor } from "./useFieldProcessor";
 
 //External libraries & tools import
@@ -44,7 +42,6 @@ export const useField = <
   const fieldId: FieldIdType = fieldProps?.fieldId;
   const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
 
-  useDefaultFieldValue(fieldId, fieldProps._defaultValue as SupportedTypes);
   let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
   processedProps = useFieldProcessor(fieldProps);
 

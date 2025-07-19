@@ -1,5 +1,6 @@
 import {
   Observer,
+  setDefaultsRecursively,
   shouldShowField,
   validateField as validateFieldOriginal,
   validateForm,
@@ -7,7 +8,6 @@ import {
 import { useDebouncedCallback, useDynamicOptions } from "@/hooks";
 import {
   FieldIdType,
-  FormDataCollectionType,
   FormFieldType,
   FormProviderType,
   SelectFieldType,
@@ -28,9 +28,10 @@ export const FormProvider: React.FC<FormProviderType> = ({
   children,
   formSchema,
 }) => {
-  const [values, setValues] = useState<Record<string, any>>({});
+  const [values, setValues] = useState<Record<string, any>>(() => {
+    return setDefaultsRecursively(formSchema.fields);
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [schema] = useState<FormDataCollectionType>(formSchema);
   const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
   const [blurred, setBlurredState] = useState<Record<FieldIdType, boolean>>({});
 
@@ -158,7 +159,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
         values,
         errors,
         dynamicOptions,
-        formSchema: schema,
+        formSchema,
         observer,
         formOptions: options,
         touched,
