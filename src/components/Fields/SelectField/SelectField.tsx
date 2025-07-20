@@ -37,7 +37,7 @@ const SelectField: React.FC<SelectFieldType> = (props) => {
   const commonSelectProps = {
     ...fieldParams,
     ...eventHandlers.htmlHandlers,
-    value: fieldValue || "",
+    value: fieldValue as string | number,
     $hasError: !!fieldErrors,
   };
 

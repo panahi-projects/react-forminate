@@ -28,6 +28,7 @@ export const fallbackValue: { [key: string]: unknown } = {
   container: {},
   spacer: "",
   group: [],
+  file: {},
   // Add other field types as needed
 };
 

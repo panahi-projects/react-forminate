@@ -41,4 +41,4 @@ const GroupField: React.FC<GroupFieldType> = ({
   );
 };
 
-export default GroupField;
+export default React.memo(GroupField);

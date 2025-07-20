@@ -71,4 +71,4 @@ const ContainerField: React.FC<ContainerFieldType> = ({
   );
 };
 
-export default ContainerField;
+export default React.memo(ContainerField);

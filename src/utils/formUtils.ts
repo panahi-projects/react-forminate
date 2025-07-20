@@ -74,26 +74,51 @@ export const getLegacyDependencies = (prop: unknown): string[] => {
 };
 
 export const getFieldDependencies = (field: FormFieldType): FieldIdType[] => {
-  if (!field || typeof field !== "object" || !("fieldId" in field)) return [];
+  if (!field || typeof field !== "object") return [];
 
-  const dependsOnSet = new Set<FieldIdType>();
+  const dependencies = new Set<FieldIdType>();
 
-  Object.values(field).forEach((propValue) => {
-    if (propValue && typeof propValue === "object") {
-      // ✅ Add from propValue.dependsOn
-      if ("dependsOn" in propValue && Array.isArray(propValue.dependsOn)) {
-        propValue.dependsOn.forEach((dep: FieldIdType) =>
-          dependsOnSet.add(dep)
-        );
-      }
-
-      // ✅ Add from legacy dependents (your custom logic)
-      const legacy = getLegacyDependencies(propValue);
-      legacy.forEach((dep: FieldIdType) => dependsOnSet.add(dep));
+  // Check dynamicOptions first
+  if ("dynamicOptions" in field) {
+    if (field.dynamicOptions?.dependsOn) {
+      const deps = Array.isArray(field.dynamicOptions.dependsOn)
+        ? field.dynamicOptions.dependsOn
+        : [field.dynamicOptions.dependsOn];
+      deps.forEach((dep) => dependencies.add(dep));
     }
-  });
+  }
 
-  return Array.from(dependsOnSet);
+  // Recursively check all object properties
+  const checkObject = (obj: any) => {
+    if (!obj || typeof obj !== "object") return;
+
+    // Check for explicit dependsOn
+    if (Array.isArray(obj.dependsOn)) {
+      obj.dependsOn.forEach((dep: FieldIdType) => dependencies.add(dep));
+    }
+
+    // Check for function dependencies
+    if (typeof obj === "function") {
+      const funcStr = obj.toString();
+      const matches = funcStr.match(/(?:values|formValues)\.([a-zA-Z0-9_]+)/g);
+      if (matches) {
+        matches.forEach((match: string) => {
+          const dep = match.split(".")[1];
+          dependencies.add(dep);
+        });
+      }
+    }
+
+    // Recurse into nested objects
+    Object.values(obj).forEach((val) => {
+      if (val && typeof val === "object") {
+        checkObject(val);
+      }
+    });
+  };
+
+  checkObject(field);
+  return Array.from(dependencies);
 };
 
 export const convertLegacyFieldToNew = <T>(
@@ -153,25 +178,4 @@ export const collectFieldDependencies = (
   }
 
   return result;
-};
-
-export const getInitialDependencies = (
-  fields: FormFieldType[]
-): Record<string, string> => {
-  const dependencies: Record<string, string> = {};
-
-  const traverseFields = (fields: any[]) => {
-    if (!fields || fields.length === 0) return;
-    fields.forEach((field) => {
-      if (field.dynamicOptions?.dependsOn) {
-        dependencies[field.fieldId] = field.dynamicOptions.dependsOn;
-      }
-      if (field.fields && field.fields.length > 0) {
-        traverseFields(field.fields);
-      }
-    });
-  };
-
-  traverseFields(fields);
-  return dependencies;
 };

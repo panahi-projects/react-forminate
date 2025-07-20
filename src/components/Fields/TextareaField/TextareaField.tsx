@@ -16,7 +16,7 @@ const TextareaField: React.FC<TextareaFieldType> = (props) => {
   const commonInputProps = {
     ...fieldParams,
     ...eventHandlers.htmlHandlers,
-    value: fieldValue ?? "",
+    value: (fieldValue as string) ?? "",
   };
 
   return hasDefaultStyling ? (

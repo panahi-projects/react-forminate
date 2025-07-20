@@ -66,6 +66,26 @@ import {
 } from "./primitiveTypes";
 import { ValidationRule } from "./validationsTypes";
 
+export type FieldValueType =
+  | string
+  | number
+  | boolean
+  | readonly string[]
+  | File
+  | null
+  | undefined;
+
+export type SelectValueType = string | number | readonly string[] | undefined;
+export type FileValueType =
+  | File
+  | File[]
+  | FileList
+  | string
+  | string[]
+  | ArrayBuffer
+  | { [key: string]: any }
+  | null;
+
 export type FieldTypes =
   | FieldInputType
   | "select"
@@ -115,7 +135,10 @@ export interface BaseField extends CustomEventHandlers {
 
 export interface TextFieldType
   extends BaseField,
-    Omit<InputHTMLAttributes<HTMLInputElement>, "required" | "disabled"> {
+    Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      "required" | "disabled" | "value"
+    > {
   type: FieldInputType;
   placeholder?: FieldPlaceholderType;
   autoCorrect?: FieldAutoCorrectType;
@@ -123,6 +146,7 @@ export interface TextFieldType
   spellCheck?: FieldSpellCheckType;
   autoFocus?: FieldAutoFocusType;
   step?: FieldStepType;
+  value?: FieldValueType;
 }
 
 export interface DateFieldType
@@ -138,6 +162,7 @@ export interface SelectFieldType
   options?: OptionsType[];
   dynamicOptions?: dynamicOptionsType;
   placeholder?: FieldPlaceholderType;
+  value?: SelectValueType; // Add explicit value type
 }
 
 export interface RadioFieldType extends BaseField {
@@ -202,11 +227,37 @@ export interface SpacerFieldType extends BaseField {
   children?: ChildrenType;
 }
 
+export interface FileMetadata {
+  name: string;
+  type: string;
+  size: number;
+  lastModified: number;
+  [key: string]: any; // Allow additional custom metadata
+}
+
+export type FileValue =
+  | File // Native File object
+  | FileList // Native FileList
+  | string // Base64, blob URL, or remote URL
+  | ArrayBuffer // Binary data
+  | FileMetadata // Custom metadata object
+  | File[] // Array of File objects
+  | string[] // Array of URLs/base64 strings
+  | ArrayBuffer[] // Array of ArrayBuffers
+  | FileMetadata[] // Array of metadata objects
+  | null;
+
 export interface InputFileType
   extends BaseField,
     Omit<
       InputHTMLAttributes<HTMLInputElement>,
-      "required" | "disabled" | "accept"
+      | "required"
+      | "disabled"
+      | "accept"
+      | "value"
+      | "onUpload"
+      | "onRemove"
+      | "onError"
     > {
   type: FieldInputFileType;
   accept?: FileAcceptType;
@@ -222,7 +273,28 @@ export interface InputFileType
   renameFile?: FileRenameFileType;
   storeLocally?: FileStoreLocallyType;
   storageFormat?: FileStorageFormatType;
+  value?: FileValueType;
+  onUpload?: (files: FileValue[], fieldId: string) => void;
+  onRemove?: (file: FileValue, fieldId: string) => void;
+  onError?: (error: Error, file: File) => void;
 }
+
+export type ProcessedFileValue<T extends FileStorageFormatType> =
+  T extends "file"
+    ? File
+    : T extends "fileList"
+      ? FileList
+      : T extends "base64"
+        ? string
+        : T extends "blobUrl"
+          ? string
+          : T extends "arrayBuffer"
+            ? ArrayBuffer
+            : T extends "remoteUrl"
+              ? string
+              : T extends "metadata"
+                ? FileMetadata
+                : never;
 
 export interface BaseContainerField<T extends FormFieldType[]>
   extends Omit<BaseField, "fields"> {

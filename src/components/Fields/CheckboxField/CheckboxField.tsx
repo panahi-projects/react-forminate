@@ -1,6 +1,6 @@
 import { useField } from "@/hooks";
 import { CheckboxFieldType } from "@/types";
-import React from "react";
+import React, { useMemo } from "react";
 
 const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
   const {
@@ -50,6 +50,22 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
     cursor: "pointer",
     ...processedProps?.itemsStyles,
   };
+
+  const isChecked = useMemo(() => {
+    return (optionValue?: string | number) => {
+      if (isSingleCheckbox)
+        return (
+          fieldValue === processedProps?.singlePositiveAnswerValue ||
+          fieldValue === "true"
+        );
+
+      return (
+        (optionValue &&
+          (fieldValue as string[])?.includes(optionValue as string)) ||
+        false
+      );
+    };
+  }, [fieldValue]);
   return (
     <div
       data-testid={fieldParams["data-testid"]}
@@ -68,10 +84,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
             {...eventHandlers.htmlHandlers}
             id={fieldId}
             type="checkbox"
-            checked={
-              fieldValue === processedProps?.singlePositiveAnswerValue ||
-              fieldValue === "true"
-            }
+            checked={isChecked()}
             onChange={handleSingleCheckboxChange}
           />
           {processedProps?.description && (
@@ -97,7 +110,7 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
                 {...eventHandlers.htmlHandlers}
                 id={`${fieldId}-item-${optionValue}`}
                 value={optionValue}
-                checked={fieldValue?.includes(optionValue) || false}
+                checked={isChecked(optionValue)}
               />
               <span>{optionLabel}</span>
             </label>
@@ -108,4 +121,4 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
   );
 };
 
-export default CheckboxField;
+export default React.memo(CheckboxField);

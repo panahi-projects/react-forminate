@@ -7,6 +7,7 @@ import {
   APIResultPathType,
   APIfetchOnInitType,
   APIEndpointType,
+  APIForceRefreshType,
 } from "./primitiveTypes";
 
 // API Pagination
@@ -21,6 +22,11 @@ export type APIPaginationType = {
   metadataPath?: string; // path to access metadata like total pages
 };
 
+export interface DynamicOptionsCache {
+  lastValues?: Record<string, any>;
+  lastFetchTime?: number;
+}
+
 export interface dynamicOptionsType {
   endpoint: APIEndpointType; // can contain placeholders like {{albumId}}
   method?: APIMethodType; // default to GET
@@ -31,4 +37,7 @@ export interface dynamicOptionsType {
   resultPath?: APIResultPathType; // e.g., 'data.results' to extract nested result
   fetchOnInit?: APIfetchOnInitType; // to fetch options on mount
   pagination?: APIPaginationType;
+  forceRefresh?: APIForceRefreshType;
+  _cache?: DynamicOptionsCache;
+  cacheTime?: number; // milliseconds (default: 30000)
 }

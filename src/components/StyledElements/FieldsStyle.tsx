@@ -1,9 +1,17 @@
 import styled from "styled-components";
 import { errorStyles } from "./ErrorStyle";
 import { baseFormStyles, checkboxRadioStyles } from "./BaseFormStyle";
+import { InputHTMLAttributes, SelectHTMLAttributes } from "react";
+
+interface StyledInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  $hasError?: boolean;
+}
+interface StyledSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  $hasError?: boolean;
+}
 
 // Input fields
-const InputBase = styled.input`
+const InputBase = styled.input<StyledInputProps>`
   ${baseFormStyles}
   height: 2.5rem;
 
@@ -22,7 +30,7 @@ const InputBase = styled.input`
 `;
 
 // Select dropdown
-export const SelectBase = styled.select`
+export const SelectBase = styled.select<StyledSelectProps>`
   ${baseFormStyles}
   height: 2.5rem;
   appearance: none;

@@ -166,4 +166,4 @@ const GridViewField: React.FC<GridViewFieldType> = ({
   );
 };
 
-export default GridViewField;
+export default React.memo(GridViewField);

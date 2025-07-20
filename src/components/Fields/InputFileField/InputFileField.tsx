@@ -1,15 +1,49 @@
 import { useField } from "@/hooks";
-import { InputFileType } from "@/types";
-import { useCallback, useState, useMemo } from "react";
+import {
+  FileMetadata,
+  FileStorageFormatType,
+  FileValue,
+  InputFileType,
+} from "@/types";
+import React, { useCallback, useState, useMemo, useEffect } from "react";
 
-type FileStorageFormat =
-  | "file" // Raw File object
-  | "fileList" // FileList
-  | "base64" // Base64 string
-  | "blobUrl" // Blob URL
-  | "arrayBuffer" // ArrayBuffer
-  | "remoteUrl" // Remote URL string
-  | "metadata"; // Custom metadata object
+// Utility functions moved outside component
+const isFile = (value: unknown): value is File => value instanceof File;
+const isFileMetadata = (value: unknown): value is FileMetadata =>
+  !!value && typeof value === "object" && "name" in value;
+
+const FilePreviewRenderer: React.FC<{
+  file: FileValue;
+  previewUrl?: string;
+  storageFormat: FileStorageFormatType;
+  onRemove?: () => void;
+}> = ({ file, previewUrl, storageFormat, onRemove }) => {
+  if (!file) return null;
+
+  const renderContent = () => {
+    if (storageFormat === "blobUrl" || storageFormat === "base64") {
+      const src = previewUrl || (typeof file === "string" ? file : null);
+      return src ? <img src={src} alt="File preview" /> : null;
+    }
+
+    if (isFile(file)) return <span>{file.name}</span>;
+    if (isFileMetadata(file)) return <span>{file.name}</span>;
+    if (typeof file === "string") return <span>{file}</span>;
+
+    return null;
+  };
+
+  return (
+    <div className="file-preview">
+      {renderContent()}
+      {onRemove && (
+        <button type="button" onClick={onRemove} className="remove-file">
+          Remove
+        </button>
+      )}
+    </div>
+  );
+};
 
 const InputFileField: React.FC<InputFileType> = (props) => {
   const {
@@ -20,122 +54,133 @@ const InputFileField: React.FC<InputFileType> = (props) => {
     setValue,
   } = useField(props);
 
-  // Get storage format from field schema (default to 'file')
-  const storageFormat: FileStorageFormat = props.storageFormat || "file";
+  const storageFormat: FileStorageFormatType = props.storageFormat || "file";
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-
-  // Extract custom handlers
   const { htmlHandlers, customHandlers } = eventHandlers;
 
-  // Convert file to desired format
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
+
   const processFile = useCallback(
-    async (file: File): Promise<any> => {
-      switch (storageFormat) {
-        case "file":
-          return file;
-
-        case "fileList":
-          // Note: FileList is read-only, we'll simulate it with an array
-          return [file];
-
-        case "base64":
-          return new Promise<string>((resolve) => {
+    async (file: File): Promise<FileValue> => {
+      const processors: Record<
+        FileStorageFormatType,
+        () => Promise<FileValue>
+      > = {
+        file: async () => file,
+        fileList: async () => [file],
+        base64: async () =>
+          new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result as string);
             reader.readAsDataURL(file);
-          });
-
-        case "blobUrl":
-          return URL.createObjectURL(file);
-
-        case "arrayBuffer":
-          return new Promise<ArrayBuffer>((resolve) => {
+          }),
+        blobUrl: async () => URL.createObjectURL(file),
+        arrayBuffer: async () =>
+          new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result as ArrayBuffer);
             reader.readAsArrayBuffer(file);
-          });
+          }),
+        remoteUrl: async () => `https://example.com/uploads/${file.name}`,
+        metadata: async () => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+        }),
+      };
 
-        case "remoteUrl":
-          // This would typically involve an upload API call
-          // For demo, we'll return a placeholder
-          return `https://example.com/uploads/${file.name}`;
-
-        case "metadata":
-          return {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lastModified: file.lastModified,
-            // Add any custom metadata
-          };
-
-        default:
-          return file;
-      }
+      return processors[storageFormat]();
     },
     [storageFormat]
   );
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files || e.target.files.length === 0) return;
+      if (!e.target.files?.length) return;
 
       const files = Array.from(e.target.files);
       const processedFiles = await Promise.all(files.map(processFile));
 
-      // Generate previews for image files
       if (["base64", "blobUrl"].includes(storageFormat)) {
-        const urls = files.map((file) => URL.createObjectURL(file));
-        setPreviewUrls(urls);
+        setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
       }
 
-      // Set value based on storage format
-      if (storageFormat === "fileList") {
-        setValue(props.fieldId, e.target.files); // Actual FileList
-      } else {
-        setValue(
-          props.fieldId,
-          processedFiles.length === 1 ? processedFiles[0] : processedFiles
-        );
-      }
+      const newValue =
+        storageFormat === "fileList"
+          ? e.target.files
+          : processedFiles.length === 1
+            ? processedFiles[0]
+            : processedFiles;
 
-      // Call the upload handler with the correct parameters
-      if (customHandlers?.onUpload) {
-        customHandlers.onUpload(processedFiles, props.fieldId);
-      }
+      setValue(props.fieldId, newValue);
+      customHandlers?.onUpload?.(processedFiles as File[], props.fieldId);
     },
     [processFile, storageFormat, setValue, props.fieldId, customHandlers]
   );
 
   const handleRemoveFile = useCallback(
-    async (index: number) => {
-      if (!Array.isArray(fieldValue)) return;
+    (index?: number) => {
+      const isArray = Array.isArray(fieldValue);
+      const filesToRemove = isArray ? [fieldValue[index!]] : [fieldValue];
+      const newValue = isArray
+        ? fieldValue.filter((_, i) => i !== index)
+        : null;
 
-      const removedFile = fieldValue[index];
-      const newValue = fieldValue.filter((_, i) => i !== index);
+      // Cleanup blob URLs
+      filesToRemove.forEach((file) => {
+        if (storageFormat === "blobUrl" && typeof file === "string") {
+          URL.revokeObjectURL(file);
+        }
+      });
 
-      // Revoke blob URLs if used
-      if (storageFormat === "blobUrl" && typeof removedFile === "string") {
-        URL.revokeObjectURL(removedFile);
-      }
-
-      setValue(props.fieldId, newValue.length === 0 ? null : newValue);
-      setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
-
-      // Call custom remove handler if provided
-      if (customHandlers?.onRemove) {
-        customHandlers.onRemove(removedFile, props.fieldId);
-      }
+      setValue(props.fieldId, newValue);
+      setPreviewUrls((prev) =>
+        isArray ? prev.filter((_, i) => i !== index) : []
+      );
+      customHandlers?.onRemove?.(filesToRemove[0], props.fieldId);
     },
     [fieldValue, storageFormat, setValue, props.fieldId, customHandlers]
   );
 
-  // Determine accepted file types
-  const acceptedFileTypes = useMemo(() => {
-    if (!props.accept) return undefined;
-    if (Array.isArray(props.accept)) return props.accept.join(",");
-    return props.accept;
-  }, [props.accept]);
+  const acceptedFileTypes = useMemo(
+    () => (Array.isArray(props.accept) ? props.accept.join(",") : props.accept),
+    [props.accept]
+  );
+
+  const renderFilePreviews = () => {
+    if (!fieldValue) return null;
+
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.map((file, index) => (
+        <FilePreviewRenderer
+          key={`${props.fieldId}-${index}`}
+          file={file}
+          previewUrl={previewUrls[index]}
+          storageFormat={storageFormat}
+          onRemove={() => handleRemoveFile(index)}
+        />
+      ));
+    }
+
+    if (typeof fieldValue === "object" && !Object.keys(fieldValue).length) {
+      return null;
+    }
+
+    return (
+      <FilePreviewRenderer
+        file={fieldValue as FileValue}
+        previewUrl={previewUrls[0]}
+        storageFormat={storageFormat}
+        onRemove={() => handleRemoveFile()}
+      />
+    );
+  };
 
   return (
     <div className="file-input-container">
@@ -148,62 +193,9 @@ const InputFileField: React.FC<InputFileType> = (props) => {
         multiple={props.multiple}
         data-touched={isTouched}
       />
-
-      {/* File previews */}
-      <div className="file-previews">
-        {Array.isArray(fieldValue) ? (
-          fieldValue.map((file, index) => (
-            <div key={index} className="file-preview">
-              {storageFormat === "blobUrl" || storageFormat === "base64" ? (
-                <img
-                  src={
-                    previewUrls[index] || (typeof file === "string" ? file : "")
-                  }
-                  alt="Preview"
-                />
-              ) : (
-                <span>{file.name || file}</span>
-              )}
-              <button
-                type="button"
-                onClick={() => handleRemoveFile(index)}
-                className="remove-file"
-              >
-                Remove
-              </button>
-            </div>
-          ))
-        ) : fieldValue ? (
-          <div className="file-preview">
-            {storageFormat === "blobUrl" || storageFormat === "base64" ? (
-              <img
-                src={
-                  previewUrls[0] ||
-                  (typeof fieldValue === "string" ? fieldValue : "")
-                }
-                alt="Preview"
-              />
-            ) : (
-              <span>{fieldValue.name || fieldValue}</span>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                setValue(props.fieldId, null);
-                setPreviewUrls([]);
-                if (customHandlers?.onRemove) {
-                  customHandlers.onRemove(fieldValue, props.fieldId);
-                }
-              }}
-              className="remove-file"
-            >
-              Remove
-            </button>
-          </div>
-        ) : null}
-      </div>
+      <div className="file-previews">{renderFilePreviews()}</div>
     </div>
   );
 };
 
-export default InputFileField;
+export default React.memo(InputFileField);

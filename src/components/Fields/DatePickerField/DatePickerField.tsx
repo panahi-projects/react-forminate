@@ -16,7 +16,7 @@ const DatePickerField: React.FC<DateFieldType> = (props) => {
   const commonInputProps = {
     ...fieldParams,
     ...eventHandlers.htmlHandlers,
-    value: fieldValue ?? "",
+    value: (fieldValue as string) ?? "",
   };
 
   return hasDefaultStyling ? (

@@ -1,4 +1,5 @@
 import { SpacerFieldType } from "@/types";
+import React from "react";
 
 const SpacerField: React.FC<SpacerFieldType> = ({
   as: Component = "div",
@@ -27,4 +28,4 @@ const SpacerField: React.FC<SpacerFieldType> = ({
   );
 };
 
-export default SpacerField;
+export default React.memo(SpacerField);

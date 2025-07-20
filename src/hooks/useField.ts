@@ -1,5 +1,10 @@
 //Global internal imports
-import { useForm } from "@/context";
+import {
+  useFormActions,
+  useFormErrors,
+  useFormMeta,
+  useFormValues,
+} from "@/context";
 import { buildFieldEventHandlers, initFieldSetup } from "@/helpers";
 import {
   BaseField,
@@ -13,7 +18,7 @@ import { fallbackValue } from "@/utils";
 import { useFieldProcessor } from "./useFieldProcessor";
 
 //External libraries & tools import
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useField = <
   T extends BaseField,
@@ -21,26 +26,24 @@ export const useField = <
 >(
   fieldProps: T
 ) => {
-  //single call to useForm
+  const values = useFormValues();
+  const errors = useFormErrors();
+  const { setValue, validateField, setTouched, shouldShowField, observer } =
+    useFormActions();
   const {
-    values,
-    errors,
     formSchema,
     dynamicOptions,
-    observer,
     formOptions = {},
-    setValue,
-    getFieldSchema,
-    shouldShowField,
-    validateForm,
-    validateField,
     touched,
-    setTouched,
-  } = useForm();
+  } = useFormMeta();
+
   const [hasBeenFocused, setHasBeenFocused] = useState(false);
 
   const fieldId: FieldIdType = fieldProps?.fieldId;
-  const fieldValue = values[fieldId] || fallbackValue[fieldProps.type]; // Get the current value of the field from form values
+  const fieldValue = useMemo(
+    () => values[fieldId] || fallbackValue[fieldProps.type],
+    [values]
+  ); // Get the current value of the field from form values
 
   let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
   processedProps = useFieldProcessor(fieldProps);
@@ -134,8 +137,6 @@ export const useField = <
     hasBeenFocused,
     hasDefaultStyling: !processedProps.disableDefaultStyling,
     setValue,
-    getFieldSchema,
-    validateForm,
     validateField,
   };
 };

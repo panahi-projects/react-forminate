@@ -1,4 +1,4 @@
-import { useForm } from "@/context";
+import { useFormActions, useFormValues } from "@/context";
 import { DynamicFormType, FormFieldType } from "@/types";
 import { DynamicFormField } from "../DynamicFormField";
 import { StyledSubmitButton } from "./StyledComponents";
@@ -9,7 +9,8 @@ const FormContent: React.FC<DynamicFormType> = ({
   isLoading,
   submitDetails,
 }) => {
-  const { values, validateForm } = useForm();
+  const values = useFormValues();
+  const { validateForm } = useFormActions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

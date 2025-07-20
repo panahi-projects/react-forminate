@@ -118,6 +118,7 @@ export type APITransformResponseType = (
 ) => { label: string; value: any }[] | string[];
 export type APIResultPathType = string;
 export type APIfetchOnInitType = boolean;
+export type APIForceRefreshType = boolean;
 export type FormValuesType = Record<FieldIdType, any>;
 export type FormErrorsType = Record<FieldIdType, string>;
 export type FieldDynamicOptionsType = Record<FieldIdType, any[]>;

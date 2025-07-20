@@ -94,18 +94,6 @@ export const useDynamicOptions = (formSchema: FormDataCollectionType) => {
         ...prev,
         [fieldId]: transformed,
       }));
-
-      // Save metadata if required
-      // if (paginationCfg?.metadataPath) {
-      //   let meta = await attemptFetch(); // don't retry again
-      //   for (const key of paginationCfg.metadataPath.split(".")) {
-      //     meta = meta?.[key];
-      //   }
-      //   setDynamicOptions((prev) => ({
-      //     ...prev,
-      //     [`${fieldId}__meta`]: meta,
-      //   }));
-      // }
     } catch (err: any) {
       if (err.name === "AbortError") {
         console.log(`[Aborted] Fetch for ${fieldId} was cancelled.`);
