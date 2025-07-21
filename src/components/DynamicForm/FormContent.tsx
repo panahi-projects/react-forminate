@@ -2,22 +2,28 @@ import { useFormActions, useFormValues } from "@/context";
 import { DynamicFormType, FormFieldType } from "@/types";
 import { DynamicFormField } from "../DynamicFormField";
 import { StyledSubmitButton } from "./StyledComponents";
+import React from "react";
 
-const FormContent: React.FC<DynamicFormType> = ({
+interface FormContentProps extends DynamicFormType {
+  onSubmit?: (values: any, isValid: boolean) => void;
+  isLoading?: boolean;
+}
+
+const FormContent: React.FC<FormContentProps> = ({
   formData,
   onSubmit,
   isLoading,
-  submitDetails,
 }) => {
   const values = useFormValues();
   const { validateForm } = useFormActions();
 
+  const submitDetails = formData?.options?.submit;
+  const SubmitCustomComponent = submitDetails?.component;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = await validateForm(formData);
-    if (onSubmit) {
-      onSubmit(values, isValid);
-    }
+    onSubmit?.(values, isValid);
   };
 
   return (
@@ -32,13 +38,17 @@ const FormContent: React.FC<DynamicFormType> = ({
         />
       ))}
       {submitDetails?.visibility !== false && (
-        <div
-          className={submitDetails?.containerClassName}
-          style={submitDetails?.containerStyles}
-        >
-          <StyledSubmitButton type="submit" disabled={isLoading}>
-            {isLoading ? "Submitting..." : submitDetails?.text || "Submit"}
-          </StyledSubmitButton>
+        <div>
+          {SubmitCustomComponent ?? (
+            <div
+              className={submitDetails?.containerClassName}
+              style={submitDetails?.containerStyles}
+            >
+              <StyledSubmitButton type="submit" disabled={isLoading}>
+                {isLoading ? "Submitting..." : submitDetails?.text || "Submit"}
+              </StyledSubmitButton>
+            </div>
+          )}
         </div>
       )}
     </form>

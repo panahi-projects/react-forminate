@@ -35,6 +35,7 @@ export type SubmitDetailsType = {
   styles?: FieldStyleType;
   containerClassName?: FieldClassNameType;
   containerStyles?: FieldStyleType;
+  component?: React.ReactNode;
 };
 export type CustomProviderType = React.FC<FormProviderType>;
 
@@ -45,6 +46,7 @@ export interface FormOptions {
     showSkeletonLoading: ShowSkeletonLoadingType;
     component?: ChildrenType;
   };
+  submit?: SubmitDetailsType;
 }
 
 export interface FormDataCollectionType {
@@ -86,7 +88,6 @@ export interface DynamicFormType {
   formData: FormDataCollectionType;
   onSubmit?: OnSubmitType;
   isLoading?: IsLoadingType;
-  submitDetails?: SubmitDetailsType;
   customProvider?: CustomProviderType;
 }
 

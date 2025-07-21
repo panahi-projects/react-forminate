@@ -13,7 +13,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
   formData,
   onSubmit,
   isLoading = false,
-  submitDetails,
   customProvider,
 }) => {
   const existingContext = useContext(FormContext);
@@ -25,7 +24,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
       formData={formData}
       onSubmit={onSubmit}
       isLoading={isLoading}
-      submitDetails={submitDetails}
     />
   ) : (
     <Provider formSchema={formData} formId={formId}>
@@ -34,7 +32,6 @@ const DynamicForm: React.FC<DynamicFormType> = ({
         formData={formData}
         onSubmit={onSubmit}
         isLoading={isLoading}
-        submitDetails={submitDetails}
       />
     </Provider>
   );
