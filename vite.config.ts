@@ -22,7 +22,7 @@ export default defineConfig({
     rollupOptions: {
       external: [...Object.keys(peerDependencies)], // Defines external dependencies for Rollup bundling.
     },
-    sourcemap: true, // Generates source maps for debugging.
+    sourcemap: false, // Generates source maps for debugging if it is true.
     emptyOutDir: true, // Clears the output directory before building.
     minify: "esbuild",
     polyfillModulePreload: false,
