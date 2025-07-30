@@ -6,7 +6,7 @@ import {
   ProcessedFieldProps,
   SupportedTypes,
 } from "@/types";
-import { convertLegacyFieldToNew } from "@/utils";
+import { convertLegacyFieldToNew, customStringify } from "@/utils";
 
 export class FieldProcessor {
   private static instance: FieldProcessor;
@@ -80,7 +80,7 @@ export class FieldProcessor {
       .map((key) => `${key}:${JSON.stringify(values[key])}`)
       .join("|");
 
-    return `${field.fieldId}|${valueHash}|${JSON.stringify(field)}`;
+    return `${field.fieldId}|${valueHash}|${customStringify(field)}`;
   }
 
   public getFieldDependencies(field: FormFieldType): string[] {
@@ -95,6 +95,7 @@ export class FieldProcessor {
       "visibility",
       "options",
       "requiredMessage",
+      "content",
     ];
     computedProps.forEach((prop) => {
       const fieldProp = field[prop as keyof FormFieldType];

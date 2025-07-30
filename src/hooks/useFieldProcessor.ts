@@ -10,6 +10,7 @@ export const useFieldProcessor = <T extends FormFieldType>(
   const processor = FieldProcessor.getInstance();
 
   return useMemo(() => {
+    // if (field.fieldId === "emailPreferences") debugger;
     const res = processor.process(field, values, formSchema);
     return res;
   }, [field, values, formSchema]);

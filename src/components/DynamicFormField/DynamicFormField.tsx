@@ -36,6 +36,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   textarea: lazy(() => import("../Fields/TextareaField")),
   spacer: lazy(() => import("../Fields/SpacerField")),
   file: lazy(() => import("../Fields/InputFileField")),
+  content: lazy(() => import("../Fields/ContentField")),
   // Add other fields here as needed
 };
 

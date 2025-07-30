@@ -58,6 +58,7 @@ export class PropertyProcessor {
       "placeholder",
       "validation",
       "requiredMessage",
+      "content",
     ];
     return processableProps.includes(key);
   }

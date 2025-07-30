@@ -11,7 +11,8 @@ export type SupportedObject = {
 export type SupportedTypes =
   | SupportedPrimitive
   | SupportedArray
-  | SupportedObject;
+  | SupportedObject
+  | React.ReactNode;
 
 export type ComputedValue<T> = {
   fn: (context: FieldPropContext) => T;
@@ -36,6 +37,7 @@ export type TFieldVisibility =
       condition: VisibilityConditionType;
       value: string | number;
     };
+export type TFunctionalChildrenType = React.ReactNode;
 
 export type FieldIdType = string;
 export type FieldTypeType = string;
@@ -81,8 +83,9 @@ export type FieldTextareaType = "textarea";
 export type FieldGroupType = "group";
 export type FieldGridViewType = "gridview";
 export type FieldSpacerType = "spacer";
-export type FieldContainerType = "container";
+export type FieldContainerType = "container" | "content";
 export type FieldInputFileType = "file";
+export type FieldContentType = "content";
 export type FieldTextareaRowsType = number;
 export type FieldTextareaColsType = number;
 export type FieldAsHTMLContainerTagType =
@@ -123,6 +126,7 @@ export type FormValuesType = Record<FieldIdType, any>;
 export type FormErrorsType = Record<FieldIdType, string>;
 export type FieldDynamicOptionsType = Record<FieldIdType, any[]>;
 export type ChildrenType = React.ReactNode;
+export type FunctionalChildrenType = FunctionOrValue<TFunctionalChildrenType>;
 export type ShowSkeletonLoadingType = boolean;
 
 export type ValidationPatternType = string;

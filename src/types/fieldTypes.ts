@@ -18,6 +18,7 @@ import {
   FieldCheckboxType,
   FieldClassNameType,
   FieldContainerType,
+  FieldContentType,
   FieldDatepickerType,
   FieldDefaultValueType,
   FieldDescriptionType,
@@ -59,6 +60,7 @@ import {
   FileUploadHeadersType,
   FileUploadMethodType,
   FileUploadUrlType,
+  FunctionalChildrenType,
   GapType,
   HeightType,
   OptionsType,
@@ -98,6 +100,7 @@ export type FieldTypes =
   | "file"
   | "spacer"
   | "textarea"
+  | "content"
   | string;
 
 export interface BaseField extends CustomEventHandlers {
@@ -319,6 +322,12 @@ export interface BaseContainerField<T extends FormFieldType[]>
 
 export type ContainerFieldType = BaseContainerField<FormFieldType[]>;
 
+export interface ContentFieldType extends BaseField {
+  type: FieldContentType;
+  as?: React.ElementType;
+  content?: FunctionalChildrenType;
+}
+
 export type FormFieldType =
   | BaseField
   | TextFieldType
@@ -331,4 +340,5 @@ export type FormFieldType =
   | ContainerFieldType
   | TextareaFieldType
   | SpacerFieldType
-  | InputFileType;
+  | InputFileType
+  | ContentFieldType;
