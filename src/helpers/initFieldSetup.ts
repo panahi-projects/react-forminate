@@ -10,7 +10,7 @@ type DefaultFieldPropsType = Record<
   }
 >;
 
-const excludedFieldProps = ["required"];
+const excludedFieldProps = ["required", "options"];
 const baseFieldConfig = (tagName: string = "input", type: string = "text") => {
   return {
     "data-testid": `${tagName}-${type}-field`,

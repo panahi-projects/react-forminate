@@ -28,8 +28,6 @@ export const customStringify = (obj: unknown): string => {
     if (React.isValidElement(value)) {
       return "[ReactElement]";
     }
-    console.log("-----------", (obj as any).fieldId, _, value);
-
     return value;
   });
 };

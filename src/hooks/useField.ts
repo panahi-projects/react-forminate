@@ -6,16 +6,10 @@ import {
   useFormValues,
 } from "@/context";
 import { buildFieldEventHandlers, initFieldSetup } from "@/helpers";
-import {
-  BaseField,
-  FieldIdType,
-  FormFieldType,
-  ProcessedFieldProps,
-} from "@/types";
+import { BaseField, FieldIdType } from "@/types";
 import { fallbackValue } from "@/utils";
 
 //Relative internal import
-import { useFieldProcessor } from "./useFieldProcessor";
 
 //External libraries & tools import
 import { useEffect, useMemo, useState } from "react";
@@ -28,8 +22,7 @@ export const useField = <
 ) => {
   const values = useFormValues();
   const errors = useFormErrors();
-  const { setValue, validateField, setTouched, shouldShowField, observer } =
-    useFormActions();
+  const { setValue, validateField, setTouched, observer } = useFormActions();
   const {
     formSchema,
     dynamicOptions,
@@ -44,9 +37,6 @@ export const useField = <
     () => values[fieldId] || fallbackValue[fieldProps.type],
     [values]
   ); // Get the current value of the field from form values
-
-  let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
-  processedProps = useFieldProcessor(fieldProps);
 
   const fieldErrors = errors[fieldId];
 
@@ -106,7 +96,7 @@ export const useField = <
 
   const fieldParams = initFieldSetup(
     fieldProps.type,
-    processedProps,
+    fieldProps,
     touched[fieldId],
     !!fieldErrors
   ); // Initialize field setup based on type and processed props
@@ -115,13 +105,11 @@ export const useField = <
   if (fieldErrors) {
     fieldParams.className = `${fieldParams.className ? `${fieldParams.className} ` : ""}field-validation-error`;
   }
-
-  const isVisible = shouldShowField(processedProps as FormFieldType);
-  const isDisable = processedProps.disabled || false; // Determine if the field is disabled
+  const isDisable = fieldProps.disabled || false; // Determine if the field is disabled
 
   return {
     fieldId,
-    processedProps,
+    processedProps: fieldProps,
     fieldParams,
     fieldValue,
     values,
@@ -130,12 +118,11 @@ export const useField = <
     formSchema,
     dynamicOptions,
     eventHandlers,
-    isVisible,
     isDisable,
     observer,
     isTouched: touched[fieldProps.fieldId] || false,
     hasBeenFocused,
-    hasDefaultStyling: !processedProps.disableDefaultStyling,
+    hasDefaultStyling: !fieldProps.disableDefaultStyling,
     setValue,
     validateField,
   };

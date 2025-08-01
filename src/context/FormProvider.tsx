@@ -33,12 +33,20 @@ export const FormProvider: React.FC<FormProviderType> = ({
   children,
   formSchema,
 }) => {
+  // Split state into smaller chunks
   const [values, setValues] = useState<Record<string, any>>(() => {
     return setDefaultsRecursively(formSchema.fields);
   });
+
+  // Use separate state for errors, touched, blurred
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
   const [blurred, setBlurredState] = useState<Record<FieldIdType, boolean>>({});
+
+  // Memoize all callbacks
+  const setValueImmediate = (fieldId: FieldIdType, value: SupportedTypes) => {
+    setValues((prev) => ({ ...prev, [fieldId]: value }));
+  };
 
   const { dynamicOptions, fetchDynamicOptions } = useDynamicOptions(formSchema);
 
@@ -63,7 +71,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
         console.error(`Failed to fetch options for ${fieldId}`, error);
       }
     },
-    [formSchema.fields, fetchDynamicOptions]
+    [formSchema.fields, fetchDynamicOptions, values]
   );
 
   const dependencyMap = useMemo(
@@ -96,28 +104,27 @@ export const FormProvider: React.FC<FormProviderType> = ({
     []
   );
 
-  const setValueImmediate = (fieldId: FieldIdType, value: SupportedTypes) => {
-    setValues((prev) => ({ ...prev, [fieldId]: value }));
-  };
-
   const debouncedValidation = useDebouncedCallback(
-    (fieldId: FieldIdType, value: SupportedTypes) => {
-      const dependents = dependencyMap[fieldId];
-      if (dependents?.length) {
-        dependents.forEach((dep) => observer.notify(dep));
-      }
+    useCallback(
+      (fieldId: FieldIdType, value: SupportedTypes) => {
+        const dependents = dependencyMap[fieldId];
+        if (dependents?.length) {
+          dependents.forEach((dep) => observer.notify(dep));
+        }
 
-      if (options?.validateFieldsOnBlur === false || blurred[fieldId]) {
-        validateField(fieldId, value);
-      }
+        if (options?.validateFieldsOnBlur === false || blurred[fieldId]) {
+          validateField(fieldId, value);
+        }
 
-      // Only fetch for dependent fields
-      if (dependencyMap[fieldId]) {
-        dependencyMap[fieldId].forEach(async (dependentFieldId) => {
-          await stableFetchDynamicOptions(dependentFieldId, values);
-        });
-      }
-    },
+        // Only fetch for dependent fields
+        if (dependencyMap[fieldId]) {
+          dependencyMap[fieldId].forEach(async (dependentFieldId) => {
+            await stableFetchDynamicOptions(dependentFieldId, values);
+          });
+        }
+      },
+      [formSchema, values]
+    ),
     500
   );
 

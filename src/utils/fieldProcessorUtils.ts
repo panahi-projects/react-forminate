@@ -11,7 +11,6 @@ import { convertLegacyFieldToNew, customStringify } from "@/utils";
 export class FieldProcessor {
   private static instance: FieldProcessor;
   private cache: Map<string, ProcessedFieldProps<any>> = new Map();
-
   private constructor() {}
 
   public static getInstance(): FieldProcessor {
@@ -23,7 +22,7 @@ export class FieldProcessor {
 
   public process<T extends FormFieldType>(
     field: T,
-    values: Record<string, SupportedTypes>,
+    values: Record<string, SupportedTypes> = {},
     formSchema: FormDataCollectionType
   ): ProcessedFieldProps<T> {
     const cacheKey = this.getCacheKey(field, values);
@@ -80,7 +79,7 @@ export class FieldProcessor {
       .map((key) => `${key}:${JSON.stringify(values[key])}`)
       .join("|");
 
-    return `${field.fieldId}|${valueHash}|${customStringify(field)}`;
+    return `${field.fieldId}|${valueHash}|${JSON.stringify(field)}`;
   }
 
   public getFieldDependencies(field: FormFieldType): string[] {

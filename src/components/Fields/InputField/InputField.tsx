@@ -1,16 +1,16 @@
 import { Input } from "@/components/StyledElements";
-import { useField } from "@/hooks";
+import { useOptimizedField } from "@/hooks";
 import { TextFieldType } from "@/types";
 import React from "react";
 
 const InputField: React.FC<TextFieldType> = (props) => {
   const {
     eventHandlers,
+    value: fieldValue,
+    error: fieldErrors,
+    props: fieldProps,
     fieldParams,
-    fieldValue,
-    fieldErrors,
-    hasDefaultStyling,
-  } = useField(props);
+  } = useOptimizedField(props);
 
   // Common input props
   const commonInputProps = {
@@ -19,7 +19,7 @@ const InputField: React.FC<TextFieldType> = (props) => {
     value: fieldValue as string | number,
   };
 
-  return hasDefaultStyling ? (
+  return !fieldProps.disableDefaultStyling ? (
     <Input {...commonInputProps} $hasError={!!fieldErrors} />
   ) : (
     <input {...commonInputProps} />

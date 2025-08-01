@@ -1,19 +1,6 @@
-import { useField } from "@/hooks";
-import {
-  FormErrorsType,
-  FormFieldType,
-  TFieldLabel,
-  TFieldRequired,
-} from "@/types";
-import {
-  ComponentType,
-  FC,
-  lazy,
-  ReactNode,
-  Suspense,
-  useEffect,
-  useState,
-} from "react";
+import { useDynamicField } from "@/hooks";
+import { FormFieldType, TFieldLabel, TFieldRequired } from "@/types";
+import React, { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import { FieldWrapper } from "../FieldWrapper";
 import { SkeletonComponent } from "../ui";
 
@@ -54,44 +41,49 @@ type ExtendedFormField = FormFieldType & {
 };
 
 // Generic DynamicFormField component
-const DynamicFormField: FC<ExtendedFormField> = ({
-  showSkeletonLoading = true,
-  skeleton,
-  ...props
-}) => {
-  const { processedProps, errors, isVisible } = useField(props);
-  const [fieldErrors, setFieldErrors] = useState<FormErrorsType>();
-  const [showComponent, setShowComponent] = useState<boolean>(true);
+const DynamicFormField: FC<ExtendedFormField> = React.memo(
+  ({ showSkeletonLoading = true, skeleton, ...props }) => {
+    const { processedProps, fieldErrors, isVisible } = useDynamicField(props);
 
-  useEffect(() => {
-    setFieldErrors(errors);
-    setShowComponent(isVisible);
-  }, [isVisible, errors]);
+    // Get the corresponding field component dynamically
+    const FieldComponent = fieldComponents[props.type];
+    if (!FieldComponent || !isVisible) return null;
 
-  // Get the corresponding field component dynamically
-  const FieldComponent = fieldComponents[props.type];
-  if (!FieldComponent || !showComponent) return null;
-
-  return (
-    <Suspense
-      fallback={showSkeletonLoading ? skeleton || <SkeletonComponent /> : null}
-    >
-      <FieldWrapper
-        id={processedProps.fieldId}
-        label={processedProps.label as TFieldLabel}
-        required={processedProps.required as TFieldRequired}
-        error={fieldErrors?.[processedProps.fieldId]}
-        className={processedProps.containerClassName}
-        styles={processedProps.containerStyles}
-        labelClassName={processedProps.labelClassName}
-        labelStyles={processedProps.labelStyles}
-        type={processedProps.type}
-        description={processedProps.description}
+    return (
+      <Suspense
+        fallback={
+          showSkeletonLoading ? skeleton || <SkeletonComponent /> : null
+        }
       >
-        <FieldComponent {...processedProps} />
-      </FieldWrapper>
-    </Suspense>
-  );
-};
+        <FieldWrapper
+          id={processedProps.fieldId}
+          label={processedProps.label as TFieldLabel}
+          required={processedProps.required as TFieldRequired}
+          error={fieldErrors}
+          className={processedProps.containerClassName}
+          styles={processedProps.containerStyles}
+          labelClassName={processedProps.labelClassName}
+          labelStyles={processedProps.labelStyles}
+          type={processedProps.type}
+          description={processedProps.description}
+        >
+          <FieldComponent {...processedProps} />
+        </FieldWrapper>
+      </Suspense>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Only re-render if these specific props change
+    return (
+      prevProps.fieldId === nextProps.fieldId &&
+      prevProps.type === nextProps.type &&
+      prevProps.label === nextProps.label &&
+      prevProps.required === nextProps.required &&
+      prevProps.disabled === nextProps.disabled &&
+      prevProps.showSkeletonLoading === nextProps.showSkeletonLoading
+    );
+  }
+);
 
+DynamicFormField.displayName = "DynamicFormField";
 export default DynamicFormField;
