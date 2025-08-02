@@ -1,8 +1,8 @@
-import { useFormActions, useFormValues } from "@/context";
 import { DynamicFormType, FormFieldType } from "@/types";
 import { DynamicFormField } from "../DynamicFormField";
 import { StyledSubmitButton } from "./StyledComponents";
 import React from "react";
+import { useFormActions, useFormValues } from "@/hooks";
 
 interface FormContentProps extends DynamicFormType {
   onSubmit?: (values: any, isValid: boolean) => void;

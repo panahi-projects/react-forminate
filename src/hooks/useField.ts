@@ -1,10 +1,4 @@
 //Global internal imports
-import {
-  useFormActions,
-  useFormErrors,
-  useFormMeta,
-  useFormValues,
-} from "@/context";
 import { buildFieldEventHandlers, initFieldSetup } from "@/helpers";
 import { BaseField, FieldIdType } from "@/types";
 import { fallbackValue } from "@/utils";
@@ -13,6 +7,12 @@ import { fallbackValue } from "@/utils";
 
 //External libraries & tools import
 import { useEffect, useMemo, useState } from "react";
+import {
+  useFormActions,
+  useFormErrors,
+  useFormMeta,
+  useFormValues,
+} from "./formHooks";
 
 export const useField = <
   T extends BaseField,

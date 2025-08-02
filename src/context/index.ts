@@ -1,2 +1,3 @@
 export * from "./FormProvider";
-export * from "./formContext";
+export * from "./FormRegistryContext";
+export * from "./FormRegistryProvider";

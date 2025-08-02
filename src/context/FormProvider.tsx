@@ -21,18 +21,21 @@ import {
 } from "@/utils";
 import { preloadFields } from "@/utils/preload";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+
 import {
   FormActionsContext,
   FormContext,
   FormErrorsContext,
   FormMetaContext,
+  FormRegistryContext,
   FormValuesContext,
-} from "./formContext";
+} from "./FormRegistryContext";
 
 export const FormProvider: React.FC<FormProviderType> = ({
   children,
   formSchema,
 }) => {
+  const { registerForm, unregisterForm } = useContext(FormRegistryContext);
   // Split state into smaller chunks
   const [values, setValues] = useState<Record<string, any>>(() => {
     return setDefaultsRecursively(formSchema.fields);
@@ -232,6 +235,20 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
     traverseAndFetch(formSchema.fields);
   }, [formSchema.fields, stableFetchDynamicOptions]);
+
+  useEffect(() => {
+    const context = {
+      actions,
+      values,
+      errors,
+      meta,
+    };
+    registerForm(formSchema.formId, context);
+
+    return () => {
+      unregisterForm(formSchema.formId);
+    };
+  }, [formSchema, values, errors]);
 
   return (
     <FormActionsContext.Provider value={actions}>
