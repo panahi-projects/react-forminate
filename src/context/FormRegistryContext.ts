@@ -1,4 +1,3 @@
-import { registerField } from "./../components/DynamicFormField/DynamicFormField";
 import { FormContextType, SupportedTypes } from "@/types";
 import { createContext, useContext } from "react";
 

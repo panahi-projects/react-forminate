@@ -2,12 +2,7 @@ import { BaseField, FormFieldType, ProcessedFieldProps } from "@/types";
 import { useFieldProcessor } from "./useFieldProcessor";
 import { useFormActions, useFormError } from "./formHooks";
 
-export const useDynamicField = <
-  T extends BaseField,
-  E extends HTMLElement = HTMLInputElement,
->(
-  fieldProps: T
-) => {
+export const useDynamicField = <T extends BaseField>(fieldProps: T) => {
   const fieldErrors = useFormError(fieldProps.fieldId);
   const { shouldShowField } = useFormActions();
 

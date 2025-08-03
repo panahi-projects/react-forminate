@@ -6,7 +6,7 @@ import {
   ProcessedFieldProps,
   SupportedTypes,
 } from "@/types";
-import { convertLegacyFieldToNew, customStringify } from "@/utils";
+import { convertLegacyFieldToNew } from "@/utils";
 
 export class FieldProcessor {
   private static instance: FieldProcessor;
