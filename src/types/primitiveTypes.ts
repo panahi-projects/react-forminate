@@ -44,7 +44,17 @@ export type FieldTypeType = string;
 export type FieldLabelType = FunctionOrValue<TFieldLabel>;
 export type FieldRequiredType = FunctionOrValue<TFieldRequired>;
 export type FieldRequiredMessageType = FunctionOrValue<TFieldRequiredMessage>;
-export type VisibilityConditionType = "equals" | "not_equals";
+export type VisibilityConditionType =
+  | "equals"
+  | "not_equals"
+  | "greater_than"
+  | "greater_than_or_equal"
+  | "less_than"
+  | "less_than_or_equal"
+  | "contains"
+  | "not_contains"
+  | "in"
+  | "not_in";
 export type FieldVisibilityType = FunctionOrValue<TFieldVisibility>;
 export type FieldClassNameType = string;
 export type FieldStyleType = React.CSSProperties;

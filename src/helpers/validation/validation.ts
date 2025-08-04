@@ -248,6 +248,45 @@ export const shouldShowField = (
       ? dependsOn.map((dep) => values[dep])
       : values[dependsOn];
 
+    // If parentValue is null/undefined, don't show the field
+    if (parentValue === null || parentValue === undefined) return false;
+
+    const compareValues = (a: any, b: any): number | null => {
+      // If either value is null/undefined, comparison is impossible
+      if (a === null || a === undefined || b === null || b === undefined) {
+        return null;
+      }
+      // Handle numeric comparison
+      if (typeof a === "number" && typeof b === "number") {
+        return a - b;
+      }
+      // Handle date comparison
+      if (a instanceof Date && b instanceof Date) {
+        return a.getTime() - b.getTime();
+      }
+      // Fallback to string comparison
+      return String(a).localeCompare(String(b));
+    };
+
+    const handleComparison = (
+      comparisonResult: number | null,
+      operator: string
+    ): boolean => {
+      if (comparisonResult === null) return false;
+      switch (operator) {
+        case ">":
+          return comparisonResult > 0;
+        case ">=":
+          return comparisonResult >= 0;
+        case "<":
+          return comparisonResult < 0;
+        case "<=":
+          return comparisonResult <= 0;
+        default:
+          return false;
+      }
+    };
+
     switch (condition) {
       case "equals":
         return Array.isArray(parentValue)
@@ -257,8 +296,64 @@ export const shouldShowField = (
         return Array.isArray(parentValue)
           ? parentValue.every((val) => val !== value)
           : parentValue !== value;
+      case "greater_than":
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) =>
+              handleComparison(compareValues(val, value), ">")
+            )
+          : handleComparison(compareValues(parentValue, value), ">");
+      case "greater_than_or_equal":
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) =>
+              handleComparison(compareValues(val, value), ">=")
+            )
+          : handleComparison(compareValues(parentValue, value), ">=");
+      case "less_than":
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) =>
+              handleComparison(compareValues(val, value), "<")
+            )
+          : handleComparison(compareValues(parentValue, value), "<");
+      case "less_than_or_equal":
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) =>
+              handleComparison(compareValues(val, value), "<=")
+            )
+          : handleComparison(compareValues(parentValue, value), "<=");
+      case "contains":
+        if (parentValue === "" || value === "") return false;
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) =>
+              Array.isArray(val)
+                ? val.includes(value)
+                : String(val).includes(String(value))
+            )
+          : Array.isArray(parentValue)
+            ? parentValue.includes(value)
+            : String(parentValue).includes(String(value));
+      case "not_contains":
+        if (parentValue === "" || value === "") return true;
+        return Array.isArray(parentValue)
+          ? parentValue.every((val) =>
+              Array.isArray(val)
+                ? !val.includes(value)
+                : !String(val).includes(String(value))
+            )
+          : Array.isArray(parentValue)
+            ? !parentValue.includes(value)
+            : !String(parentValue).includes(String(value));
+      case "in":
+        if (!Array.isArray(value)) return false;
+        return Array.isArray(parentValue)
+          ? parentValue.some((val) => value.includes(val))
+          : value.includes(parentValue);
+      case "not_in":
+        if (!Array.isArray(value)) return true;
+        return Array.isArray(parentValue)
+          ? parentValue.every((val) => !value.includes(val))
+          : !value.includes(parentValue);
       default:
-        return true;
+        return false; // Changed from true to false for safety
     }
   }
 
