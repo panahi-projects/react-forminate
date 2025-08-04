@@ -1,5 +1,10 @@
 import { useDynamicField } from "@/hooks";
-import { FormFieldType, TFieldLabel, TFieldRequired } from "@/types";
+import {
+  FormFieldType,
+  TFieldDisabled,
+  TFieldLabel,
+  TFieldRequired,
+} from "@/types";
 import React, { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
 import { FieldWrapper } from "../FieldWrapper";
 import { SkeletonComponent } from "../ui";
@@ -66,6 +71,16 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           labelStyles={processedProps.labelStyles}
           type={processedProps.type}
           description={processedProps.description}
+          ariaDescribedby={
+            processedProps.ariaDescribedby || processedProps.description
+          }
+          ariaDisabled={
+            processedProps.ariaDisabled ||
+            (processedProps.disabled as TFieldDisabled)
+          }
+          ariaLabel={
+            processedProps.ariaLabel || (processedProps.label as TFieldLabel)
+          }
         >
           <FieldComponent {...processedProps} />
         </FieldWrapper>

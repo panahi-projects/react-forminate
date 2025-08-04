@@ -27,8 +27,21 @@ const FormContent: React.FC<FormContentProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} role="form">
-      {isLoading && <div>{/* Loading animation goes here... */}</div>}
+    <form
+      onSubmit={handleSubmit}
+      role="form"
+      aria-busy={isLoading}
+      aria-live="polite"
+    >
+      {isLoading && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          style={{ position: "absolute", left: "-10000px" }}
+        >
+          Form is submitting, please wait...
+        </div>
+      )}
       {formData.fields.map((field: FormFieldType) => (
         <DynamicFormField
           key={field.fieldId}

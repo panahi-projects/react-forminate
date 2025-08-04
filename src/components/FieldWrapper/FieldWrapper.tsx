@@ -14,6 +14,17 @@ interface FieldWrapperProps {
   labelStyles?: React.CSSProperties;
   type?: FieldTypeType;
   description?: FieldDescriptionType;
+
+  // Accessibility additions
+  ariaLabel?: string; // Alternative to visible label
+  ariaLabelledby?: string; // ID reference for labeling element
+  ariaDescribedby?: string; // ID reference for description
+  ariaInvalid?: boolean | "true" | "false" | "grammar" | "spelling";
+  ariaRequired?: boolean | "true" | "false";
+  ariaDisabled?: boolean | "true" | "false";
+  ariaHidden?: boolean | "true" | "false";
+  ariaLive?: "off" | "assertive" | "polite";
+  role?: string; // For custom widget roles
 }
 
 const FieldContainer = styled.div`
@@ -49,13 +60,32 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     labelStyles = {},
     type,
     description,
+    ariaDescribedby,
+    ariaLabel,
+    ariaDisabled,
   }) => {
     {
       // Determine if we should add htmlFor (not for radio or checkbox)
       const shouldAddHtmlFor = type !== "radio" && type !== "checkbox";
 
+      const descriptionId = `${id}-description`;
+      const errorId = `${id}-error`;
+
+      const ariaProps = {
+        "aria-describedby": ariaDescribedby,
+        "aria-errormessage": error ? error : undefined,
+        "aria-invalid": !!error,
+        "aria-required": required,
+        "aria-disabled": ariaDisabled,
+        "aria-label": ariaLabel,
+      };
+
       return (
-        <FieldContainer className={className} style={styles}>
+        <FieldContainer
+          className={className}
+          style={styles}
+          role={type === "group" ? "group" : undefined}
+        >
           {label && type !== "group" && (
             <label
               {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
@@ -63,12 +93,22 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
               style={labelStyles}
             >
               <span>{label}</span>{" "}
-              {required && <StyledErrorMessage>*</StyledErrorMessage>}
+              {required && (
+                <StyledErrorMessage aria-hidden="true">*</StyledErrorMessage>
+              )}
             </label>
           )}
-          {children}
-          {description && <StyledDescription>{description}</StyledDescription>}
-          {error && <StyledErrorMessage>{error}</StyledErrorMessage>}
+          {React.cloneElement(children as React.ReactElement, ariaProps)}
+          {description && (
+            <StyledDescription id={descriptionId}>
+              {description}
+            </StyledDescription>
+          )}
+          {error && (
+            <StyledErrorMessage id={errorId} role="alert">
+              {error}
+            </StyledErrorMessage>
+          )}
         </FieldContainer>
       );
     }

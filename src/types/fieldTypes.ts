@@ -134,14 +134,24 @@ export interface BaseField extends CustomEventHandlers {
   fields?: FormFieldType[]; // Child fields (for group/container types)
   _defaultValue?: FieldDefaultValueType; // Initial value (internal use)
   params?: BaseFieldParams;
+
+  // Accessibility additions
+  ariaLabel?: string; // Alternative to visible label
+  ariaLabelledby?: string; // ID reference for labeling element
+  ariaDescribedby?: string; // ID reference for description
+  ariaInvalid?: boolean | "true" | "false" | "grammar" | "spelling";
+  ariaRequired?: boolean | "true" | "false";
+  ariaDisabled?: boolean | "true" | "false";
+  ariaHidden?: boolean | "true" | "false";
+  ariaLive?: "off" | "assertive" | "polite";
+  role?: string; // For custom widget roles
 }
+
+export type ExcludingAttributes = "required" | "disabled" | "value" | "role";
 
 export interface TextFieldType
   extends BaseField,
-    Omit<
-      InputHTMLAttributes<HTMLInputElement>,
-      "required" | "disabled" | "value"
-    > {
+    Omit<InputHTMLAttributes<HTMLInputElement>, ExcludingAttributes> {
   type: FieldInputType;
   placeholder?: FieldPlaceholderType;
   autoCorrect?: FieldAutoCorrectType;
@@ -154,13 +164,13 @@ export interface TextFieldType
 
 export interface DateFieldType
   extends BaseField,
-    Omit<InputHTMLAttributes<HTMLInputElement>, "required" | "disabled"> {
+    Omit<InputHTMLAttributes<HTMLInputElement>, ExcludingAttributes> {
   type: FieldDatepickerType;
 }
 
 export interface SelectFieldType
   extends BaseField,
-    Omit<SelectHTMLAttributes<HTMLSelectElement>, "required" | "disabled"> {
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, ExcludingAttributes> {
   type: FieldSelectType;
   options?: OptionsType[];
   dynamicOptions?: dynamicOptionsType;
@@ -178,10 +188,7 @@ export interface RadioFieldType extends BaseField {
 
 export interface CheckboxFieldType
   extends BaseField,
-    Omit<
-      SelectHTMLAttributes<HTMLSelectElement>,
-      "required" | "type" | "disabled"
-    > {
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, ExcludingAttributes> {
   type: FieldCheckboxType;
   options?: OptionsType[];
   itemsClassName?: FieldClassNameType;
@@ -193,7 +200,7 @@ export interface CheckboxFieldType
 
 export interface TextareaFieldType
   extends BaseField,
-    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "required" | "disabled"> {
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, ExcludingAttributes> {
   type: FieldTextareaType;
   placeholder?: FieldPlaceholderType;
   rows?: FieldTextareaRowsType;
@@ -254,10 +261,9 @@ export interface InputFileType
   extends BaseField,
     Omit<
       InputHTMLAttributes<HTMLInputElement>,
-      | "required"
-      | "disabled"
-      | "accept"
+      | ExcludingAttributes
       | "value"
+      | "accept"
       | "onUpload"
       | "onRemove"
       | "onError"
