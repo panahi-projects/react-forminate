@@ -33,7 +33,7 @@ export const fallbackValue: { [key: string]: unknown } = {
 };
 
 export function isSelectField(field: FormFieldType): field is SelectFieldType {
-  return field.type === "select";
+  return field.type === "select" || field.type === "multiSelect";
 }
 
 export function getValidJSXProps<K extends keyof HTMLElementTagNameMap>(

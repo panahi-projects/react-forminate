@@ -176,6 +176,12 @@ export interface SelectFieldType
   dynamicOptions?: dynamicOptionsType;
   placeholder?: FieldPlaceholderType;
   value?: SelectValueType; // Add explicit value type
+  validateOnChange?: boolean;
+}
+
+export interface MultiSelectFieldType extends SelectFieldType {
+  debounceSearch?: number;
+  showClearAll?: boolean;
 }
 
 export interface RadioFieldType extends BaseField {
@@ -347,4 +353,5 @@ export type FormFieldType =
   | TextareaFieldType
   | SpacerFieldType
   | InputFileType
-  | ContentFieldType;
+  | ContentFieldType
+  | MultiSelectFieldType;

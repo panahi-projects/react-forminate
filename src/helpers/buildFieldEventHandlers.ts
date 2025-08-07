@@ -8,6 +8,24 @@ export interface EventHandlersResult<T = HTMLElement> {
   customHandlers: {
     onUpload?: (files: File[], fieldId: FieldIdType) => void;
     onRemove?: (file: File | string, fieldId: FieldIdType) => void;
+    onChangeItems?: (
+      items: (string | number | boolean)[],
+      fieldId: FieldIdType
+    ) => void;
+    onAddItems?: (
+      items: (string | number | boolean)[],
+      fieldId: FieldIdType
+    ) => void;
+    onRemoveItems?: (
+      items: (string | number | boolean)[],
+      fieldId: FieldIdType
+    ) => void;
+    onSearch?: (
+      items: (string | number | boolean)[],
+      selectedItems: (string | number | boolean)[],
+      fieldId: FieldIdType,
+      searchText?: string
+    ) => void;
   };
 }
 
@@ -37,6 +55,24 @@ interface BuildFieldEventHandlersParams<T = HTMLInputElement> {
     fieldId: string,
     ...args: any[]
   ) => void;
+  onCustomChangeItems?: (
+    items: (string | number | boolean)[],
+    fieldId: FieldIdType
+  ) => void;
+  onCustomAddItems?: (
+    items: (string | number | boolean)[],
+    fieldId: FieldIdType
+  ) => void;
+  onCustomRemoveItems?: (
+    items: (string | number | boolean)[],
+    fieldId: FieldIdType
+  ) => void;
+  onCustomSearch?: (
+    items: (string | number | boolean)[],
+    selectedItems: (string | number | boolean)[],
+    fieldId: FieldIdType,
+    searchText?: string
+  ) => void;
 }
 
 export const buildFieldEventHandlers = <T = HTMLInputElement>({
@@ -55,6 +91,10 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
   onCustomContextMenu,
   onCustomUpload,
   onCustomRemove,
+  onCustomAddItems,
+  onCustomChangeItems,
+  onCustomRemoveItems,
+  onCustomSearch,
 }: BuildFieldEventHandlersParams<T>): EventHandlersResult<T> => {
   const { setBlurred, setValue, handleCustomEvent, setTouched } =
     useFieldEvents();
@@ -108,6 +148,21 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
     // Update form value logic would need current value
   };
 
+  const handleSearch = (
+    items?: (string | number | boolean)[],
+    selectedItems?: (string | number | boolean)[],
+    searchTerm?: string | null
+  ) => {
+    if (onCustomSearch) {
+      onCustomSearch(
+        items || [],
+        selectedItems || [],
+        fieldId,
+        searchTerm || ""
+      );
+    }
+  };
+
   const wrapHandler = (handler: any) => {
     return (e: any) => handleCustomEvent(handler, e, fieldId, value);
   };
@@ -128,6 +183,10 @@ export const buildFieldEventHandlers = <T = HTMLInputElement>({
     customHandlers: {
       onUpload: onCustomUpload ? handleUpload : undefined,
       onRemove: onCustomRemove ? handleRemove : undefined,
+      onAddItems: wrapHandler(onCustomAddItems),
+      onRemoveItems: wrapHandler(onCustomRemoveItems),
+      onChangeItems: wrapHandler(onCustomChangeItems),
+      onSearch: onCustomSearch ? handleSearch : undefined,
     },
   };
 };

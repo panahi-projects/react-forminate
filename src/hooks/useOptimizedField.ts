@@ -82,6 +82,10 @@ export const useOptimizedField = <
     onCustomBlur: handleBlur,
     onCustomFocus: handleFocus,
     onCustomUpload: fieldProps.events?.onCustomUpload as any,
+    onCustomChangeItems: fieldProps.events?.onCustomChangeItems as any,
+    onCustomAddItems: fieldProps.events?.onCustomAddItems as any,
+    onCustomRemoveItems: fieldProps.events?.onCustomRemoveItems as any,
+    onCustomSearch: fieldProps.events?.onCustomSearch as any,
   });
 
   // 5. Calculate field parameters

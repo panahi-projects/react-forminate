@@ -29,6 +29,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   spacer: lazy(() => import("../Fields/SpacerField")),
   file: lazy(() => import("../Fields/InputFileField")),
   content: lazy(() => import("../Fields/ContentField")), //can contain any kind of HTML or JSX content
+  multiSelect: lazy(() => import("../Fields/MultiSelectField")),
   // Add other fields here as needed
 };
 

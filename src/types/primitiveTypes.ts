@@ -86,7 +86,7 @@ export type FieldInputType =
   | "tel"
   | "search";
 export type FieldDatepickerType = "date";
-export type FieldSelectType = "select";
+export type FieldSelectType = "select" | "multiSelect";
 export type FieldRadioType = "radio";
 export type FieldCheckboxType = "checkbox";
 export type FieldTextareaType = "textarea";

@@ -92,6 +92,10 @@ export const useField = <
           ...args: any[]
         ) => void)
       | undefined,
+    onCustomChangeItems: fieldProps.events?.onCustomChangeItems as any,
+    onCustomAddItems: fieldProps.events?.onCustomAddItems as any,
+    onCustomRemoveItems: fieldProps.events?.onCustomRemoveItems as any,
+    onCustomSearch: fieldProps.events?.onCustomSearch as any,
   }); // Build event handlers for the field
 
   const fieldParams = initFieldSetup(

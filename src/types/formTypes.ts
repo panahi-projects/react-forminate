@@ -97,3 +97,23 @@ export interface FieldPropContext {
   fieldSchema: FormFieldType;
   formSchema: FormDataCollectionType;
 }
+
+export interface CustomChangeEvent<T = any> {
+  target: {
+    value: T;
+    name: string;
+    type: string;
+  };
+  currentTarget: {
+    value: T;
+    name: string;
+  };
+  nativeEvent: Event;
+  preventDefault: () => void;
+  stopPropagation: () => void;
+  isDefaultPrevented: () => boolean;
+  isPropagationStopped: () => boolean;
+  persist: () => void;
+  type: string;
+  timeStamp: number;
+}

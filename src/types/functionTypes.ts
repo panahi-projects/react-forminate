@@ -53,6 +53,10 @@ export type CustomEventHandlers = {
       | "onCustomMouseDown"
       | "onCustomContextMenu"
       | "onCustomUpload"
+      | "onCustomChangeItems"
+      | "onCustomAddItems"
+      | "onCustomRemoveItems"
+      | "onCustomSearch"
       | "onCustomRemove"]: FormEventHandler<any>;
   }>;
 };
