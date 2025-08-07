@@ -5,30 +5,24 @@
 </div>
 
 <h1 align="center">React Forminate⚡️</h1>
+<p align="center">The most dynamic form builder for React</p>
 <br />
+<p align="center">The ultimate plug-and-play form engine for modern React apps. Build fully dynamic, schema-based forms in seconds with advanced features like conditional logic, file uploads, and real-time validation.</p>
 
-The ultimate plug-and-play form engine for modern React apps. Build fully dynamic, schema-based forms in seconds with advanced features like conditional logic, file uploads, and real-time validation.
+## Features ✨
 
-## ✨ What's New
+- **Schema-Driven Forms** - JSON-powered forms with zero boilerplate
+- **Real-Time Validation** - Built-in validators + custom async validation
+- **Conditional Logic** - Show/hide fields based on other fields' values
+- **File Handling** - Uploads with previews (Base64/Blob/File)
+- **API-Driven Fields** - Dynamic options from endpoints
+- **TypeScript Ready** - Full type safety
+- **Performance Optimized** - Debounced updates, lazy loading
+- **Accessibility** - ARIA attributes out of the box
+- **Extensible** - Add custom fields and validators
+- **Styling Freedom** - Tailwind, CSS modules, or inline styles
 
-- File Upload Support with multiple storage formats (Base64, Blob URLs, etc.)
-- Enhanced Validation with blur/change timing control
-- Improved TypeScript Support for all field types
-- Custom Event Handlers for file operations
-- Dynamic Field Processing with function-based properties
-
-## 💡 Key Features?
-
-- ✅ **Zero-Boilerplate Forms** - JSON schema to fully functional forms
-- ⚡ **Real-Time Validation** - Control when validation triggers (on blur or change)
-- 📁 **File Handling** - Multiple storage formats with previews
-- 🧠 **Smart Dependencies** - Fields that react to other fields' values
-- 🛠️ **Extensible Architecture** - Add custom components and validators
-- 🎨 **Style Control** - Tailwind, CSS modules, or inline styles
-
----
-
-## 📦 Installation
+## Installation 📦
 
 ```bash
 npm install react-forminate
@@ -36,283 +30,175 @@ npm install react-forminate
 yarn add react-forminate
 ```
 
-## 🚀 Quick Start
+## Basic Usage 🚀
 
-**✅ Basic Usage**
-
-```ts
+```tsx
 import { DynamicForm } from "react-forminate";
 
-const formData = {
-  formId: "userProfile",
+const formSchema = {
+  formId: "userForm",
   fields: [
     {
       fieldId: "name",
       type: "text",
       label: "Full Name",
-      required: true
+      required: true,
     },
     {
-      fieldId: "avatar",
-      type: "file",
-      accept: "image/*",
-      storageFormat: "base64"
-    }
-  ]
-};
-
-export default () => <DynamicForm formData={formData} onSubmit={console.log} />;
-```
-
-### 📂 Advanced Example
-
-Grouped + API Options
-
-```ts
-import { DynamicForm, FormDataCollection } from "react-forminate";
-
-const formData: FormDataCollection = {
-  formId: "ApiDrivenFormData",
-  title: "API Driven Form Example",
-  fields: [
+      fieldId: "email",
+      type: "email",
+      label: "Email",
+      required: true,
+      validation: [{ type: "email" }],
+    },
     {
-      fieldId: "group1",
-      label: "Photo Album",
-      type: "group",
-      className: "p-4 border-2 border-gray-300 rounded-lg",
-      legendClassName: "block text-sm font-medium text-gray-200 px-2",
-      fields: [
-        {
-          fieldId: "album",
-          label: "Album",
-          type: "select",
-          dynamicOptions: {
-            endpoint: "https://jsonplaceholder.typicode.com/albums",
-            transformResponse: (res) =>
-              res.map((item: { title: string; id: string }) => ({
-                label: item.title,
-                value: item.id,
-              })),
-            fetchOnInit: true,
-          },
-          className:
-            "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-          labelClassName:
-            "block mb-2 text-sm font-medium text-gray-900 dark:text-white",
-        },
-        {
-          fieldId: "photo",
-          label: "Photo",
-          type: "select",
-          dynamicOptions: {
-            dependsOn: "album",
-            endpoint: "https://jsonplaceholder.typicode.com/photos",
-            params: { albumId: "album" },
-            transformResponse: (res) =>
-              res.map((item: { title: string; id: string }) => ({
-                label: item.title,
-                value: item.id,
-              })),
-          },
-          className:
-            "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-          labelClassName:
-            "block mb-2 text-sm font-medium text-gray-900 dark:text-white",
-        },
-      ],
+      fieldId: "subscribe",
+      type: "checkbox",
+      label: "Subscribe to newsletter",
+      visibility: {
+        dependsOn: "email",
+        condition: "not_empty",
+      },
     },
   ],
 };
-const AdvancedGroupAndAPIForm = () => {
-  return (
-    <DynamicForm
-      formData={formData}
-      onSubmit={(value, isValid) => console.log(value, isValid)}
-    />
-  );
-};
 
-export default AdvancedGroupAndAPIForm;
+export default () => (
+  <DynamicForm formData={formSchema} onSubmit={console.log} />
+);
 ```
 
-File Uploads with Custom Handlers:
+## Advanced Features 🛠
 
-```ts
+### Conditional Fields
+
+```tsx
 {
-  fieldId: "documents",
+  fieldId: "company",
+  type: "text",
+  label: "Company Name",
+  visibility: {
+    dependsOn: "employmentStatus",
+    condition: "equals",
+    value: "employed"
+  }
+}
+```
+
+### File Uploads
+
+```tsx
+{
+  fieldId: "avatar",
   type: "file",
-  multiple: true,
-  accept: ".pdf,.docx",
-  storageFormat: "blobUrl", // or "base64", "file", etc.
+  accept: "image/*",
+  storageFormat: "base64",
   events: {
-    onCustomUpload: (files, fieldId) => {
-      console.log(`${files.length} files uploaded to ${fieldId}`);
-      // Upload to server here
-    },
-    onCustomRemove: (file) => {
-      console.log("Removed file:", file.name);
-    }
+    onCustomUpload: (files) => uploadToServer(files)
   }
 }
 ```
 
-Dynamic Field Properties:
+### API-Driven Select
 
-```ts
+```tsx
 {
-  fieldId: "dynamicLabel",
+  fieldId: "products",
+  type: "select",
+  dynamicOptions: {
+    endpoint: "/api/products",
+    transformResponse: (res) =>
+      res.map(product => ({ label: product.name, value: product.id }))
+  }
+}
+```
+
+### Custom Validation
+
+```tsx
+{
+  fieldId: "username",
   type: "text",
-  label: {
-    fn: ({ values }) => values.firstName
-      ? `${values.firstName}'s Custom Field`
-      : "Default Label"
-  },
-  required: {
-    fn: ({ values }) => values.requireExtraFields
-  }
-}
-```
-
-Validation Control:
-
-```ts
-{
-  formId: "myForm",
-  options: {
-    validateFieldsOnBlur: false // Validate immediately on change
-  },
-  fields: [
+  validation: [
     {
-      fieldId: "username",
-      type: "text",
-      validation: [
-        {
-          pattern: "^\\w{4,20}$",
-          message: "4-20 alphanumeric characters"
-        }
-      ]
+      custom: async (value) => {
+        const available = await checkUsernameAvailability(value);
+        return available;
+      },
+      message: "Username already taken"
     }
   ]
 }
 ```
 
-### 🎨 TailwindCSS Styling Support
+## Field Types Supported 🏗️
 
-Fields support custom `className`, `labelClassName`, and even inline `styles`.
+**Input Fields**
 
-```ts
-{
-  fieldId: "email",
-  label: "Email",
-  type: "text",
-  className: "bg-gray-100 p-2 rounded-md w-full",
-  labelClassName: "text-sm text-gray-700",
-  placeholder: "Enter your email",
-}
+| Type     | Description                 | Example Use Case         |
+| -------- | --------------------------- | ------------------------ |
+| text     | Standard text input         | Names, general text      |
+| email    | Email input with validation | User emails              |
+| password | Masked password input       | Login forms              |
+| number   | Numeric input               | Age, quantity            |
+| tel      | Telephone number input      | Phone numbers            |
+| url      | URL input with validation   | Website links            |
+| search   | Search-style input          | Search boxes             |
+| date     | Date picker                 | Birthdates, appointments |
+| file     | File upload with previews   | Avatars, documents       |
+
+**Selection Fields**
+
+| Type     | Description        | Special Features    |
+| -------- | ------------------ | ------------------- |
+| select   | Dropdown select    | Dynamic API options |
+| radio    | Radio button group | Single selection    |
+| checkbox | Checkbox group     | Multiple selection  |
+
+**Layout & Structural Fields**
+
+| Type      | Description                  | Configuration Options  |
+| --------- | ---------------------------- | ---------------------- |
+| group     | Logical field grouping       | Nested fields, legends |
+| container | Visual wrapper (div/section) | Grid layouts, spacing  |
+| spacer    | Vertical/horizontal spacing  | Pixel-perfect gaps     |
+
+**Special Fields**
+
+| Type     | Description               | Content Flexibility          |
+| -------- | ------------------------- | ---------------------------- |
+| gridview | Data grid with pagination | API-driven tables            |
+| content  | Custom HTML/JSX content   | Terms, rich text, components |
+| textarea | Multi-line text area      | Long-form content            |
+
+## Hooks for Control 🎣
+
+```tsx
+import {
+  useFormValue,
+  useFormActions,
+  FormRegistryProvider,
+} from "react-forminate";
+
+// Get single value
+const email = useFormValue("email", "formId");
+
+// Access all form actions
+const { validateForm, setValue } = useFormActions("formId");
+
+// Wrap your app to enable multi-form control
+<FormRegistryProvider>
+  <App />
+</FormRegistryProvider>;
 ```
 
-You can also apply inline styles:
+## Why React Forminate? 💡
 
-```ts
-{
-  type: "radio",
-  fieldId: "subscribe",
-  label: "Subscribe",
-  styles: {
-    backgroundColor: "#fff",
-    padding: "10px",
-  },
-  labelStyles: {
-    fontWeight: "bold",
-    color: "#000",
-  },
-}
-```
+**✔ Productivity** - Build complex forms in minutes<br />
+**✔ Maintainability** - Schema-based = cleaner code<br />
+**✔ Consistency** - Unified validation & styling<br />
+**✔ Flexibility** - Extend with custom fields<br />
 
-## 🛠 Supported Field Types
+## Documentation 📖
 
-| Type        | Description                                                              |
-| ----------- | ------------------------------------------------------------------------ |
-| `text`      | Single-line input field: text, email, password, etc.                     |
-| `number`    | Numeric input                                                            |
-| `date`      | Date picker                                                              |
-| `file`      | File uploader                                                            |
-| `select`    | Dropdown select (static/dynamic)                                         |
-| `radio`     | Radio button group                                                       |
-| `checkbox`  | Checkbox list                                                            |
-| `textarea`  | Multi-line text area                                                     |
-| `group`     | Logical grouping of fields                                               |
-| `container` | Logical wrapper to group fields visually or structurally                 |
-| `gridview`  | Displays dynamic API data in a grid layout with pagination and filtering |
-| `spacer`    | Adds visual spacing in the form layout                                   |
-| `custom`    | Custom component (via plugin)                                            |
-
-## ✅ Validation Example
-
-```ts
-...
-{
-  fieldId: "name",
-  label: "Name",
-  type: "text",
-  required: true,
-  placeholder: "Enter your name",
-  requiredMessage: "Name is required", //Custom required text message
-  validation: [
-    {
-      pattern: "^[a-zA-Z ]+$",
-      message: "Name should contain only letters and spaces",
-    },
-    {
-      minLength: 3,
-      message: "Name should be at least 3 characters long",
-    },
-  ],
-},
-...
-```
-
-or
-
-```ts
-{
-  fieldId: "email",
-  label: "Email",
-  type: "text",
-  required: true,
-  placeholder: "Enter your email",
-  validation: [{
-    pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-    message: "Invalid email format",
-  }],
-}
-```
-
-Custom Validation Function:
-
-```ts
-{
-  fieldId: "password",
-  type: "password",
-  validation: [
-    {
-      custom: (value) => value.length >= 8,
-      message: "Password must be 8+ characters"
-    }
-  ]
-}
-```
-
-## 📖 Documentation
-
-For full documentation, advanced schema examples, and plugin development: 👉 Visit Full Docs
-
-## 🧪 Contributions & Feedback
-
-This library is in active development. Please try it out and submit issues for any bugs or feature requests. Contributions are welcome! <br /><br />
-
----
-
-#### 💬 Need help or want to collaborate?
-
-Feel free to reach out or contribute to improve `react-forminate`!
+For complete documentation and advanced examples, visit our [documentation site](https://react-forminate.netlify.app/).
