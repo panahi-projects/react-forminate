@@ -248,7 +248,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
     return () => {
       unregisterForm(formSchema.formId);
     };
-  }, [formSchema, values, errors]);
+  }, [values, errors]);
 
   return (
     <FormActionsContext.Provider value={actions}>
