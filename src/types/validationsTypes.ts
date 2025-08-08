@@ -41,6 +41,13 @@ export type DateTimePatternType =
   | `${number}.${number}.${number} ${number}:${number}` // e.g. 06.06.2025 14:30
   | `${string} ${number}, ${number} ${number}:${number}`; // e.g. June 6, 2025 14:30
 
+export interface ValidationStrategy {
+  validate(
+    value: any,
+    rule: ValidationRule,
+    context?: any
+  ): ValidationResponseType | Promise<ValidationResponseType>;
+}
 export interface ValidationRule {
   pattern?: ValidationPatternType;
   message?: MessageType;
@@ -49,7 +56,7 @@ export interface ValidationRule {
   minLength?: MinLengthType;
   maxLength?: MaxLengthType;
   custom?: ValidationCustomRuleType;
-  type?: "password" | "required" | "email" | "equalTo" | "url"; // Optional type to specify the validation type
+  type?: "password" | "required" | "email" | "equalTo" | "url" | (string & {}); // Optional type to specify the validation type
   minDate?: DateTimePatternType;
   maxDate?: DateTimePatternType;
   minItems?: number;

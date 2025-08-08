@@ -1,13 +1,9 @@
-import { ValidationResponseType, ValidationRule } from "@/types";
+import {
+  ValidationResponseType,
+  ValidationRule,
+  ValidationStrategy,
+} from "@/types";
 import { isConvertableToNumber } from "@/utils";
-
-interface ValidationStrategy {
-  validate(
-    value: any,
-    rule: ValidationRule,
-    context?: any
-  ): ValidationResponseType | Promise<ValidationResponseType>;
-}
 
 abstract class BaseValidationStrategy implements ValidationStrategy {
   abstract validate(
