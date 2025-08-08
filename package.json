@@ -29,7 +29,9 @@
     "form-builder",
     "validation",
     "front-end",
-    "form-generator"
+    "form-generator",
+    "typescript",
+    "nextjs"
   ],
   "author": {
     "name": "Saeed Panahi",
