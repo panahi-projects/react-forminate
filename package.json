@@ -35,7 +35,7 @@
     "name": "Saeed Panahi",
     "email": "panahi.projects@gmail.com"
   },
-  "license": "ISC",
+  "license": "MIT",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

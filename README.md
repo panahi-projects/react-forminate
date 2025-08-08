@@ -6,6 +6,13 @@
 
 <h1 align="center">React Forminate⚡️</h1>
 <p align="center">The most dynamic form builder for React</p>
+
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
 <br />
 <p align="center">The ultimate plug-and-play form engine for modern React apps. Build fully dynamic, schema-based forms in seconds with advanced features like conditional logic, file uploads, and real-time validation.</p>
 
