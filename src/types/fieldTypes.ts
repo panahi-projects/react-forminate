@@ -145,6 +145,16 @@ export interface BaseField extends CustomEventHandlers {
   ariaHidden?: boolean | "true" | "false";
   ariaLive?: "off" | "assertive" | "polite";
   role?: string; // For custom widget roles
+
+  // Customizable error and description props
+  errorClassName?: string;
+  errorStyles?: React.CSSProperties;
+  descriptionClassName?: string;
+  descriptionStyles?: React.CSSProperties;
+  errorComponent?: React.ComponentType<{ error: string }>;
+  descriptionComponent?: React.ComponentType<{
+    description: FieldDescriptionType;
+  }>;
 }
 
 export type ExcludingAttributes = "required" | "disabled" | "value" | "role";

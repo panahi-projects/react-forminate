@@ -25,6 +25,16 @@ interface FieldWrapperProps {
   ariaHidden?: boolean | "true" | "false";
   ariaLive?: "off" | "assertive" | "polite";
   role?: string; // For custom widget roles
+
+  // Customizable error and description props
+  errorClassName?: string;
+  errorStyles?: React.CSSProperties;
+  descriptionClassName?: string;
+  descriptionStyles?: React.CSSProperties;
+  errorComponent?: React.ComponentType<{ error: string }>;
+  descriptionComponent?: React.ComponentType<{
+    description: FieldDescriptionType;
+  }>;
 }
 
 const FieldContainer = styled.div`
@@ -33,14 +43,14 @@ const FieldContainer = styled.div`
   margin-bottom: 10px;
 `;
 
-const StyledErrorMessage = styled.span`
+const DefaultErrorMessage = styled.span`
   color: #f00;
   font-size: small;
   display: inline-block;
   margin: 0;
 `;
 
-const StyledDescription = styled.span`
+const DefaultDescription = styled.span`
   font-size: small;
   color: #828282;
   display: inline-block;
@@ -60,58 +70,89 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     labelStyles = {},
     type,
     description,
+    errorClassName = "",
+    errorStyles = {},
+    descriptionClassName = "",
+    descriptionStyles = {},
+    errorComponent: ErrorComponent,
+    descriptionComponent: DescriptionComponent,
     ariaDescribedby,
     ariaLabel,
     ariaDisabled,
   }) => {
-    {
-      // Determine if we should add htmlFor (not for radio or checkbox)
-      const shouldAddHtmlFor = type !== "radio" && type !== "checkbox";
+    const shouldAddHtmlFor = type !== "radio" && type !== "checkbox";
+    const descriptionId = `${id}-description`;
+    const errorId = `${id}-error`;
 
-      const descriptionId = `${id}-description`;
-      const errorId = `${id}-error`;
+    const ariaProps = {
+      "aria-describedby": ariaDescribedby,
+      "aria-errormessage": error ? errorId : undefined,
+      "aria-invalid": !!error,
+      "aria-required": required,
+      "aria-disabled": ariaDisabled,
+      "aria-label": ariaLabel,
+    };
 
-      const ariaProps = {
-        "aria-describedby": ariaDescribedby,
-        "aria-errormessage": error ? error : undefined,
-        "aria-invalid": !!error,
-        "aria-required": required,
-        "aria-disabled": ariaDisabled,
-        "aria-label": ariaLabel,
-      };
+    const renderError = () => {
+      if (!error) return null;
+
+      if (ErrorComponent) {
+        return <ErrorComponent error={error} />;
+      }
 
       return (
-        <FieldContainer
-          className={className}
-          style={styles}
-          role={type === "group" ? "group" : undefined}
+        <DefaultErrorMessage
+          id={errorId}
+          role="alert"
+          className={errorClassName}
+          style={errorStyles}
         >
-          {label && type !== "group" && (
-            <label
-              {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
-              className={labelClassName}
-              style={labelStyles}
-            >
-              <span>{label}</span>{" "}
-              {required && (
-                <StyledErrorMessage aria-hidden="true">*</StyledErrorMessage>
-              )}
-            </label>
-          )}
-          {React.cloneElement(children as React.ReactElement, ariaProps)}
-          {description && (
-            <StyledDescription id={descriptionId}>
-              {description}
-            </StyledDescription>
-          )}
-          {error && (
-            <StyledErrorMessage id={errorId} role="alert">
-              {error}
-            </StyledErrorMessage>
-          )}
-        </FieldContainer>
+          {error}
+        </DefaultErrorMessage>
       );
-    }
+    };
+
+    const renderDescription = () => {
+      if (!description) return null;
+
+      if (DescriptionComponent) {
+        return <DescriptionComponent description={description} />;
+      }
+
+      return (
+        <DefaultDescription
+          id={descriptionId}
+          className={descriptionClassName}
+          style={descriptionStyles}
+        >
+          {description}
+        </DefaultDescription>
+      );
+    };
+
+    return (
+      <FieldContainer
+        className={className}
+        style={styles}
+        role={type === "group" ? "group" : undefined}
+      >
+        {label && type !== "group" && (
+          <label
+            {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
+            className={labelClassName}
+            style={labelStyles}
+          >
+            <span>{label}</span>{" "}
+            {required && (
+              <DefaultErrorMessage aria-hidden="true">*</DefaultErrorMessage>
+            )}
+          </label>
+        )}
+        {React.cloneElement(children as React.ReactElement, ariaProps)}
+        {renderDescription()}
+        {renderError()}
+      </FieldContainer>
+    );
   }
 );
 

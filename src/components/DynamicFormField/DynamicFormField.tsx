@@ -82,6 +82,12 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           ariaLabel={
             processedProps.ariaLabel || (processedProps.label as TFieldLabel)
           }
+          errorClassName={processedProps.errorClassName}
+          errorStyles={processedProps.errorStyles}
+          descriptionClassName={processedProps.descriptionClassName}
+          descriptionStyles={processedProps.descriptionStyles}
+          errorComponent={processedProps.errorComponent}
+          descriptionComponent={processedProps.descriptionComponent}
         >
           <FieldComponent {...processedProps} />
         </FieldWrapper>
