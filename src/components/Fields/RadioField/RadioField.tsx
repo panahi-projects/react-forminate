@@ -71,7 +71,12 @@ const RadioField: React.FC<RadioFieldType> = (props) => {
           checked={fieldValue === optionValue}
           className={hasError ? "error" : ""}
         />
-        <span>{optionLabel}</span>
+        <span
+          style={processedProps.innerItemsStyles}
+          className={processedProps.innerItemsClassName}
+        >
+          {optionLabel}
+        </span>
       </label>
     );
   };

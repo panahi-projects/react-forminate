@@ -188,7 +188,9 @@ export interface RadioFieldType extends BaseField {
   type: FieldRadioType;
   options: OptionsType[];
   itemsClassName?: FieldClassNameType;
+  innerItemsClassName?: FieldClassNameType;
   itemsStyles?: FieldStyleType;
+  innerItemsStyles?: FieldStyleType;
   layout?: FieldLayout;
 }
 
