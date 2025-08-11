@@ -103,6 +103,11 @@ export type FieldTypes =
   | "content"
   | string;
 
+export type ExtraProps = {
+  // Arbitrary key-value support
+  [key: string]: unknown;
+};
+
 export interface BaseField extends CustomEventHandlers {
   fieldId: FieldIdType; // Unique identifier for the field (e.g., "user.email")
   type: FieldTypeType; // Field type (e.g., "text", "select", "file")
@@ -155,6 +160,10 @@ export interface BaseField extends CustomEventHandlers {
   descriptionComponent?: React.ComponentType<{
     description: FieldDescriptionType;
   }>;
+
+  //additional props
+  extraProps?: ExtraProps; //this will be used for the plug-in packages fields
+  meta?: ExtraProps;
 }
 
 export type ExcludingAttributes = "required" | "disabled" | "value" | "role";
