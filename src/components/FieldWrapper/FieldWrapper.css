@@ -2,26 +2,31 @@
 .field-container {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
 }
 
 .field-label {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-weight: 500;
 }
 
+.field-error-placeholder,
+.field-error-message {
+  min-height: 1.3rem;
+  font-size: 0.7rem;
+  display: block;
+  width: 100%;
+  margin: 1px 0 2px 0;
+}
 .field-error-message {
   color: #f00;
-  font-size: small;
   display: inline-block;
-  margin: 4px 0 0 0;
 }
 
 .field-description {
-  font-size: small;
+  font-size: 0.7rem;
   color: #828282;
   display: inline-block;
-  margin: 4px 0 0 0;
+  margin: 1px 0 0 0;
 }
 
 .field-required-indicator {

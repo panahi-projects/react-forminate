@@ -1,0 +1,100 @@
+/* Skeleton Component Base Styles */
+.skeleton-container {
+  width: 100%;
+}
+
+/* Field Types */
+.skeleton-label {
+  height: 10px;
+  width: 25%;
+  opacity: 0.2;
+  margin: 10px 0 0 0;
+}
+
+.skeleton-field {
+  height: 40px;
+  width: 100%;
+  opacity: 0.5;
+  margin-bottom: 0;
+}
+
+.skeleton-textarea {
+  height: 100px;
+}
+
+.skeleton-description {
+  height: 6px;
+  width: 40%;
+  opacity: 0.1;
+  margin: 0 0 5px 0;
+}
+
+/* Radio/Checkbox Layouts */
+.skeleton-options-container {
+  display: flex;
+}
+
+.skeleton-options-container.column {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-options-container.inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.skeleton-option-item {
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-option-control {
+  height: 16px;
+  width: 16px;
+  opacity: 0.5;
+}
+
+.skeleton-option-control.radio {
+  border-radius: 50%;
+}
+
+.skeleton-option-label {
+  height: 10px;
+  width: 80px;
+  opacity: 0.2;
+  margin-left: 8px;
+}
+
+/* Grid Layout */
+.skeleton-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.skeleton-grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-grid-image {
+  height: 120px;
+  width: 100%;
+  opacity: 0.5;
+}
+
+.skeleton-grid-title {
+  height: 16px;
+  width: 80%;
+  opacity: 0.2;
+  margin-top: 8px;
+}
+
+.skeleton-grid-subtitle {
+  height: 12px;
+  width: 60%;
+  opacity: 0.2;
+  margin-top: 4px;
+}

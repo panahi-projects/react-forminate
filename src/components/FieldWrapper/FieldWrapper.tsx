@@ -75,7 +75,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     };
 
     const renderError = () => {
-      if (!error) return null;
+      if (!error) return <div className="field-error-placeholder"></div>;
 
       if (ErrorComponent) {
         return <ErrorComponent error={error} />;

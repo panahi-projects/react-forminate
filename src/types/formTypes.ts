@@ -1,5 +1,5 @@
 import { Observer } from "@/helpers";
-import React from "react";
+import { ComponentType, ReactElement } from "react";
 import { FormFieldType } from "./fieldTypes";
 import {
   FetchDynamicOptionsType,
@@ -29,7 +29,7 @@ import {
 } from "./primitiveTypes";
 
 export type SubmitDetailsType = {
-  visibility?: boolean;
+  visible?: boolean;
   text?: string;
   className?: FieldClassNameType;
   styles?: FieldStyleType;
@@ -43,10 +43,14 @@ export interface FormOptions {
   validateFieldsOnBlur?: boolean;
   disableDefaultStyling?: FieldDisableDefaultStyling;
   skeleton?: {
-    showSkeletonLoading: ShowSkeletonLoadingType;
+    visible?: ShowSkeletonLoadingType;
     component?: ChildrenType;
   };
   submit?: SubmitDetailsType;
+  loading?: {
+    visible?: boolean;
+    component?: ReactElement | ComponentType<{}>;
+  };
 }
 
 export interface FormDataCollectionType {

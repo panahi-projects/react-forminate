@@ -1,13 +1,24 @@
 import { useDynamicField } from "@/hooks";
 import {
+  CheckboxFieldType,
   FormFieldType,
+  RadioFieldType,
   TFieldDisabled,
   TFieldLabel,
   TFieldRequired,
 } from "@/types";
-import React, { ComponentType, FC, lazy, ReactNode, Suspense } from "react";
+import React, {
+  ComponentType,
+  FC,
+  lazy,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useState,
+} from "react";
 import { FieldWrapper } from "../FieldWrapper";
 import { SkeletonComponent } from "../ui";
+import { SkeletonComponentType } from "../ui/SkeletonComponent";
 
 // Mapping of field types to their respective components
 const fieldComponents: Record<string, ComponentType<any>> = {
@@ -44,21 +55,45 @@ export const unregisterField = (type: string) => {
 type ExtendedFormField = FormFieldType & {
   showSkeletonLoading?: boolean;
   skeleton?: ReactNode;
+  onLoadComplete?: () => void;
 };
 
 // Generic DynamicFormField component
 const DynamicFormField: FC<ExtendedFormField> = React.memo(
-  ({ showSkeletonLoading = true, skeleton, ...props }) => {
+  ({ showSkeletonLoading = true, skeleton, onLoadComplete, ...props }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
     const { processedProps, fieldErrors, isVisible } = useDynamicField(props);
 
-    // Get the corresponding field component dynamically
     const FieldComponent = fieldComponents[props.type];
     if (!FieldComponent || !isVisible) return null;
+
+    useEffect(() => {
+      if (isLoaded && onLoadComplete) {
+        onLoadComplete();
+      }
+    }, [isLoaded, onLoadComplete]);
 
     return (
       <Suspense
         fallback={
-          showSkeletonLoading ? skeleton || <SkeletonComponent /> : null
+          showSkeletonLoading
+            ? skeleton || (
+                <SkeletonComponent
+                  type={props.type as SkeletonComponentType}
+                  itemsCount={
+                    props.type === "checkbox" || props.type === "radio"
+                      ? (props as RadioFieldType | CheckboxFieldType)?.options
+                          ?.length
+                      : 1
+                  }
+                  layout={
+                    props.type === "checkbox" || props.type === "radio"
+                      ? (props as RadioFieldType | CheckboxFieldType)?.layout
+                      : "column"
+                  }
+                />
+              )
+            : null
         }
       >
         <FieldWrapper
@@ -89,7 +124,7 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           errorComponent={processedProps.errorComponent}
           descriptionComponent={processedProps.descriptionComponent}
         >
-          <FieldComponent {...processedProps} />
+          <FieldComponent {...processedProps} ref={() => setIsLoaded(true)} />
         </FieldWrapper>
       </Suspense>
     );
