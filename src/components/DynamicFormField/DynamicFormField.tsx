@@ -14,7 +14,7 @@ import React, {
   ReactNode,
   Suspense,
   useEffect,
-  useState,
+  useRef,
 } from "react";
 import { FieldWrapper } from "../FieldWrapper";
 import { SkeletonComponent } from "../ui";
@@ -39,12 +39,11 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   textarea: lazy(() => import("../Fields/TextareaField")),
   spacer: lazy(() => import("../Fields/SpacerField")),
   file: lazy(() => import("../Fields/InputFileField")),
-  content: lazy(() => import("../Fields/ContentField")), //can contain any kind of HTML or JSX content
+  content: lazy(() => import("../Fields/ContentField")),
   multiSelect: lazy(() => import("../Fields/MultiSelectField")),
-  // Add other fields here as needed
 };
 
-// Plugin extension mechanism (for additional fields like SwitchField)
+// Plugin extension mechanism
 export const registerField = (type: string, component: ComponentType<any>) => {
   fieldComponents[type] = component;
 };
@@ -55,23 +54,37 @@ export const unregisterField = (type: string) => {
 type ExtendedFormField = FormFieldType & {
   showSkeletonLoading?: boolean;
   skeleton?: ReactNode;
-  onLoadComplete?: () => void;
+  onLoadComplete?: (fieldId: string) => void;
 };
 
-// Generic DynamicFormField component
 const DynamicFormField: FC<ExtendedFormField> = React.memo(
   ({ showSkeletonLoading = true, skeleton, onLoadComplete, ...props }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
     const { processedProps, fieldErrors, isVisible } = useDynamicField(props);
-
+    const hasNotifiedLoaded = useRef(false);
     const FieldComponent = fieldComponents[props.type];
-    if (!FieldComponent || !isVisible) return null;
 
     useEffect(() => {
-      if (isLoaded && onLoadComplete) {
-        onLoadComplete();
+      // Cleanup function to reset the loaded state if component unmounts
+      return () => {
+        hasNotifiedLoaded.current = false;
+      };
+    }, []);
+
+    if (!FieldComponent || !isVisible) {
+      // If field is not visible, consider it loaded immediately
+      if (onLoadComplete && !hasNotifiedLoaded.current) {
+        onLoadComplete(processedProps.fieldId);
+        hasNotifiedLoaded.current = true;
       }
-    }, [isLoaded, onLoadComplete]);
+      return null;
+    }
+
+    const handleLoad = () => {
+      if (onLoadComplete && !hasNotifiedLoaded.current) {
+        onLoadComplete(processedProps.fieldId);
+        hasNotifiedLoaded.current = true;
+      }
+    };
 
     return (
       <Suspense
@@ -124,13 +137,12 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           errorComponent={processedProps.errorComponent}
           descriptionComponent={processedProps.descriptionComponent}
         >
-          <FieldComponent {...processedProps} ref={() => setIsLoaded(true)} />
+          <FieldComponent {...processedProps} ref={handleLoad} />
         </FieldWrapper>
       </Suspense>
     );
   },
   (prevProps, nextProps) => {
-    // Only re-render if these specific props change
     return (
       prevProps.fieldId === nextProps.fieldId &&
       prevProps.type === nextProps.type &&

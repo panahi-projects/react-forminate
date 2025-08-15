@@ -26,13 +26,26 @@
 }
 
 /* Default spinner styles */
+.form-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
 .form-loading-spinner .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 3px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border-top: 3px solid #0366d6;
+  width: 30px;
+  height: 30px;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
