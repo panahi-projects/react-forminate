@@ -13,7 +13,7 @@ import { processFieldProps } from "./formUtils";
 
 export const fallbackValue: { [key: string]: unknown } = {
   checkbox: [],
-  number: 0,
+  number: "",
   tel: "",
   text: "",
   email: "",

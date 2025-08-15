@@ -20,7 +20,7 @@ const TextareaField: React.FC<TextareaFieldType> = (props) => {
   };
 
   return hasDefaultStyling ? (
-    <Textarea {...commonInputProps} $hasError={!!fieldErrors} />
+    <Textarea {...commonInputProps} hasError={!!fieldErrors} />
   ) : (
     <textarea {...commonInputProps} />
   );

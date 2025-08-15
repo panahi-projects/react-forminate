@@ -20,7 +20,7 @@ const InputField: React.FC<TextFieldType> = (props) => {
   };
 
   return !fieldProps.disableDefaultStyling ? (
-    <Input {...commonInputProps} $hasError={!!fieldErrors} />
+    <Input {...commonInputProps} hasError={!!fieldErrors} />
   ) : (
     <input {...commonInputProps} />
   );

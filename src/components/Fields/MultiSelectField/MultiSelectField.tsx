@@ -8,19 +8,7 @@ import React, {
 import { useField } from "@/hooks";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import { MultiSelectFieldType } from "@/types";
-import {
-  ChevronIcon,
-  ClearAllButton,
-  Dropdown,
-  InputContainer,
-  MultiSelectWrapper,
-  OptionItem,
-  Placeholder,
-  RemoveTag,
-  SearchContainer,
-  SearchInput,
-  SelectedTag,
-} from "@/components/StyledElements";
+import "../../StyledElements/FieldStyles.css";
 
 const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
   const {
@@ -97,14 +85,31 @@ const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
     }
   }, [isOpen]);
 
+  // Scroll focused item into view
+  useEffect(() => {
+    if (focusedIndex >= 0 && dropdownRef.current) {
+      const items = dropdownRef.current.querySelectorAll(
+        ".multiselect-option-item"
+      );
+      if (items[focusedIndex]) {
+        items[focusedIndex].scrollIntoView({
+          block: "nearest",
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [focusedIndex]);
+
+  // Callbacks for custom handlers
   useEffect(() => {
     if (eventHandlers.customHandlers?.onChangeItems) {
-      eventHandlers.customHandlers?.onChangeItems(selectedValues, fieldId);
+      eventHandlers.customHandlers.onChangeItems(selectedValues, fieldId);
     }
   }, [selectedValues]);
+
   useEffect(() => {
     if (eventHandlers.customHandlers?.onSearch) {
-      eventHandlers.customHandlers?.onSearch(
+      eventHandlers.customHandlers.onSearch(
         normalizedOptions,
         selectedValues,
         fieldId,
@@ -187,7 +192,8 @@ const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
   };
 
   return (
-    <MultiSelectWrapper
+    <div
+      className={`multiselect-wrapper ${processedProps.className || ""}`}
       ref={containerRef}
       onKeyDown={handleKeyDown}
       role="combobox"
@@ -197,55 +203,63 @@ const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
       aria-controls={`${fieldId}-dropdown`}
       {...fieldParams}
     >
-      <InputContainer
+      <div
+        className={`form-element multiselect-input-container ${fieldErrors ? "form-element-error" : ""} ${isOpen ? "multiselect-input-container-open" : ""}`}
         onClick={toggleDropdown}
-        $hasError={!!fieldErrors}
-        $isOpen={isOpen}
         tabIndex={0}
       >
         {selectedValues.length === 0 ? (
-          <Placeholder>
+          <span className="multiselect-placeholder">
             {processedProps.placeholder || "Select options"}
-          </Placeholder>
+          </span>
         ) : (
           selectedValues.map((value) => {
             const option = normalizedOptions.find((opt) => opt.value === value);
             return (
-              <SelectedTag key={value}>
+              <div key={value} className="multiselect-selected-tag">
                 {option ? option.label : value}
-                <RemoveTag
+                <span
+                  className="multiselect-remove-tag"
                   onClick={(e) => removeSelected(value, e)}
                   aria-label={`Remove ${option?.label || value}`}
                 >
                   ×
-                </RemoveTag>
-              </SelectedTag>
+                </span>
+              </div>
             );
           })
         )}
         {processedProps.showClearAll && selectedValues.length > 0 && (
-          <ClearAllButton
+          <button
+            type="button"
+            className="multiselect-clear-all"
             onClick={removeAllSelected}
             aria-label="Clear all selections"
             onKeyDown={(e) => e.stopPropagation()}
           >
             Clear all
-          </ClearAllButton>
+          </button>
         )}
-        <ChevronIcon $isOpen={isOpen} aria-hidden="true" />
-      </InputContainer>
+        <span
+          className={`multiselect-chevron-icon ${isOpen ? "multiselect-chevron-icon-open" : ""}`}
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      </div>
 
-      <Dropdown
+      <div
+        className={`multiselect-dropdown ${isOpen ? "" : "multiselect-dropdown-hidden"}`}
         ref={dropdownRef}
-        $isOpen={isOpen}
         role="listbox"
         id={`${fieldId}-dropdown`}
         aria-multiselectable="true"
       >
-        <SearchContainer>
-          <SearchInput
+        <div className="multiselect-search-container">
+          <input
             ref={searchInputRef}
             type="text"
+            className="multiselect-search-input"
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => {
@@ -260,13 +274,12 @@ const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
               }
             }}
           />
-        </SearchContainer>
+        </div>
 
         {filteredOptions.map((option, index) => (
-          <OptionItem
+          <div
             key={option.value}
-            $isSelected={selectedValues.includes(option.value)}
-            $isFocused={index === focusedIndex}
+            className={`multiselect-option-item ${selectedValues.includes(option.value) ? "multiselect-option-selected" : ""} ${index === focusedIndex ? "multiselect-option-focused" : ""}`}
             onClick={() => handleSelect(option.value)}
             role="option"
             aria-selected={selectedValues.includes(option.value)}
@@ -274,10 +287,10 @@ const MultiSelectField: React.FC<MultiSelectFieldType> = (props) => {
           >
             {option.label}
             {selectedValues.includes(option.value) && " ✓"}
-          </OptionItem>
+          </div>
         ))}
-      </Dropdown>
-    </MultiSelectWrapper>
+      </div>
+    </div>
   );
 };
 

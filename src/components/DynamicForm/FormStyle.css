@@ -1,0 +1,12 @@
+/* Form Content Styles */
+.form-content {
+  width: 100%;
+}
+
+.form-submit-container {
+  margin-top: 20px;
+}
+
+.submit-button-container {
+  display: inline-block;
+}

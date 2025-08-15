@@ -1,0 +1,282 @@
+/* Base Form Styles */
+.form-element {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  transition:
+    border-color 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.25rem 0;
+}
+
+.form-element:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+.form-element:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Error State */
+.form-element-error {
+  border-color: #d32f2f;
+}
+
+.form-element-error:focus {
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+}
+
+/* Input Specific */
+.form-input {
+  height: 2.5rem;
+}
+
+.form-input[type="color"] {
+  height: 3rem;
+  padding: 0.25rem;
+}
+
+.form-input[type="date"],
+.form-input[type="time"],
+.form-input[type="datetime-local"],
+.form-input[type="month"],
+.form-input[type="week"] {
+  padding: 0.5rem;
+}
+
+/* Select Specific */
+.form-select {
+  height: 2.5rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+}
+
+/* Textarea Specific */
+.form-textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+/* Checkbox & Radio */
+.form-checkbox-radio {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+/* Radio Specific */
+.radio-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.radio-container-inline {
+  flex-direction: row;
+  gap: 24px;
+}
+
+.radio-container-column {
+  flex-direction: column;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+.radio-label:hover {
+  opacity: 0.8;
+}
+
+.radio-input {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  margin: 0;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-input:checked {
+  border-color: #646cff;
+  background-color: white;
+}
+
+.radio-input:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #646cff;
+  transform: translate(-50%, -50%);
+}
+
+.radio-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+.radio-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.radio-label-text {
+  font-size: 14px;
+  color: #333;
+}
+
+/* MultiSelect Styles */
+.multiselect-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.multiselect-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  padding: 8px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.multiselect-input-container-open {
+  border-color: #0066cc;
+}
+
+.multiselect-selected-tag {
+  background: #e0e0e0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+
+.multiselect-remove-tag {
+  cursor: pointer;
+  color: #666;
+}
+
+.multiselect-remove-tag:hover {
+  color: #333;
+}
+
+.multiselect-chevron-icon {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.multiselect-chevron-icon-open {
+  transform: rotate(180deg);
+}
+
+.multiselect-clear-all {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.8em;
+  margin-left: auto;
+  padding: 2px 4px;
+}
+
+.multiselect-clear-all:hover {
+  color: #333;
+}
+
+.multiselect-dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.multiselect-dropdown-hidden {
+  display: none;
+}
+
+.multiselect-search-container {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.multiselect-search-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.multiselect-search-input:focus {
+  border-color: #0066cc;
+}
+
+.multiselect-option-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.multiselect-option-item:hover {
+  background: #f5f5f5;
+}
+
+.multiselect-option-selected {
+  background: #f0f7ff;
+  color: #0066cc;
+}
+
+.multiselect-option-focused {
+  background: #f5f5f5;
+}
+
+.multiselect-placeholder {
+  color: #999;
+}

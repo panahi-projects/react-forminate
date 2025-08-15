@@ -7,8 +7,7 @@ import {
   TFieldRequired,
 } from "@/types";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-
+import "./GridViewStyle.css";
 interface DynamicField {
   dynamicOptions?: dynamicOptionsType;
 }
@@ -18,56 +17,6 @@ interface GridItem {
   value: any;
   [key: string]: any;
 }
-
-const GridContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-`;
-
-const GridItemWrapper = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  text-align: center;
-
-  &:hover {
-    background-color: #f9f9f9;
-  }
-
-  &.selected {
-    background-color: #e0f2fe;
-  }
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-`;
-
-const PaginationWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-`;
-
-const Button = styled.button`
-  background-color: #eee;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-`;
 
 const GridViewField: React.FC<GridViewFieldType> = ({
   fieldId,
@@ -123,45 +72,54 @@ const GridViewField: React.FC<GridViewFieldType> = ({
       className={containerClassName}
       styles={containerStyles}
     >
-      <GridContainer className={className} style={styles}>
+      <div className={`grid-view-container ${className}`} style={styles}>
         {loading ? (
-          <div style={{ gridColumn: "1 / -1", textAlign: "center" }}>
-            Loading...
-          </div>
+          <div className="grid-view-loading">Loading...</div>
         ) : (
           items.map((item) => (
-            <GridItemWrapper
+            <div
               key={item.value}
-              className={`${itemsClassName} ${
+              className={`grid-item-wrapper ${itemsClassName} ${
                 values[fieldId] === item.value ? "selected" : ""
               }`}
               style={itemsStyles}
               onClick={() => handleSelect(item)}
             >
-              {item.image && <Image src={item.image} alt={item.label} />}
-              <div className="font-semibold">{item.label}</div>
-              {item.price && (
-                <div className="text-sm text-gray-500">${item.price}</div>
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.label}
+                  className="grid-view-image"
+                />
               )}
-            </GridItemWrapper>
+              <div className="grid-item-label">{item.label}</div>
+              {item.price && (
+                <div className="grid-item-price">${item.price}</div>
+              )}
+            </div>
           ))
         )}
-      </GridContainer>
+      </div>
 
-      <PaginationWrapper>
-        <Button onClick={handlePrev} disabled={page <= 1 || loading}>
+      <div className="grid-view-pagination">
+        <button
+          className="grid-view-button"
+          onClick={handlePrev}
+          disabled={page <= 1 || loading}
+        >
           Previous
-        </Button>
+        </button>
         <span className="text-sm">Page {page}</span>
-        <Button
+        <button
+          className="grid-view-button"
           onClick={handleNext}
           disabled={Boolean(
             loading || (pagination?.maxPage && page >= pagination.maxPage)
           )}
         >
           Next
-        </Button>
-      </PaginationWrapper>
+        </button>
+      </div>
     </FieldWrapper>
   );
 };

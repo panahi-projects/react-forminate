@@ -88,7 +88,7 @@ const RadioField: React.FC<RadioFieldType> = (props) => {
   };
 
   return hasDefaultStyling ? (
-    <RadioContainer $layout={layout} {...containerProps}>
+    <RadioContainer layout={layout} {...containerProps}>
       {props.options?.map(renderRadioOption)}
     </RadioContainer>
   ) : (

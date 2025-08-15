@@ -1,0 +1,29 @@
+/* FieldWrapper Styles */
+.field-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.field-label {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.field-error-message {
+  color: #f00;
+  font-size: small;
+  display: inline-block;
+  margin: 4px 0 0 0;
+}
+
+.field-description {
+  font-size: small;
+  color: #828282;
+  display: inline-block;
+  margin: 4px 0 0 0;
+}
+
+.field-required-indicator {
+  color: #f00;
+}

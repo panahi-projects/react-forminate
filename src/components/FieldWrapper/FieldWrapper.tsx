@@ -1,13 +1,14 @@
 import { FieldDescriptionType, FieldTypeType } from "@/types";
 import React, { ReactNode, memo } from "react";
-import styled from "styled-components";
+
+import "./FieldWrapper.css";
 
 interface FieldWrapperProps {
   id: string;
   label?: string;
   required?: boolean;
   error?: string;
-  className?: string; // Allows adding custom styles
+  className?: string;
   children: ReactNode;
   styles?: React.CSSProperties;
   labelClassName?: string;
@@ -16,15 +17,15 @@ interface FieldWrapperProps {
   description?: FieldDescriptionType;
 
   // Accessibility additions
-  ariaLabel?: string; // Alternative to visible label
-  ariaLabelledby?: string; // ID reference for labeling element
-  ariaDescribedby?: string; // ID reference for description
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+  ariaDescribedby?: string;
   ariaInvalid?: boolean | "true" | "false" | "grammar" | "spelling";
   ariaRequired?: boolean | "true" | "false";
   ariaDisabled?: boolean | "true" | "false";
   ariaHidden?: boolean | "true" | "false";
   ariaLive?: "off" | "assertive" | "polite";
-  role?: string; // For custom widget roles
+  role?: string;
 
   // Customizable error and description props
   errorClassName?: string;
@@ -36,26 +37,6 @@ interface FieldWrapperProps {
     description: FieldDescriptionType;
   }>;
 }
-
-const FieldContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-`;
-
-const DefaultErrorMessage = styled.span`
-  color: #f00;
-  font-size: small;
-  display: inline-block;
-  margin: 0;
-`;
-
-const DefaultDescription = styled.span`
-  font-size: small;
-  color: #828282;
-  display: inline-block;
-  margin: 0;
-`;
 
 const FieldWrapper: React.FC<FieldWrapperProps> = memo(
   ({
@@ -101,14 +82,14 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
       }
 
       return (
-        <DefaultErrorMessage
+        <span
           id={errorId}
           role="alert"
-          className={errorClassName}
+          className={`field-error-message ${errorClassName}`}
           style={errorStyles}
         >
           {error}
-        </DefaultErrorMessage>
+        </span>
       );
     };
 
@@ -120,40 +101,44 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
       }
 
       return (
-        <DefaultDescription
+        <span
           id={descriptionId}
-          className={descriptionClassName}
+          className={`field-description ${descriptionClassName}`}
           style={descriptionStyles}
         >
           {description}
-        </DefaultDescription>
+        </span>
       );
     };
 
     return (
-      <FieldContainer
-        className={className}
+      <div
+        className={`field-container ${className}`}
         style={styles}
         role={type === "group" ? "group" : undefined}
       >
         {label && type !== "group" && (
           <label
             {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
-            className={labelClassName}
+            className={`field-label ${labelClassName}`}
             style={labelStyles}
           >
             <span>{label}</span>{" "}
             {required && (
-              <DefaultErrorMessage aria-hidden="true">*</DefaultErrorMessage>
+              <span className="field-required-indicator" aria-hidden="true">
+                *
+              </span>
             )}
           </label>
         )}
         {React.cloneElement(children as React.ReactElement, ariaProps)}
         {renderDescription()}
         {renderError()}
-      </FieldContainer>
+      </div>
     );
   }
 );
+
+FieldWrapper.displayName = "FieldWrapper";
 
 export default FieldWrapper;

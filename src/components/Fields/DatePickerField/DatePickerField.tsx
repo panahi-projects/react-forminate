@@ -20,7 +20,7 @@ const DatePickerField: React.FC<DateFieldType> = (props) => {
   };
 
   return hasDefaultStyling ? (
-    <Input {...commonInputProps} $hasError={!!fieldErrors} />
+    <Input {...commonInputProps} hasError={!!fieldErrors} />
   ) : (
     <input {...commonInputProps} />
   );

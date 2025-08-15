@@ -1,0 +1,67 @@
+/* GridView Field Styles */
+.grid-view-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.grid-item-wrapper {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.grid-item-wrapper:hover {
+  background-color: #f9f9f9;
+}
+
+.grid-item-wrapper.selected {
+  background-color: #e0f2fe;
+}
+
+.grid-view-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.grid-view-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.grid-view-button {
+  background-color: #eee;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.grid-view-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.grid-view-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.grid-item-label {
+  font-weight: 600;
+}
+
+.grid-item-price {
+  font-size: 0.875rem;
+  color: #6b7280;
+}

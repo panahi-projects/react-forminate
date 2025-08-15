@@ -1,8 +1,9 @@
 import { DynamicFormType, FormFieldType } from "@/types";
 import { DynamicFormField } from "../DynamicFormField";
-import { StyledSubmitButton } from "./StyledComponents";
 import React from "react";
 import { useFormActions, useFormValues } from "@/hooks";
+import "./FormStyle.css";
+import "./SubmitStyle.css";
 
 interface FormContentProps extends DynamicFormType {
   onSubmit?: (values: any, isValid: boolean) => void;
@@ -32,6 +33,7 @@ const FormContent: React.FC<FormContentProps> = ({
       role="form"
       aria-busy={isLoading}
       aria-live="polite"
+      className="form-content"
     >
       {isLoading && (
         <div
@@ -51,15 +53,19 @@ const FormContent: React.FC<FormContentProps> = ({
         />
       ))}
       {submitDetails?.visibility !== false && (
-        <div>
+        <div className="form-submit-container">
           {SubmitCustomComponent ?? (
             <div
-              className={submitDetails?.containerClassName}
+              className={`submit-button-container ${submitDetails?.containerClassName || ""}`}
               style={submitDetails?.containerStyles}
             >
-              <StyledSubmitButton type="submit" disabled={isLoading}>
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={isLoading}
+              >
                 {isLoading ? "Submitting..." : submitDetails?.text || "Submit"}
-              </StyledSubmitButton>
+              </button>
             </div>
           )}
         </div>

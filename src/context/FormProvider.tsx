@@ -20,7 +20,14 @@ import {
   isSelectField,
 } from "@/utils";
 import { preloadFields } from "@/utils/preload";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   FormActionsContext,
@@ -236,14 +243,27 @@ export const FormProvider: React.FC<FormProviderType> = ({
     traverseAndFetch(formSchema.fields);
   }, [formSchema.fields, stableFetchDynamicOptions]);
 
-  useEffect(() => {
-    const context = {
-      actions,
+  const contextRef = useRef({});
+
+  // const context = {
+  //   actions,
+  //   values,
+  //   errors,
+  //   meta,
+  // };
+  const memoizedContext = useMemo(
+    () => ({
+      ...contextRef.current,
       values,
+      actions,
       errors,
       meta,
-    };
-    registerForm(formSchema.formId, context);
+    }),
+    [values, actions, errors, meta]
+  );
+
+  useEffect(() => {
+    registerForm(formSchema.formId, memoizedContext);
 
     return () => {
       unregisterForm(formSchema.formId);
