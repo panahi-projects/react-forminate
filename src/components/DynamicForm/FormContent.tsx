@@ -5,6 +5,7 @@ import { DynamicFormField } from "../DynamicFormField";
 import "./FormStyle.css";
 import "./SubmitStyle.css";
 
+// Default loading spinner component
 const DefaultLoadingSpinner = React.memo(() => (
   <div className="form-loading-spinner">
     <div className="spinner" />
@@ -16,27 +17,58 @@ interface FormContentProps extends DynamicFormType {
   isLoading?: boolean;
 }
 
+// Type guard to check if a value is a valid React component
+const isValidComponent = (component: any): component is React.ComponentType => {
+  return (
+    typeof component === "function" ||
+    (typeof component === "object" &&
+      component !== null &&
+      !Array.isArray(component))
+  );
+};
+
+/**
+ * FormContent component - Renders a dynamic form with fields, loading states, and submission handling
+ * Optimized for performance with memoization and reduced re-renders
+ */
 const FormContent: React.FC<FormContentProps> = React.memo(
   ({ formData, onSubmit, isLoading }) => {
     const values = useFormValues();
     const { validateForm } = useFormActions();
     const [loadedFields, setLoadedFields] = useState<Set<string>>(new Set());
 
-    // Memoize form options to prevent unnecessary recalculations
-    const { submit, loading, skeleton } = formData.options || {};
-    const SubmitCustomComponent = submit?.component;
-    const CustomLoadingComponent = loading?.component;
+    // Extract options with defaults to avoid repeated access
+    const { submit = {}, loading = {}, skeleton = {} } = formData.options || {};
+    const {
+      component: SubmitCustomComponent,
+      visible: submitVisible = true,
+      text: submitText = "Submit",
+      containerClassName = "",
+      containerStyles = {},
+    } = submit;
 
-    // Calculate visible fields count (simplified as per requirements)
+    const {
+      component: CustomLoadingComponent,
+      visible: loadingVisible = true,
+    } = loading;
+
+    const { component: skeletonComponent } = skeleton;
+
+    // Calculate if all fields are loaded
     const allFieldsLoaded = useMemo(() => {
-      return (
-        loadedFields.size >= formData.fields.filter((f) => !f.visibility).length
-      );
+      // Count only fields that don't have visibility restrictions
+      const totalVisibleFields = formData.fields.filter(
+        (f) => !f.visibility
+      ).length;
+      return loadedFields.size >= totalVisibleFields;
     }, [loadedFields, formData.fields]);
 
-    // Stable callback for field load
+    // Stable callback for field load using functional update
     const handleFieldLoad = useCallback((fieldId: string) => {
       setLoadedFields((prev) => {
+        // Only update if the fieldId is not already in the set
+        if (prev.has(fieldId)) return prev;
+
         const newSet = new Set(prev);
         newSet.add(fieldId);
         return newSet;
@@ -55,47 +87,94 @@ const FormContent: React.FC<FormContentProps> = React.memo(
 
     // Memoized loading overlay
     const loadingOverlay = useMemo(() => {
-      if (loading?.visible === false || allFieldsLoaded) return null;
+      if (loadingVisible === false || allFieldsLoaded) return null;
 
+      // Handle different types of loading components
+      if (CustomLoadingComponent) {
+        if (React.isValidElement(CustomLoadingComponent)) {
+          return (
+            <div className="form-loading-overlay">{CustomLoadingComponent}</div>
+          );
+        } else if (isValidComponent(CustomLoadingComponent)) {
+          const Component = CustomLoadingComponent as React.ComponentType;
+          return (
+            <div className="form-loading-overlay">
+              <Component />
+            </div>
+          );
+        }
+      }
+
+      // Default loading spinner
       return (
         <div className="form-loading-overlay">
-          {CustomLoadingComponent ? (
-            React.isValidElement(CustomLoadingComponent) ? (
-              CustomLoadingComponent
-            ) : (
-              <CustomLoadingComponent />
-            )
-          ) : (
-            <DefaultLoadingSpinner />
-          )}
+          <DefaultLoadingSpinner />
         </div>
       );
-    }, [loading?.visible, allFieldsLoaded, CustomLoadingComponent]);
+    }, [loadingVisible, allFieldsLoaded, CustomLoadingComponent]);
 
     // Memoized submit button
     const submitButton = useMemo(() => {
-      if (submit?.visible === false || !allFieldsLoaded) return null;
+      if (submitVisible === false || !allFieldsLoaded) return null;
 
+      // Handle different types of submit components
+      if (SubmitCustomComponent) {
+        if (React.isValidElement(SubmitCustomComponent)) {
+          return (
+            <div className="form-submit-container">{SubmitCustomComponent}</div>
+          );
+        } else if (isValidComponent(SubmitCustomComponent)) {
+          const Component = SubmitCustomComponent as React.ComponentType;
+          return (
+            <div className="form-submit-container">
+              <Component />
+            </div>
+          );
+        }
+      }
+
+      // Default submit button
       return (
         <div className="form-submit-container">
-          {SubmitCustomComponent ?? (
-            <div
-              className={`submit-button-container ${submit?.containerClassName || ""}`}
-              style={submit?.containerStyles}
+          <div
+            className={`submit-button-container ${containerClassName}`}
+            style={containerStyles}
+          >
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={isLoading}
+              aria-disabled={isLoading}
             >
-              <button
-                type="submit"
-                className="submit-button"
-                disabled={isLoading}
-                aria-disabled={isLoading}
-              >
-                {isLoading ? "Submitting..." : submit?.text || "Submit"}
-              </button>
-            </div>
-          )}
+              {isLoading ? "Submitting..." : submitText}
+            </button>
+          </div>
         </div>
       );
-    }, [submit, allFieldsLoaded, isLoading, SubmitCustomComponent]);
+    }, [
+      submitVisible,
+      allFieldsLoaded,
+      isLoading,
+      SubmitCustomComponent,
+      containerClassName,
+      containerStyles,
+      submitText,
+    ]);
+
+    // Memoize form fields to prevent unnecessary re-renders
+    const formFields = useMemo(
+      () =>
+        formData.fields.map((field) => (
+          <DynamicFormField
+            key={field.fieldId}
+            {...field}
+            skeleton={skeletonComponent}
+            showSkeletonLoading={skeleton.visible}
+            onLoadComplete={handleFieldLoad}
+          />
+        )),
+      [formData.fields, skeletonComponent, skeleton.visible, handleFieldLoad]
+    );
 
     return (
       <form
@@ -120,20 +199,25 @@ const FormContent: React.FC<FormContentProps> = React.memo(
         {loadingOverlay}
 
         {/* Render form fields with opacity control */}
-        <div style={{ opacity: allFieldsLoaded ? 1 : 0 }}>
-          {formData.fields.map((field) => (
-            <DynamicFormField
-              key={field.fieldId}
-              {...field}
-              skeleton={skeleton?.component}
-              showSkeletonLoading={skeleton?.visible}
-              onLoadComplete={handleFieldLoad}
-            />
-          ))}
+        <div
+          style={{
+            opacity: allFieldsLoaded ? 1 : 0.7,
+            transition: "opacity 0.3s ease",
+          }}
+        >
+          {formFields}
         </div>
 
         {submitButton}
       </form>
+    );
+  },
+  // Custom comparison function to prevent unnecessary re-renders
+  (prevProps, nextProps) => {
+    return (
+      prevProps.formData === nextProps.formData &&
+      prevProps.onSubmit === nextProps.onSubmit &&
+      prevProps.isLoading === nextProps.isLoading
     );
   }
 );
