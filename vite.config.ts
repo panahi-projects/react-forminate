@@ -25,7 +25,9 @@ export default defineConfig({
     sourcemap: false, // Generates source maps for debugging if it is true.
     emptyOutDir: true, // Clears the output directory before building.
     minify: "esbuild",
-    polyfillModulePreload: false,
+    modulePreload: {
+      polyfill: false, // Disables polyfilling for module preloading.
+    },
   },
   plugins: [
     dts(),
