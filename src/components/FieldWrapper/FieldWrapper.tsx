@@ -1,6 +1,6 @@
 import { FieldDescriptionType, FieldTypeType } from "@/types";
 import React, { ReactNode, memo, useMemo } from "react";
-import "./FieldWrapper.css";
+import styles from "./FieldWrapper.module.css";
 
 interface FieldWrapperProps {
   id: string;
@@ -45,6 +45,7 @@ interface FieldWrapperProps {
  * - Memoized expensive computations
  * - Reduced unnecessary re-renders
  * - Efficient conditional rendering
+ * - CSS Modules for scoped styling
  */
 const FieldWrapper: React.FC<FieldWrapperProps> = memo(
   ({
@@ -54,7 +55,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     error,
     className = "",
     children,
-    styles = {},
+    styles: inlineStyles = {},
     labelClassName = "",
     labelStyles = {},
     type,
@@ -115,7 +116,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     // Memoize error rendering to prevent unnecessary re-renders
     const renderedError = useMemo(() => {
       if (!error)
-        return <div className="field-error-placeholder" aria-hidden="true" />;
+        return <div className={styles.errorPlaceholder} aria-hidden="true" />;
 
       if (ErrorComponent) {
         return <ErrorComponent error={error} />;
@@ -125,7 +126,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
         <span
           id={errorId}
           role="alert"
-          className={`field-error-message ${errorClassName}`}
+          className={`${styles.errorMessage} ${errorClassName}`}
           style={errorStyles}
         >
           {error}
@@ -144,7 +145,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
       return (
         <span
           id={descriptionId}
-          className={`field-description ${descriptionClassName}`}
+          className={`${styles.description} ${descriptionClassName}`}
           style={descriptionStyles}
         >
           {description}
@@ -165,12 +166,12 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
       return (
         <label
           {...(shouldAddHtmlFor ? { htmlFor: id } : {})}
-          className={`field-label ${labelClassName}`}
+          className={`${styles.label} ${labelClassName}`}
           style={labelStyles}
         >
           <span>{label}</span>
           {required && (
-            <span className="field-required-indicator" aria-hidden="true">
+            <span className={styles.requiredIndicator} aria-hidden="true">
               *
             </span>
           )}
@@ -201,8 +202,8 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
     return (
       <div
-        className={`field-container ${className}`}
-        style={styles}
+        className={`${styles.container} ${className}`}
+        style={inlineStyles}
         role={containerRole}
       >
         {renderedLabel}
