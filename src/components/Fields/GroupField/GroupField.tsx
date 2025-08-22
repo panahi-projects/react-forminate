@@ -11,6 +11,8 @@ const GroupField: React.FC<GroupFieldType> = ({
   styles = {},
   legendClassName = "",
   legendStyles = {},
+  labelClassName, // we must keep it that not to automatically inject it to the HTML as an attribute
+  labelStyles = {},
   ...rest
 }) => {
   return (
