@@ -15,12 +15,15 @@ import React, {
   Suspense,
   useEffect,
   useRef,
+  useCallback,
+  useMemo,
+  forwardRef,
 } from "react";
 import { FieldWrapper } from "../FieldWrapper";
 import { SkeletonComponent } from "../ui";
 import { SkeletonComponentType } from "../ui/SkeletonComponent";
 
-// Mapping of field types to their respective components
+// Field component registry with lazy loading
 const fieldComponents: Record<string, ComponentType<any>> = {
   group: lazy(() => import("../Fields/GroupField")),
   text: lazy(() => import("../Fields/InputField")),
@@ -47,6 +50,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
 export const registerField = (type: string, component: ComponentType<any>) => {
   fieldComponents[type] = component;
 };
+
 export const unregisterField = (type: string) => {
   delete fieldComponents[type];
 };
@@ -57,58 +61,86 @@ type ExtendedFormField = FormFieldType & {
   onLoadComplete?: (fieldId: string) => void;
 };
 
+// Create a wrapper component that can forward refs
+const FieldComponentWithRef = forwardRef<any, any>((props, ref) => {
+  const FieldComponent = fieldComponents[props.type];
+  return <FieldComponent {...props} ref={ref} />;
+});
+
+FieldComponentWithRef.displayName = "FieldComponentWithRef";
+
+/**
+ * DynamicFormField component that renders form fields based on their type
+ * with optimized rendering and lazy loading capabilities
+ */
 const DynamicFormField: FC<ExtendedFormField> = React.memo(
   ({ showSkeletonLoading = true, skeleton, onLoadComplete, ...props }) => {
     const { processedProps, fieldErrors, isVisible } = useDynamicField(props);
     const hasNotifiedLoaded = useRef(false);
     const FieldComponent = fieldComponents[props.type];
 
+    // Memoize the load complete handler to prevent unnecessary re-renders
+    const handleLoadComplete = useCallback(() => {
+      if (onLoadComplete && !hasNotifiedLoaded.current) {
+        onLoadComplete(processedProps.fieldId);
+        hasNotifiedLoaded.current = true;
+      }
+    }, [onLoadComplete, processedProps.fieldId]);
+
+    // Reset loaded state when component unmounts
     useEffect(() => {
-      // Cleanup function to reset the loaded state if component unmounts
       return () => {
         hasNotifiedLoaded.current = false;
       };
     }, []);
 
-    if (!FieldComponent || !isVisible) {
-      // If field is not visible, consider it loaded immediately
-      if (onLoadComplete && !hasNotifiedLoaded.current) {
+    // Notify when component is not visible or doesn't exist
+    useEffect(() => {
+      if (
+        (!FieldComponent || !isVisible) &&
+        onLoadComplete &&
+        !hasNotifiedLoaded.current
+      ) {
         onLoadComplete(processedProps.fieldId);
         hasNotifiedLoaded.current = true;
       }
+    }, [FieldComponent, isVisible, onLoadComplete, processedProps.fieldId]);
+
+    // Memoize the skeleton component to prevent recreation on every render
+    const skeletonFallback = useMemo(() => {
+      if (!showSkeletonLoading) return null;
+
+      if (skeleton) return skeleton;
+
+      // Handle special cases for checkbox and radio fields
+      if (props.type === "checkbox" || props.type === "radio") {
+        const fieldProps = props as RadioFieldType | CheckboxFieldType;
+        return (
+          <SkeletonComponent
+            type={props.type as SkeletonComponentType}
+            itemsCount={fieldProps?.options?.length || 1}
+            layout={fieldProps?.layout || "column"}
+          />
+        );
+      }
+
+      // Default skeleton for other field types
+      return <SkeletonComponent type={props.type as SkeletonComponentType} />;
+    }, [
+      showSkeletonLoading,
+      skeleton,
+      props.type,
+      (props as RadioFieldType | CheckboxFieldType)?.options?.length,
+      (props as RadioFieldType | CheckboxFieldType)?.layout,
+    ]);
+
+    // Don't render if component doesn't exist or isn't visible
+    if (!FieldComponent || !isVisible) {
       return null;
     }
 
-    const handleLoad = () => {
-      if (onLoadComplete && !hasNotifiedLoaded.current) {
-        onLoadComplete(processedProps.fieldId);
-        hasNotifiedLoaded.current = true;
-      }
-    };
-
     return (
-      <Suspense
-        fallback={
-          showSkeletonLoading
-            ? skeleton || (
-                <SkeletonComponent
-                  type={props.type as SkeletonComponentType}
-                  itemsCount={
-                    props.type === "checkbox" || props.type === "radio"
-                      ? (props as RadioFieldType | CheckboxFieldType)?.options
-                          ?.length
-                      : 1
-                  }
-                  layout={
-                    props.type === "checkbox" || props.type === "radio"
-                      ? (props as RadioFieldType | CheckboxFieldType)?.layout
-                      : "column"
-                  }
-                />
-              )
-            : null
-        }
-      >
+      <Suspense fallback={skeletonFallback}>
         <FieldWrapper
           id={processedProps.fieldId}
           label={processedProps.label as TFieldLabel}
@@ -137,19 +169,22 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           errorComponent={processedProps.errorComponent}
           descriptionComponent={processedProps.descriptionComponent}
         >
-          <FieldComponent {...processedProps} ref={handleLoad} />
+          <FieldComponentWithRef {...processedProps} ref={handleLoadComplete} />
         </FieldWrapper>
       </Suspense>
     );
   },
+  // Custom comparison function to prevent unnecessary re-renders
   (prevProps, nextProps) => {
+    // Compare only the essential props that affect rendering
     return (
       prevProps.fieldId === nextProps.fieldId &&
       prevProps.type === nextProps.type &&
       prevProps.label === nextProps.label &&
       prevProps.required === nextProps.required &&
       prevProps.disabled === nextProps.disabled &&
-      prevProps.showSkeletonLoading === nextProps.showSkeletonLoading
+      prevProps.showSkeletonLoading === nextProps.showSkeletonLoading &&
+      prevProps.skeleton === nextProps.skeleton
     );
   }
 );
