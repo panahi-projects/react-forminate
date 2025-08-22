@@ -31,4 +31,5 @@
 
 .field-required-indicator {
   color: #f00;
+  padding-left: 2px;
 }
