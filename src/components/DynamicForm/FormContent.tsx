@@ -1,6 +1,12 @@
 import { useFormActions, useFormValues, useFormErrors } from "@/hooks";
 import { DynamicFormType } from "@/types";
-import React, { useCallback, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import { DynamicFormField } from "../DynamicFormField";
 import { scrollToFirstError } from "@/utils/fieldUtils";
 import "./FormStyle.css";
@@ -27,7 +33,14 @@ const FormContent: React.FC<FormContentProps> = React.memo(
     const errors = useFormErrors();
     const { validateForm } = useFormActions();
     const [loadedFields, setLoadedFields] = useState<Set<string>>(new Set());
+    const [isValidating, setIsValidating] = useState(false);
     const formDataRef = useRef(formData);
+    const errorsRef = useRef(errors);
+
+    // Update errors ref when errors change
+    useEffect(() => {
+      errorsRef.current = errors;
+    }, [errors]);
 
     // Use ref to avoid dependency changes in useCallback/useMemo
     formDataRef.current = formData;
@@ -37,6 +50,26 @@ const FormContent: React.FC<FormContentProps> = React.memo(
       formData.options || {};
     const SubmitCustomComponent = submit?.component;
     const CustomLoadingComponent = loading?.component;
+
+    // Auto-scroll to first error when errors appear and scrollOnErrorValidation is enabled
+    useEffect(() => {
+      if (
+        scrollOnErrorValidation &&
+        errors &&
+        Object.keys(errors).length > 0 &&
+        isValidating
+      ) {
+        // Wait for DOM to update with error messages
+        setTimeout(() => {
+          scrollToFirstError(
+            errors,
+            formDataRef.current.fields,
+            values,
+            formDataRef.current
+          );
+        }, 100);
+      }
+    }, [errors, scrollOnErrorValidation, isValidating, values]);
 
     // Calculate visible fields count (simplified as per requirements)
     const allFieldsLoaded = useMemo(() => {
@@ -61,17 +94,14 @@ const FormContent: React.FC<FormContentProps> = React.memo(
     const handleSubmit = useCallback(
       async (e: React.FormEvent) => {
         e.preventDefault();
-        const isValid = await validateForm(formDataRef.current);
+        setIsValidating(true);
 
-        // If form is not valid and scrollOnErrorValidation is enabled, scroll to first error
-        if (!isValid && scrollOnErrorValidation) {
-          // Use setTimeout to ensure the DOM has been updated with the new errors
-          setTimeout(() => {
-            scrollToFirstError(errors, formData.fields, values, formData);
-          }, 100);
+        try {
+          const isValid = await validateForm(formDataRef.current);
+          onSubmit?.(values, isValid);
+        } finally {
+          setIsValidating(false);
         }
-
-        onSubmit?.(values, isValid);
       },
       [onSubmit, validateForm, values]
     );
