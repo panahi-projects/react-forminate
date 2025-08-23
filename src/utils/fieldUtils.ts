@@ -171,3 +171,42 @@ export const extractFieldTypes = (
 
   return Array.from(types);
 };
+
+/**
+ * Scrolls to the first field with a validation error
+ * @param errors - Object containing field errors
+ * @param formFields - Array of form fields
+ * @param values - Current form values
+ * @param formSchema - Form schema for field processing
+ */
+export const scrollToFirstError = (
+  errors: Record<string, string>,
+  formFields: any[],
+  values: Record<string, any>,
+  formSchema: any
+): void => {
+  if (!errors || Object.keys(errors).length === 0) return;
+
+  // Get the first field ID that has an error
+  const firstErrorFieldId = Object.keys(errors)[0];
+
+  // Find the field element by ID
+  const fieldElement = document.getElementById(firstErrorFieldId);
+
+  if (fieldElement) {
+    // Scroll to the field with smooth behavior
+    fieldElement.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+
+    // Focus on the field for better UX
+    const focusableElement = fieldElement.querySelector(
+      'input, select, textarea, button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusableElement && focusableElement instanceof HTMLElement) {
+      focusableElement.focus();
+    }
+  }
+};

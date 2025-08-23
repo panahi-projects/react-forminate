@@ -1,7 +1,8 @@
-import { useFormActions, useFormValues } from "@/hooks";
+import { useFormActions, useFormValues, useFormErrors } from "@/hooks";
 import { DynamicFormType } from "@/types";
 import React, { useCallback, useMemo, useState } from "react";
 import { DynamicFormField } from "../DynamicFormField";
+import { scrollToFirstError } from "@/utils/fieldUtils";
 import "./FormStyle.css";
 import "./SubmitStyle.css";
 
@@ -19,11 +20,13 @@ interface FormContentProps extends DynamicFormType {
 const FormContent: React.FC<FormContentProps> = React.memo(
   ({ formData, onSubmit, isLoading }) => {
     const values = useFormValues();
+    const errors = useFormErrors();
     const { validateForm } = useFormActions();
     const [loadedFields, setLoadedFields] = useState<Set<string>>(new Set());
 
     // Memoize form options to prevent unnecessary recalculations
-    const { submit, loading, skeleton } = formData.options || {};
+    const { submit, loading, skeleton, scrollOnErrorValidation } =
+      formData.options || {};
     const SubmitCustomComponent = submit?.component;
     const CustomLoadingComponent = loading?.component;
 
@@ -48,9 +51,25 @@ const FormContent: React.FC<FormContentProps> = React.memo(
       async (e: React.FormEvent) => {
         e.preventDefault();
         const isValid = await validateForm(formData);
+
+        // If form is not valid and scrollOnErrorValidation is enabled, scroll to first error
+        if (!isValid && scrollOnErrorValidation) {
+          // Use setTimeout to ensure the DOM has been updated with the new errors
+          setTimeout(() => {
+            scrollToFirstError(errors, formData.fields, values, formData);
+          }, 100);
+        }
+
         onSubmit?.(values, isValid);
       },
-      [formData, onSubmit, validateForm, values]
+      [
+        formData,
+        onSubmit,
+        validateForm,
+        values,
+        scrollOnErrorValidation,
+        errors,
+      ]
     );
 
     // Memoized loading overlay

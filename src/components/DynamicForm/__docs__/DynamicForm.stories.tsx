@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import Example from "./Example";
+import ScrollOnErrorExample from "./ScrollOnErrorExample";
 
 const meta: Meta<typeof Example> = {
   title: "DynamicFormCore",
@@ -92,4 +93,16 @@ export const SimpleForm: Story = {
 
 export const FormWithCustomSubmit: Story = {
   args: {},
+};
+
+export const ScrollOnErrorValidation: Story = {
+  render: () => <ScrollOnErrorExample />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "This form demonstrates the scrollOnErrorValidation feature. When you submit the form with validation errors, it will automatically scroll to the first field that has an error.",
+      },
+    },
+  },
 };

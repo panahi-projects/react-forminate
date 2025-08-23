@@ -42,6 +42,7 @@ export type CustomProviderType = React.FC<FormProviderType>;
 export interface FormOptions {
   validateFieldsOnBlur?: boolean;
   disableDefaultStyling?: FieldDisableDefaultStyling;
+  scrollOnErrorValidation?: boolean;
   skeleton?: {
     visible?: ShowSkeletonLoadingType;
     component?: ChildrenType;

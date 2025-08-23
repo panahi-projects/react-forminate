@@ -81,5 +81,32 @@ export default Example;
 - **formId** _`string`_ - A unique identifier for the form. This is used to manage the form state and handle submissions.
 - **formData** _`object`_ - An object containing the form's data, including the fields and their properties. Each field should have an `fieldId`, `label`, `type`, and any other relevant properties (e.g., `required`, `options` for radio buttons).
 - **onSubmit** _`() => void`_ - A function that is called when the form is submitted. It receives the form data as an argument.
-- **isLoading** _`boolean`_ - A boolean indicating whether the form is in a loading state. This can be used to show a loading spinner or disable the form while waiting for a response. 
+- **isLoading** _`boolean`_ - A boolean indicating whether the form is in a loading state. This can be used to show a loading spinner or disable the form while waiting for a response.
 - **submitDetails** _`object`_ - An object containing details about the submit button, such as its text and any other properties. This allows customization of the submit button's appearance and behavior.
+
+## Form Options
+
+The `formData.options` object allows you to configure various form behaviors:
+
+### scrollOnErrorValidation
+
+Automatically scrolls to the first field with a validation error when the form is submitted and validation fails.
+
+```tsx
+const formData = {
+  formId: "my-form",
+  options: {
+    scrollOnErrorValidation: true, // Enable auto-scroll to first error
+  },
+  fields: [
+    // ... your fields
+  ],
+};
+```
+
+**Features:**
+
+- Smooth scrolling animation to the error field
+- Automatic focus on the error field for better UX
+- Only activates when `scrollOnErrorValidation: true` is set
+- Works with all field types and validation rules
