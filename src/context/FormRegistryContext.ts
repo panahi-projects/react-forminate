@@ -15,6 +15,7 @@ export type FormContextMap = {
       | "getFieldSchema"
       | "shouldShowField"
       | "observer"
+      | "resetForm"
     >;
     values: Record<string, SupportedTypes>;
     errors: Record<string, string>;

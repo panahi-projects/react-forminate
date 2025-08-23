@@ -1,34 +1,36 @@
 /* FieldWrapper Styles */
-.field-container {
+.container {
   display: flex;
   flex-direction: column;
 }
 
-.field-label {
+.label {
   margin-bottom: 2px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
-.field-error-placeholder,
-.field-error-message {
+.errorPlaceholder,
+.errorMessage {
   min-height: 1.3rem;
   font-size: 0.7rem;
   display: block;
   width: 100%;
   margin: 1px 0 2px 0;
 }
-.field-error-message {
+
+.errorMessage {
   color: #f00;
   display: inline-block;
 }
 
-.field-description {
+.description {
   font-size: 0.7rem;
   color: #828282;
   display: inline-block;
   margin: 1px 0 0 0;
 }
 
-.field-required-indicator {
+.requiredIndicator {
   color: #f00;
+  padding-left: 2px;
 }

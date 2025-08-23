@@ -102,6 +102,7 @@ export const useForm = (formId?: string): FormContextType => {
         shouldShowField: ctx.actions.shouldShowField,
         fetchDynamicOptions: ctx.actions.fetchDynamicOptions,
         getFieldSchema: ctx.actions.getFieldSchema,
+        resetForm: ctx.actions.resetForm,
       };
     }
   }

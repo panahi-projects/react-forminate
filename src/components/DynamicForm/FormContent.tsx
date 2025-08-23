@@ -1,6 +1,6 @@
 import { useFormActions, useFormValues, useFormErrors } from "@/hooks";
 import { DynamicFormType } from "@/types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useRef } from "react";
 import { DynamicFormField } from "../DynamicFormField";
 import { scrollToFirstError } from "@/utils/fieldUtils";
 import "./FormStyle.css";
@@ -17,12 +17,20 @@ interface FormContentProps extends DynamicFormType {
   isLoading?: boolean;
 }
 
+/**
+ * FormContent component - Renders a dynamic form with fields, loading states, and submission handling
+ * Optimized for performance with memoization and reduced re-renders
+ */
 const FormContent: React.FC<FormContentProps> = React.memo(
   ({ formData, onSubmit, isLoading }) => {
     const values = useFormValues();
     const errors = useFormErrors();
     const { validateForm } = useFormActions();
     const [loadedFields, setLoadedFields] = useState<Set<string>>(new Set());
+    const formDataRef = useRef(formData);
+
+    // Use ref to avoid dependency changes in useCallback/useMemo
+    formDataRef.current = formData;
 
     // Memoize form options to prevent unnecessary recalculations
     const { submit, loading, skeleton, scrollOnErrorValidation } =
@@ -40,17 +48,20 @@ const FormContent: React.FC<FormContentProps> = React.memo(
     // Stable callback for field load
     const handleFieldLoad = useCallback((fieldId: string) => {
       setLoadedFields((prev) => {
+        // Early return if already loaded
+        if (prev.has(fieldId)) return prev;
+
         const newSet = new Set(prev);
         newSet.add(fieldId);
         return newSet;
       });
     }, []);
 
-    // Memoized submit handler
+    // Memoized submit handler with stable dependencies
     const handleSubmit = useCallback(
       async (e: React.FormEvent) => {
         e.preventDefault();
-        const isValid = await validateForm(formData);
+        const isValid = await validateForm(formDataRef.current);
 
         // If form is not valid and scrollOnErrorValidation is enabled, scroll to first error
         if (!isValid && scrollOnErrorValidation) {
@@ -62,14 +73,7 @@ const FormContent: React.FC<FormContentProps> = React.memo(
 
         onSubmit?.(values, isValid);
       },
-      [
-        formData,
-        onSubmit,
-        validateForm,
-        values,
-        scrollOnErrorValidation,
-        errors,
-      ]
+      [onSubmit, validateForm, values]
     );
 
     // Memoized loading overlay
@@ -116,6 +120,19 @@ const FormContent: React.FC<FormContentProps> = React.memo(
       );
     }, [submit, allFieldsLoaded, isLoading, SubmitCustomComponent]);
 
+    // Memoize fields rendering to prevent unnecessary re-renders
+    const renderedFields = useMemo(() => {
+      return formData.fields.map((field) => (
+        <DynamicFormField
+          key={field.fieldId}
+          {...field}
+          skeleton={skeleton?.component}
+          showSkeletonLoading={skeleton?.visible}
+          onLoadComplete={handleFieldLoad}
+        />
+      ));
+    }, [formData.fields, skeleton, handleFieldLoad]);
+
     return (
       <form
         onSubmit={handleSubmit}
@@ -139,17 +156,7 @@ const FormContent: React.FC<FormContentProps> = React.memo(
         {loadingOverlay}
 
         {/* Render form fields with opacity control */}
-        <div style={{ opacity: allFieldsLoaded ? 1 : 0 }}>
-          {formData.fields.map((field) => (
-            <DynamicFormField
-              key={field.fieldId}
-              {...field}
-              skeleton={skeleton?.component}
-              showSkeletonLoading={skeleton?.visible}
-              onLoadComplete={handleFieldLoad}
-            />
-          ))}
-        </div>
+        <div style={{ opacity: allFieldsLoaded ? 1 : 0 }}>{renderedFields}</div>
 
         {submitButton}
       </form>

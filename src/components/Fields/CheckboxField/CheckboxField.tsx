@@ -1,8 +1,12 @@
 import { useField } from "@/hooks";
 import { CheckboxFieldType } from "@/types";
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 
-const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
+/**
+ * CheckboxField component - Renders either a single checkbox or a group of checkboxes
+ * with optimized performance through memoization and reduced re-renders
+ */
+const CheckboxField: React.FC<CheckboxFieldType> = React.memo((props) => {
   const {
     eventHandlers,
     processedProps,
@@ -13,112 +17,164 @@ const CheckboxField: React.FC<CheckboxFieldType> = (props) => {
     setValue,
   } = useField(props);
 
-  // Determine if we're in single checkbox mode
-  const isSingleCheckbox = !processedProps?.options;
+  // Memoize derived values to prevent recalculation on every render
+  const isSingleCheckbox = useMemo(
+    () => !processedProps?.options,
+    [processedProps?.options]
+  );
+  const layout = useMemo(
+    () => processedProps?.layout || "column",
+    [processedProps?.layout]
+  );
+  const singlePositiveAnswerValue = useMemo(
+    () => processedProps?.singlePositiveAnswerValue || "true",
+    [processedProps?.singlePositiveAnswerValue]
+  );
+  const singleNegativeAnswerValue = useMemo(
+    () => processedProps?.singleNegativeAnswerValue || "",
+    [processedProps?.singleNegativeAnswerValue]
+  );
 
-  // Determine layout mode (defaults to 'column' if not specified)
-  const layout = processedProps?.layout || "column";
+  // Memoize container style to prevent object recreation on every render
+  const containerStyle: React.CSSProperties = useMemo(
+    () => ({
+      display: "flex",
+      flexDirection: layout === "inline" ? "row" : "column",
+      gap: layout === "inline" ? "24px" : "8px",
+      flexWrap: "wrap",
+      ...(processedProps?.containerStyles as React.CSSProperties),
+    }),
+    [layout, processedProps?.containerStyles]
+  );
 
-  // Handle single checkbox change
-  const handleSingleCheckboxChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newValue = e.target.checked ? "true" : "false";
+  // Memoize label style to prevent object recreation on every render
+  const labelStyle = useMemo(
+    () => ({
+      display: "flex",
+      alignItems: "center",
+      gap: "4px",
+      cursor: "pointer",
+      ...processedProps?.itemsStyles,
+    }),
+    [processedProps?.itemsStyles]
+  );
 
-    // Create a synthetic event that matches what your form system expects
-    if (newValue === "true") {
-      setValue(fieldId, processedProps?.singlePositiveAnswerValue || newValue);
-    } else {
-      setValue(fieldId, processedProps?.singleNegativeAnswerValue || "");
-    }
-  };
-
-  // Container style based on layout
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: layout === "inline" ? "row" : "column",
-    gap: layout === "inline" ? "24px" : "8px", // More gap for inline, less for column
-    flexWrap: "wrap",
-    ...(processedProps?.containerStyles as React.CSSProperties),
-  };
-
-  // Label style (applies to both single and multiple checkboxes)
-  const labelStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "4px", // Space between checkbox and label
-    cursor: "pointer",
-    ...processedProps?.itemsStyles,
-  };
-
-  const isChecked = useMemo(() => {
-    return (optionValue?: string | number) => {
-      if (isSingleCheckbox)
+  // Optimized isChecked function with useCallback to maintain reference equality
+  const isChecked = useCallback(
+    (optionValue?: string | number): boolean => {
+      if (isSingleCheckbox) {
         return (
-          fieldValue === processedProps?.singlePositiveAnswerValue ||
-          fieldValue === "true"
+          fieldValue === singlePositiveAnswerValue || fieldValue === "true"
         );
+      }
+
+      return Boolean(
+        optionValue &&
+          Array.isArray(fieldValue) &&
+          fieldValue.includes(optionValue as string)
+      );
+    },
+    [isSingleCheckbox, fieldValue, singlePositiveAnswerValue]
+  );
+
+  // Memoize single checkbox change handler
+  const handleSingleCheckboxChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.checked
+        ? singlePositiveAnswerValue
+        : singleNegativeAnswerValue;
+      setValue(fieldId, newValue);
+    },
+    [setValue, fieldId, singlePositiveAnswerValue, singleNegativeAnswerValue]
+  );
+
+  // Memoize single checkbox rendering to prevent unnecessary re-renders
+  const renderSingleCheckbox = useMemo(() => {
+    if (!isSingleCheckbox) return null;
+
+    return (
+      <label
+        htmlFor={fieldId}
+        style={labelStyle}
+        className={processedProps?.itemsClassName}
+      >
+        <input
+          {...fieldParams}
+          {...eventHandlers.htmlHandlers}
+          id={fieldId}
+          type="checkbox"
+          checked={isChecked()}
+          onChange={handleSingleCheckboxChange}
+        />
+        {processedProps?.description && (
+          <span>{processedProps.description}</span>
+        )}
+      </label>
+    );
+  }, [
+    isSingleCheckbox,
+    fieldId,
+    labelStyle,
+    processedProps?.itemsClassName,
+    processedProps?.description,
+    fieldParams,
+    eventHandlers.htmlHandlers,
+    isChecked,
+    handleSingleCheckboxChange,
+  ]);
+
+  // Memoize multiple checkboxes rendering to prevent unnecessary re-renders
+  const renderMultipleCheckboxes = useMemo(() => {
+    if (isSingleCheckbox || !processedProps?.options) return null;
+
+    return processedProps.options.map((option, index) => {
+      const isString = typeof option === "string";
+      const optionValue = isString ? option : option.value;
+      const optionLabel = isString ? option : option.label;
+      const optionKey = isString ? option : `${option.value}-${index}`;
+      const optionId = `${fieldId}-item-${optionValue}`;
 
       return (
-        (optionValue &&
-          (fieldValue as string[])?.includes(optionValue as string)) ||
-        false
+        <label
+          key={optionKey}
+          htmlFor={optionId}
+          style={labelStyle}
+          className={processedProps.itemsClassName}
+        >
+          <input
+            {...fieldParams}
+            {...eventHandlers.htmlHandlers}
+            id={optionId}
+            value={optionValue}
+            checked={isChecked(optionValue)}
+          />
+          <span>{optionLabel}</span>
+        </label>
       );
-    };
-  }, [fieldValue]);
+    });
+  }, [
+    isSingleCheckbox,
+    processedProps?.options,
+    processedProps?.itemsClassName,
+    fieldId,
+    labelStyle,
+    fieldParams,
+    eventHandlers.htmlHandlers,
+    isChecked,
+  ]);
+
   return (
     <div
       data-testid={fieldParams["data-testid"]}
       data-touched={isTouched}
       style={containerStyle}
     >
-      {isSingleCheckbox ? (
-        // Single checkbox mode
-        <label
-          htmlFor={fieldId}
-          style={labelStyle}
-          className={processedProps?.itemsClassName}
-        >
-          <input
-            {...fieldParams}
-            {...eventHandlers.htmlHandlers}
-            id={fieldId}
-            type="checkbox"
-            checked={isChecked()}
-            onChange={handleSingleCheckboxChange}
-          />
-          {processedProps?.description && (
-            <span>{processedProps.description}</span>
-          )}
-        </label>
-      ) : (
-        // Multiple checkboxes mode
-        processedProps?.options?.map((option, index) => {
-          const isString = typeof option === "string";
-          const optionValue = isString ? option : option.value;
-          const optionLabel = isString ? option : option.label;
-
-          return (
-            <label
-              key={isString ? option : `${option.value}-${index}`}
-              htmlFor={`${fieldId}-item-${optionValue}`}
-              style={labelStyle}
-              className={processedProps.itemsClassName}
-            >
-              <input
-                {...fieldParams}
-                {...eventHandlers.htmlHandlers}
-                id={`${fieldId}-item-${optionValue}`}
-                value={optionValue}
-                checked={isChecked(optionValue)}
-              />
-              <span>{optionLabel}</span>
-            </label>
-          );
-        })
-      )}
+      {renderSingleCheckbox}
+      {renderMultipleCheckboxes}
     </div>
   );
-};
+});
 
-export default React.memo(CheckboxField);
+CheckboxField.displayName = "CheckboxField";
+
+export default CheckboxField;

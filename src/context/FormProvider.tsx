@@ -53,6 +53,13 @@ export const FormProvider: React.FC<FormProviderType> = ({
   const [touched, setTouchedState] = useState<Record<FieldIdType, boolean>>({});
   const [blurred, setBlurredState] = useState<Record<FieldIdType, boolean>>({});
 
+  const resetForm = useCallback(() => {
+    setValues(setDefaultsRecursively(formSchema.fields));
+    setErrors({});
+    setTouchedState({});
+    setBlurredState({});
+  }, [formSchema.fields]);
+
   // Memoize all callbacks
   const setValueImmediate = (fieldId: FieldIdType, value: SupportedTypes) => {
     setValues((prev) => ({ ...prev, [fieldId]: value }));
@@ -199,6 +206,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
       getFieldSchema: getFieldSchemaById,
       shouldShowField: handleVisibility,
       observer,
+      resetForm,
     }),
     [
       setValue,
@@ -210,6 +218,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
       getFieldSchemaById,
       handleVisibility,
       observer,
+      resetForm,
     ]
   );
 
@@ -294,6 +303,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
                 shouldShowField: handleVisibility,
                 fetchDynamicOptions,
                 getFieldSchema: getFieldSchemaById,
+                resetForm,
               }}
             >
               {children}

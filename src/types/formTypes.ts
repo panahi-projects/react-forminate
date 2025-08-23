@@ -80,6 +80,7 @@ export interface FormContextType {
   shouldShowField: ShouldShowFieldType;
   fetchDynamicOptions: FetchDynamicOptionsType;
   getFieldSchema: GetFieldSchemaType;
+  resetForm: () => void;
 }
 
 export interface FormProviderType {
