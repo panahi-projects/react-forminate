@@ -138,6 +138,22 @@ export default () => (
 }
 ```
 
+### Auto-Scroll on Validation Errors
+
+```tsx
+{
+  formId: "userForm",
+  options: {
+    scrollOnErrorValidation: true, // Automatically scroll to first error field
+  },
+  fields: [
+    // ... your fields
+  ]
+}
+```
+
+When enabled, clicking the submit button on an invalid form will automatically scroll to the first field with a validation error, providing better user experience for long forms.
+
 ## Field Types Supported 🏗️
 
 **Input Fields**
