@@ -175,16 +175,8 @@ export const extractFieldTypes = (
 /**
  * Scrolls to the first field with a validation error
  * @param errors - Object containing field errors
- * @param formFields - Array of form fields
- * @param values - Current form values
- * @param formSchema - Form schema for field processing
  */
-export const scrollToFirstError = (
-  errors: Record<string, string>,
-  formFields: any[],
-  values: Record<string, any>,
-  formSchema: any
-): void => {
+export const scrollToFirstError = (errors: Record<string, string>): void => {
   if (!errors || Object.keys(errors).length === 0) return;
 
   // Get the first field ID that has an error

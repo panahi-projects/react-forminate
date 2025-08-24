@@ -61,12 +61,7 @@ const FormContent: React.FC<FormContentProps> = React.memo(
       ) {
         // Wait for DOM to update with error messages
         setTimeout(() => {
-          scrollToFirstError(
-            errors,
-            formDataRef.current.fields,
-            values,
-            formDataRef.current
-          );
+          scrollToFirstError(errors);
         }, 100);
       }
     }, [errors, scrollOnErrorValidation, isValidating, values]);
