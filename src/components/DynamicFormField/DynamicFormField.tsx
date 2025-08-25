@@ -168,6 +168,8 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           descriptionStyles={processedProps.descriptionStyles}
           errorComponent={processedProps.errorComponent}
           descriptionComponent={processedProps.descriptionComponent}
+          gridColumn={processedProps.gridColumn}
+          gridRow={processedProps.gridRow}
         >
           <FieldComponentWithRef {...processedProps} ref={handleLoadComplete} />
         </FieldWrapper>

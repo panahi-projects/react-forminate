@@ -35,6 +35,9 @@ interface FieldWrapperProps {
   descriptionComponent?: React.ComponentType<{
     description: FieldDescriptionType;
   }>;
+
+  gridColumn?: number | string;
+  gridRow?: number | string;
 }
 
 /**
@@ -75,6 +78,8 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     ariaLive,
     role,
     ariaLabelledby,
+    gridColumn = 12,
+    gridRow = 1,
   }) => {
     // Memoize computed values to avoid recalculation on every render
     const shouldAddHtmlFor = useMemo(
@@ -203,8 +208,15 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     return (
       <div
         className={`${styles.container} ${className}`}
-        style={inlineStyles}
+        style={
+          {
+            gridColumn: `span ${gridColumn}`,
+            ...inlineStyles,
+          } as React.CSSProperties
+        }
         role={containerRole}
+        data-grid-column={gridColumn}
+        data-grid-row={gridRow}
       >
         {renderedLabel}
         {enhancedChild}

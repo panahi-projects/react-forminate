@@ -164,6 +164,10 @@ export interface BaseField extends CustomEventHandlers {
   //additional props
   extraProps?: ExtraProps; //this will be used for the plug-in packages fields
   meta?: ExtraProps;
+
+  // Grid system
+  gridColumn?: number | string;
+  gridRow?: number | string;
 }
 
 export type ExcludingAttributes = "required" | "disabled" | "value" | "role";

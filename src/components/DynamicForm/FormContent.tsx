@@ -46,7 +46,7 @@ const FormContent: React.FC<FormContentProps> = React.memo(
     formDataRef.current = formData;
 
     // Memoize form options to prevent unnecessary recalculations
-    const { submit, loading, skeleton, scrollOnErrorValidation } =
+    const { submit, loading, skeleton, scrollOnErrorValidation, layout } =
       formData.options || {};
     const SubmitCustomComponent = submit?.component;
     const CustomLoadingComponent = loading?.component;
@@ -181,7 +181,19 @@ const FormContent: React.FC<FormContentProps> = React.memo(
         {loadingOverlay}
 
         {/* Render form fields with opacity control */}
-        <div style={{ opacity: allFieldsLoaded ? 1 : 0 }}>{renderedFields}</div>
+        <div
+          style={{
+            opacity: allFieldsLoaded ? 1 : 0,
+            display: layout?.layoutType || "block",
+            columnGap: layout?.layoutConfig?.columnGap || "1rem",
+            rowGap: layout?.layoutConfig?.rowGap || "0rem",
+            gridTemplateColumns:
+              layout?.layoutConfig?.gridTemplateColumns || "repeat(12, 1fr)",
+            ...layout?.layoutConfig,
+          }}
+        >
+          {renderedFields}
+        </div>
 
         {submitButton}
       </form>
