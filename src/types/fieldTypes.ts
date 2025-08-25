@@ -15,6 +15,7 @@ import {
   FieldAutoCapitalizeType,
   FieldAutoCorrectType,
   FieldAutoFocusType,
+  FieldButtonType,
   FieldCheckboxType,
   FieldClassNameType,
   FieldContainerType,
@@ -60,6 +61,7 @@ import {
   FileUploadHeadersType,
   FileUploadMethodType,
   FileUploadUrlType,
+  FormValuesType,
   FunctionalChildrenType,
   GapType,
   HeightType,
@@ -268,6 +270,26 @@ export interface SpacerFieldType extends BaseField {
   children?: ChildrenType;
 }
 
+export interface ButtonFieldType extends BaseField {
+  type: FieldButtonType;
+  text: FieldLabelType;
+  onClick: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    formValues: FormValuesType,
+    isValid?: boolean
+  ) => void;
+  disabled?: FieldDisabledType;
+  loading?: boolean;
+  size?: "small" | "medium" | "large";
+  variant?: "primary" | "secondary" | "tertiary" | "link";
+  buttonType?: "button" | "submit" | "reset";
+  icon?: React.ReactNode | string;
+  iconPosition?: "left" | "right";
+  iconSize?: number;
+  iconColor?: string;
+  iconBackgroundColor?: string;
+}
+
 export interface FileMetadata {
   name: string;
   type: string;
@@ -379,4 +401,5 @@ export type FormFieldType =
   | SpacerFieldType
   | InputFileType
   | ContentFieldType
-  | MultiSelectFieldType;
+  | MultiSelectFieldType
+  | ButtonFieldType;

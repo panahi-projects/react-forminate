@@ -280,3 +280,24 @@
 .multiselect-placeholder {
   color: #999;
 }
+
+.form-button {
+  display: inline-flex;
+  width: fit-content;
+  height: fit-content;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.form-button:focus,
+.form-button:hover {
+  background-color: #0056b3;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}

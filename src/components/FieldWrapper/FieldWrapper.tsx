@@ -81,6 +81,8 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     gridColumn = 12,
     gridRow = 1,
   }) => {
+    const exceptionalFields = ["button", "spacer", "content", "group"];
+
     // Memoize computed values to avoid recalculation on every render
     const shouldAddHtmlFor = useMemo(
       () => type !== "radio" && type !== "checkbox",
@@ -120,6 +122,8 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
     // Memoize error rendering to prevent unnecessary re-renders
     const renderedError = useMemo(() => {
+      if (exceptionalFields.includes(type as string)) return null;
+
       if (!error)
         return <div className={styles.errorPlaceholder} aria-hidden="true" />;
 
@@ -166,7 +170,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
     // Memoize label rendering to prevent unnecessary re-renders
     const renderedLabel = useMemo(() => {
-      if (!label || type === "group") return null;
+      if (!label || exceptionalFields.includes(type as string)) return null;
 
       return (
         <label

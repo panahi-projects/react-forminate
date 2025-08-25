@@ -254,12 +254,6 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   const contextRef = useRef({});
 
-  // const context = {
-  //   actions,
-  //   values,
-  //   errors,
-  //   meta,
-  // };
   const memoizedContext = useMemo(
     () => ({
       ...contextRef.current,

@@ -14,6 +14,21 @@ export const Input: React.FC<InputProps> = ({
   return <input className={classes} {...props} />;
 };
 
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  hasError?: boolean;
+  text?: string;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  hasError,
+  className = "",
+  ...props
+}) => {
+  const classes = `form-element form-button ${hasError ? "form-element-error" : ""} ${className}`;
+  return <button className={classes} {...props} />;
+};
+
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   hasError?: boolean;
 }
