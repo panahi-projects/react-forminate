@@ -365,9 +365,9 @@ export type ProcessedFileValue<T extends FileStorageFormatType> =
                 : never;
 
 export interface BaseContainerField<T extends FormFieldType[]>
-  extends Omit<BaseField, "fields"> {
+  extends Omit<BaseField, "fields" | "as"> {
   type: FieldContainerType;
-  as: FieldAsHTMLContainerTagType;
+  as: FieldAsHTMLContainerTagType | React.ComponentType<any>;
   columns?: ColumnsType;
   gap?: GapType;
   fields: T;
