@@ -1,8 +1,12 @@
 import { DynamicFormField } from "@/components/DynamicFormField";
-import { ContainerFieldType } from "@/types";
-import React from "react";
+import { ContainerFieldType, FieldAsHTMLContainerTagType } from "@/types";
+import React, { createElement } from "react";
 
-const ContainerField: React.FC<ContainerFieldType> = ({
+interface ContainerFieldProps extends Omit<ContainerFieldType, "as"> {
+  as: FieldAsHTMLContainerTagType | React.ComponentType<any>;
+}
+
+const ContainerField: React.FC<ContainerFieldProps> = ({
   as: Component = "div",
   fieldId: id,
   columns = 1,
@@ -32,40 +36,89 @@ const ContainerField: React.FC<ContainerFieldType> = ({
     }),
   });
 
+  // Determine if Component is a string (HTML tag) or React component
+  const isHtmlTag = typeof Component === "string";
+
   return (
     <div style={containerStyles} className={containerClassName}>
       {header}
-      <Component
-        className={className}
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${columns}, 1fr)`,
-          gap: gap,
-          ...styles,
-        }}
-        {...rest}
-      >
-        {fields.map((field) => {
-          const {
-            colSpan,
-            style: customStyle,
-            ...restAttrs
-          } = itemsParentAttributes?.[field.fieldId] || {};
+      {isHtmlTag ? (
+        // Render as HTML tag
+        createElement(
+          Component as string,
+          {
+            className,
+            style: {
+              display: "grid",
+              gridTemplateColumns: `repeat(${columns}, 1fr)`,
+              gap: gap,
+              ...styles,
+            },
+            ...rest,
+          },
+          <>
+            {fields.map((field) => {
+              const {
+                colSpan,
+                style: customStyle,
+                ...restAttrs
+              } = itemsParentAttributes?.[field.fieldId] || {};
 
-          return (
-            <div
-              key={field.fieldId}
-              className={itemsClassName}
-              style={getMergedGridItemStyle(colSpan, itemsStyles, customStyle)}
-              {...restAttrs}
-            >
-              <DynamicFormField {...field} />
-            </div>
-          );
-        })}
+              return (
+                <div
+                  key={field.fieldId}
+                  className={itemsClassName}
+                  style={getMergedGridItemStyle(
+                    colSpan,
+                    itemsStyles,
+                    customStyle
+                  )}
+                  {...restAttrs}
+                >
+                  <DynamicFormField {...field} />
+                </div>
+              );
+            })}
+            {children}
+          </>
+        )
+      ) : (
+        // Render as React component
+        <Component
+          className={className}
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gap: gap,
+            ...styles,
+          }}
+          {...rest}
+        >
+          {fields.map((field) => {
+            const {
+              colSpan,
+              style: customStyle,
+              ...restAttrs
+            } = itemsParentAttributes?.[field.fieldId] || {};
 
-        {children}
-      </Component>
+            return (
+              <div
+                key={field.fieldId}
+                className={itemsClassName}
+                style={getMergedGridItemStyle(
+                  colSpan,
+                  itemsStyles,
+                  customStyle
+                )}
+                {...restAttrs}
+              >
+                <DynamicFormField {...field} />
+              </div>
+            );
+          })}
+          {children}
+        </Component>
+      )}
       {footer}
     </div>
   );

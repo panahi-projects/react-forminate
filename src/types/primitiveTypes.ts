@@ -93,6 +93,7 @@ export type FieldTextareaType = "textarea";
 export type FieldGroupType = "group";
 export type FieldGridViewType = "gridview";
 export type FieldSpacerType = "spacer";
+export type FieldButtonType = "button";
 export type FieldContainerType = "container" | "content";
 export type FieldInputFileType = "file";
 export type FieldContentType = "content";

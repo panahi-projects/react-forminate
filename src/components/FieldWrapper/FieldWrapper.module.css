@@ -19,7 +19,7 @@
 }
 
 .errorMessage {
-  color: #f00;
+  color: #cc0000;
   display: inline-block;
 }
 
@@ -31,6 +31,6 @@
 }
 
 .requiredIndicator {
-  color: #f00;
+  color: #cc0000;
   padding-left: 2px;
 }

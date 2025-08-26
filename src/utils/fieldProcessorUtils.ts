@@ -1,3 +1,4 @@
+import { REACT_NODE_PROPS } from "@/constants";
 import { PropertyProcessor } from "@/helpers";
 import {
   FieldPropFunction,
@@ -73,13 +74,22 @@ export class FieldProcessor {
     field: FormFieldType,
     values: Record<string, SupportedTypes>
   ): string {
-    // Create a key based on field ID and relevant dependent values
+    // Create a simplified field object without React nodes
+    const fieldForCache = { ...field };
+
+    // Remove React node properties that can't be serialized
+    REACT_NODE_PROPS.forEach((prop) => {
+      if (prop in fieldForCache) {
+        delete (fieldForCache as any)[prop];
+      }
+    });
+
     const dependencyKeys = this.getFieldDependencies(field);
     const valueHash = dependencyKeys
       .map((key) => `${key}:${JSON.stringify(values[key])}`)
       .join("|");
 
-    return `${field.fieldId}|${valueHash}|${JSON.stringify(field)}`;
+    return `${field.fieldId}|${valueHash}|${JSON.stringify(fieldForCache)}`;
   }
 
   public getFieldDependencies(field: FormFieldType): string[] {

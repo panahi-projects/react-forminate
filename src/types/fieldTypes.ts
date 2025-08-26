@@ -15,6 +15,7 @@ import {
   FieldAutoCapitalizeType,
   FieldAutoCorrectType,
   FieldAutoFocusType,
+  FieldButtonType,
   FieldCheckboxType,
   FieldClassNameType,
   FieldContainerType,
@@ -60,6 +61,7 @@ import {
   FileUploadHeadersType,
   FileUploadMethodType,
   FileUploadUrlType,
+  FormValuesType,
   FunctionalChildrenType,
   GapType,
   HeightType,
@@ -164,6 +166,16 @@ export interface BaseField extends CustomEventHandlers {
   //additional props
   extraProps?: ExtraProps; //this will be used for the plug-in packages fields
   meta?: ExtraProps;
+
+  // Grid system
+  gridColumn?: number | string;
+  gridRow?: number | string;
+  offsetColumnStart?: number | string;
+  offsetColumnEnd?: number | string;
+  offsetColumnStartStyles?: FieldStyleType;
+  offsetColumnEndStyles?: FieldStyleType;
+  offsetStartChildren?: ChildrenType;
+  offsetEndChildren?: ChildrenType;
 }
 
 export type ExcludingAttributes = "required" | "disabled" | "value" | "role";
@@ -264,6 +276,26 @@ export interface SpacerFieldType extends BaseField {
   children?: ChildrenType;
 }
 
+export interface ButtonFieldType extends BaseField {
+  type: FieldButtonType;
+  text: FieldLabelType;
+  onClick: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    formValues: FormValuesType,
+    isValid?: boolean
+  ) => void;
+  disabled?: FieldDisabledType;
+  loading?: boolean;
+  size?: "small" | "medium" | "large";
+  variant?: "primary" | "secondary" | "tertiary" | "link";
+  buttonType?: "button" | "submit" | "reset";
+  icon?: React.ReactNode | string;
+  iconPosition?: "left" | "right";
+  iconSize?: number;
+  iconColor?: string;
+  iconBackgroundColor?: string;
+}
+
 export interface FileMetadata {
   name: string;
   type: string;
@@ -333,9 +365,9 @@ export type ProcessedFileValue<T extends FileStorageFormatType> =
                 : never;
 
 export interface BaseContainerField<T extends FormFieldType[]>
-  extends Omit<BaseField, "fields"> {
+  extends Omit<BaseField, "fields" | "as"> {
   type: FieldContainerType;
-  as: FieldAsHTMLContainerTagType;
+  as: FieldAsHTMLContainerTagType | React.ComponentType<any>;
   columns?: ColumnsType;
   gap?: GapType;
   fields: T;
@@ -375,4 +407,5 @@ export type FormFieldType =
   | SpacerFieldType
   | InputFileType
   | ContentFieldType
-  | MultiSelectFieldType;
+  | MultiSelectFieldType
+  | ButtonFieldType;

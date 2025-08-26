@@ -122,3 +122,22 @@ export const TAG_TO_ELEMENT_TAG: Record<string, keyof HTMLElementTagNameMap> = {
 };
 
 export const ARRAY_FIELD_TYPES = ["checkbox", "multiSelect"] as string[];
+
+// React node properties that can't be serialized
+export const REACT_NODE_PROPS = [
+  "offsetStartChildren",
+  "offsetEndChildren",
+  "children",
+  "header",
+  "footer",
+  "content",
+  "component",
+] as string[];
+
+export const FIELDS_WITHOUT_LABEL = [
+  "spacer",
+  "content",
+  "button",
+  "group",
+  "container",
+] as string[];

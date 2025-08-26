@@ -44,6 +44,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   file: lazy(() => import("../Fields/InputFileField")),
   content: lazy(() => import("../Fields/ContentField")),
   multiSelect: lazy(() => import("../Fields/MultiSelectField")),
+  button: lazy(() => import("../Fields/ButtonField")),
 };
 
 // Plugin extension mechanism
@@ -168,6 +169,14 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           descriptionStyles={processedProps.descriptionStyles}
           errorComponent={processedProps.errorComponent}
           descriptionComponent={processedProps.descriptionComponent}
+          gridColumn={processedProps.gridColumn}
+          gridRow={processedProps.gridRow}
+          offsetColumnStart={processedProps.offsetColumnStart}
+          offsetColumnEnd={processedProps.offsetColumnEnd}
+          offsetColumnStartStyles={processedProps.offsetColumnStartStyles}
+          offsetColumnEndStyles={processedProps.offsetColumnEndStyles}
+          offsetStartChildren={processedProps.offsetStartChildren}
+          offsetEndChildren={processedProps.offsetEndChildren}
         >
           <FieldComponentWithRef {...processedProps} ref={handleLoadComplete} />
         </FieldWrapper>

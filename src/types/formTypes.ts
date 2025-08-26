@@ -52,6 +52,33 @@ export interface FormOptions {
     visible?: boolean;
     component?: ReactElement | ComponentType<{}>;
   };
+  layout?: {
+    layoutType: "grid" | "flex" | "block";
+    layoutConfig?: React.CSSProperties & {
+      // Grid system
+      gridTemplateColumns?: string;
+      gridTemplateRows?: string;
+      gridTemplateAreas?: string;
+      gap?: string;
+      columnGap?: string;
+      rowGap?: string;
+
+      // Flex system
+      alignItems?: string;
+      justifyItems?: string;
+      alignContent?: string;
+      justifyContent?: string;
+      alignSelf?: string;
+      justifySelf?: string;
+      flexDirection?: string;
+      flexWrap?: string;
+      flexGrow?: string;
+      flexShrink?: string;
+      flexBasis?: string;
+      flex?: string;
+      flexFlow?: string;
+    };
+  };
 }
 
 export interface FormDataCollectionType {
