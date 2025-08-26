@@ -282,8 +282,7 @@
 }
 
 .form-button {
-  display: inline-flex;
-  width: fit-content;
+  width: 100%;
   height: fit-content;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -294,6 +293,7 @@
   border: none;
   transition: all 0.2s ease;
   cursor: pointer;
+  text-align: center;
 }
 .form-button:focus,
 .form-button:hover {

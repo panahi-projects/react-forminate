@@ -171,6 +171,12 @@ const DynamicFormField: FC<ExtendedFormField> = React.memo(
           descriptionComponent={processedProps.descriptionComponent}
           gridColumn={processedProps.gridColumn}
           gridRow={processedProps.gridRow}
+          offsetColumnStart={processedProps.offsetColumnStart}
+          offsetColumnEnd={processedProps.offsetColumnEnd}
+          offsetColumnStartStyles={processedProps.offsetColumnStartStyles}
+          offsetColumnEndStyles={processedProps.offsetColumnEndStyles}
+          offsetStartChildren={processedProps.offsetStartChildren}
+          offsetEndChildren={processedProps.offsetEndChildren}
         >
           <FieldComponentWithRef {...processedProps} ref={handleLoadComplete} />
         </FieldWrapper>

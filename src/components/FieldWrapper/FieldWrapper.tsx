@@ -1,6 +1,12 @@
-import { FieldDescriptionType, FieldTypeType } from "@/types";
+import {
+  ChildrenType,
+  FieldDescriptionType,
+  FieldStyleType,
+  FieldTypeType,
+} from "@/types";
 import React, { ReactNode, memo, useMemo } from "react";
 import styles from "./FieldWrapper.module.css";
+import { FIELDS_WITHOUT_LABEL } from "@/constants";
 
 interface FieldWrapperProps {
   id: string;
@@ -38,6 +44,12 @@ interface FieldWrapperProps {
 
   gridColumn?: number | string;
   gridRow?: number | string;
+  offsetColumnStart?: number | string;
+  offsetColumnEnd?: number | string;
+  offsetColumnStartStyles?: FieldStyleType;
+  offsetColumnEndStyles?: FieldStyleType;
+  offsetStartChildren?: ChildrenType;
+  offsetEndChildren?: ChildrenType;
 }
 
 /**
@@ -80,9 +92,13 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     ariaLabelledby,
     gridColumn = 12,
     gridRow = 1,
+    offsetColumnStart,
+    offsetColumnEnd,
+    offsetColumnStartStyles = {},
+    offsetColumnEndStyles = {},
+    offsetStartChildren,
+    offsetEndChildren,
   }) => {
-    const exceptionalFields = ["button", "spacer", "content", "group"];
-
     // Memoize computed values to avoid recalculation on every render
     const shouldAddHtmlFor = useMemo(
       () => type !== "radio" && type !== "checkbox",
@@ -122,7 +138,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
     // Memoize error rendering to prevent unnecessary re-renders
     const renderedError = useMemo(() => {
-      if (exceptionalFields.includes(type as string)) return null;
+      if (FIELDS_WITHOUT_LABEL.includes(type as string)) return null;
 
       if (!error)
         return <div className={styles.errorPlaceholder} aria-hidden="true" />;
@@ -170,7 +186,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
 
     // Memoize label rendering to prevent unnecessary re-renders
     const renderedLabel = useMemo(() => {
-      if (!label || exceptionalFields.includes(type as string)) return null;
+      if (!label || FIELDS_WITHOUT_LABEL.includes(type as string)) return null;
 
       return (
         <label
@@ -210,23 +226,50 @@ const FieldWrapper: React.FC<FieldWrapperProps> = memo(
     }, [role, type]);
 
     return (
-      <div
-        className={`${styles.container} ${className}`}
-        style={
-          {
-            gridColumn: `span ${gridColumn}`,
-            ...inlineStyles,
-          } as React.CSSProperties
-        }
-        role={containerRole}
-        data-grid-column={gridColumn}
-        data-grid-row={gridRow}
-      >
-        {renderedLabel}
-        {enhancedChild}
-        {renderedDescription}
-        {renderedError}
-      </div>
+      <>
+        {offsetColumnStart && (
+          <div
+            style={{
+              gridColumn: `span ${offsetColumnStart || 0}`,
+              width: "100%",
+              height: "100%",
+              ...offsetColumnStartStyles,
+            }}
+          >
+            {offsetStartChildren}
+          </div>
+        )}
+        <div
+          className={`${styles.container} ${className}`}
+          style={
+            {
+              gridColumn: `span ${gridColumn}`,
+              gridRow: `span ${gridRow}`,
+              ...inlineStyles,
+            } as React.CSSProperties
+          }
+          role={containerRole}
+          data-grid-column={gridColumn}
+          data-grid-row={gridRow}
+        >
+          {renderedLabel}
+          {enhancedChild}
+          {renderedDescription}
+          {renderedError}
+        </div>
+        {offsetColumnEnd && offsetColumnEnd !== 0 ? (
+          <div
+            style={{
+              gridColumn: `span ${offsetColumnEnd || 0}`,
+              width: "100%",
+              height: "60px",
+              ...offsetColumnEndStyles,
+            }}
+          >
+            {offsetEndChildren}
+          </div>
+        ) : null}
+      </>
     );
   }
 );

@@ -1,10 +1,5 @@
 import { Button } from "@/components/StyledElements";
-import {
-  useOptimizedField,
-  useFormValues,
-  useFormErrors,
-  useFormActions,
-} from "@/hooks";
+import { useFormActions, useFormValues, useOptimizedField } from "@/hooks";
 import { ButtonFieldType } from "@/types";
 import React, { useCallback } from "react";
 
@@ -29,6 +24,15 @@ const ButtonField: React.FC<ButtonFieldType> = (props) => {
           const isValid = await validateForm(formContext?.formSchema);
 
           props.onClick(event, formValues, isValid);
+        }
+      } else if (fieldProps.buttonType === "reset") {
+        // Reset form values to initial state
+        if (formContext?.resetForm) {
+          formContext.resetForm();
+        }
+        // Call the original onClick handler if provided
+        if (props.onClick) {
+          props.onClick(event, formValues);
         }
       } else {
         if (props.onClick) {

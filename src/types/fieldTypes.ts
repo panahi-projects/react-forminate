@@ -170,6 +170,12 @@ export interface BaseField extends CustomEventHandlers {
   // Grid system
   gridColumn?: number | string;
   gridRow?: number | string;
+  offsetColumnStart?: number | string;
+  offsetColumnEnd?: number | string;
+  offsetColumnStartStyles?: FieldStyleType;
+  offsetColumnEndStyles?: FieldStyleType;
+  offsetStartChildren?: ChildrenType;
+  offsetEndChildren?: ChildrenType;
 }
 
 export type ExcludingAttributes = "required" | "disabled" | "value" | "role";
