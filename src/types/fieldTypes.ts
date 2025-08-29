@@ -347,6 +347,8 @@ export interface MultiStepFieldType extends BaseField {
   }>;
   validateStep?: (stepIndex: number) => boolean;
   className?: string;
+  enableUrlNavigation?: boolean;
+  stepParamName?: string;
 }
 
 export interface MultiStepRef {

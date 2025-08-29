@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   useState,
+  useEffect,
 } from "react";
 import "./MultiStep.css";
 
@@ -27,10 +28,35 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       asideComponent: AsideComponent,
       validateStep,
       className = "",
+      enableUrlNavigation = false,
+      stepParamName = "step",
     },
     ref
   ) => {
-    const [internalStep, setInternalStep] = useState(0);
+    // Initialize step from URL synchronously if enabled
+    const getInitialStep = () => {
+      if (enableUrlNavigation && controlledStep === undefined) {
+        try {
+          const url = new URL(window.location.href);
+          const stepFromUrl = url.searchParams.get(stepParamName);
+          if (stepFromUrl) {
+            const stepIndex = parseInt(stepFromUrl, 10);
+            if (
+              !isNaN(stepIndex) &&
+              stepIndex >= 0 &&
+              stepIndex < steps.length
+            ) {
+              return stepIndex;
+            }
+          }
+        } catch (error) {
+          console.warn("Error parsing URL for initial step:", error);
+        }
+      }
+      return 0;
+    };
+
+    const [internalStep, setInternalStep] = useState(getInitialStep);
     const [asideCollapsed, setAsideCollapsed] = useState(false);
     const [direction, setDirection] = useState<"forward" | "backward">(
       "forward"
@@ -82,6 +108,75 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       }),
       [goToNext, goToPrev, goToStep, currentStep]
     );
+
+    // Initialize step from URL on mount
+    useEffect(() => {
+      if (!enableUrlNavigation || isControlled) return;
+
+      const url = new URL(window.location.href);
+      const stepFromUrl = url.searchParams.get(stepParamName);
+
+      if (stepFromUrl) {
+        const stepIndex = parseInt(stepFromUrl, 10);
+        if (!isNaN(stepIndex) && stepIndex >= 0 && stepIndex < steps.length) {
+          setInternalStep(stepIndex);
+          onStepChange?.(stepIndex);
+        }
+      } else {
+        // If no step in URL, ensure step 0 is properly represented
+        url.searchParams.set(stepParamName, "0");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }, [
+      enableUrlNavigation,
+      isControlled,
+      stepParamName,
+      steps.length,
+      onStepChange,
+    ]);
+
+    // URL navigation effect - update URL when step changes
+    useEffect(() => {
+      if (!enableUrlNavigation) return;
+
+      // Update URL when step changes - always include the step parameter for consistency
+      const url = new URL(window.location.href);
+      url.searchParams.set(stepParamName, currentStep.toString());
+
+      // Update URL without triggering navigation
+      window.history.replaceState({}, "", url.toString());
+    }, [currentStep, enableUrlNavigation, stepParamName]);
+
+    // Handle browser back/forward navigation
+    useEffect(() => {
+      if (!enableUrlNavigation || isControlled) return;
+
+      const handlePopState = () => {
+        const url = new URL(window.location.href);
+        const stepFromUrl = url.searchParams.get(stepParamName);
+
+        if (stepFromUrl) {
+          const stepIndex = parseInt(stepFromUrl, 10);
+          if (!isNaN(stepIndex) && stepIndex >= 0 && stepIndex < steps.length) {
+            setInternalStep(stepIndex);
+            onStepChange?.(stepIndex);
+          }
+        } else {
+          // No step param means step 0
+          setInternalStep(0);
+          onStepChange?.(0);
+        }
+      };
+
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+    }, [
+      enableUrlNavigation,
+      isControlled,
+      stepParamName,
+      steps.length,
+      onStepChange,
+    ]);
 
     // Default buttons
     const defaultNextButton = (
@@ -232,7 +327,7 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
           )}
 
           <div
-            className={`multi-step-step-container animation-${animationType} direction-${direction}`}
+            className={`multi-step-step-container animation-${animationType}`}
           >
             <Suspense
               fallback={<div className="multi-step-loading">Loading...</div>}

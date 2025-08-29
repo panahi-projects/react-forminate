@@ -5,16 +5,78 @@ import React from "react";
 
 const Step1 = () => {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Step 1</h1>
+    <div
+      style={{
+        backgroundColor: "#ffca43",
+        padding: "20px",
+        borderRadius: "10px",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <h1
+        style={{
+          color: "#f1f1f1",
+          fontSize: "24px",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: "100px",
+        }}
+      >
+        Step 1
+      </h1>
     </div>
   );
 };
 const Step2 = () => {
-  return <div>Step 2</div>;
+  return (
+    <div
+      style={{
+        backgroundColor: "#43aaff",
+        padding: "20px",
+        borderRadius: "10px",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <h1
+        style={{
+          color: "#f1f1f1",
+          fontSize: "24px",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: "100px",
+        }}
+      >
+        Step 2
+      </h1>
+    </div>
+  );
 };
 const Step3 = () => {
-  return <div>Step 3</div>;
+  return (
+    <div
+      style={{
+        backgroundColor: "#ff437f",
+        padding: "20px",
+        borderRadius: "10px",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <h1
+        style={{
+          color: "#f1f1f1",
+          fontSize: "24px",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: "100px",
+        }}
+      >
+        Step 3
+      </h1>
+    </div>
+  );
 };
 
 const steps: StepType[] = [
@@ -76,6 +138,9 @@ const MultiStepField: React.FC<MultiStepFieldType> = (props) => {
         className="my-multi-step"
         fieldId={fieldId}
         type={fieldParams.type}
+        showPagination={true}
+        enableUrlNavigation={true}
+        stepParamName="currentStep" // Optional: custom parameter name
       />
     </div>
   );

@@ -80,6 +80,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .multi-step-pagination-container {
@@ -177,6 +178,8 @@
   transition:
     transform 0.3s ease-in-out,
     opacity 0.3s ease-in-out;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .multi-step-step-container.animation-slide-horizontal.direction-forward > * {
@@ -189,11 +192,6 @@
   opacity: 0;
 }
 
-.multi-step-step-container.animation-slide-horizontal > *.enter-active {
-  transform: translateX(0);
-  opacity: 1;
-}
-
 .multi-step-step-container.animation-slide-vertical {
   overflow: hidden;
 }
@@ -202,6 +200,8 @@
   transition:
     transform 0.3s ease-in-out,
     opacity 0.3s ease-in-out;
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .multi-step-step-container.animation-slide-vertical.direction-forward > * {
@@ -214,21 +214,14 @@
   opacity: 0;
 }
 
-.multi-step-step-container.animation-slide-vertical > *.enter-active {
-  transform: translateY(0);
-  opacity: 1;
-}
-
 .multi-step-step-container.animation-fade > * {
   transition: opacity 0.3s ease-in-out;
-}
-
-.multi-step-step-container.animation-fade > * {
-  opacity: 0;
-}
-
-.multi-step-step-container.animation-fade > *.enter-active {
   opacity: 1;
+}
+
+.multi-step-step-container.animation-fade.direction-forward > *,
+.multi-step-step-container.animation-fade.direction-backward > * {
+  opacity: 0;
 }
 
 .multi-step-navigation {
