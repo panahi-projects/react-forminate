@@ -9,6 +9,9 @@ import ContainerField from "./ContainerField";
 import TextareaField from "./TextareaField";
 import SpacerField from "./SpacerField";
 import InputFileField from "./InputFileField";
+import MultiSelectField from "./MultiSelectField";
+import MultiStepField from "./MultiStepField";
+import ButtonField from "./ButtonField";
 
 export {
   InputField,
@@ -22,6 +25,9 @@ export {
   TextareaField,
   SpacerField,
   InputFileField,
+  MultiSelectField,
+  MultiStepField,
+  ButtonField,
   // Add other fields here as needed
   // e.g., TextAreaField, ToggleField, etc.
   // TextAreaField,

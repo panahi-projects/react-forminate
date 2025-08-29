@@ -45,6 +45,7 @@ const fieldComponents: Record<string, ComponentType<any>> = {
   content: lazy(() => import("../Fields/ContentField")),
   multiSelect: lazy(() => import("../Fields/MultiSelectField")),
   button: lazy(() => import("../Fields/ButtonField")),
+  multiStep: lazy(() => import("../Fields/MultiStepField")),
 };
 
 // Plugin extension mechanism
