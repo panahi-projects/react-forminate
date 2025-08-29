@@ -349,6 +349,10 @@ export interface MultiStepFieldType extends BaseField {
   className?: string;
   enableUrlNavigation?: boolean;
   stepParamName?: string;
+  gridTemplateAreas?: string;
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  gridGap?: string;
 }
 
 export interface MultiStepRef {

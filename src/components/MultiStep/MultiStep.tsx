@@ -30,9 +30,33 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       className = "",
       enableUrlNavigation = false,
       stepParamName = "step",
+      gridTemplateAreas,
+      gridTemplateColumns,
+      gridTemplateRows,
+      gridGap,
     },
     ref
   ) => {
+    // Helper function to create grid styles
+    const getGridStyles = () => {
+      const styles: React.CSSProperties = {};
+
+      if (gridTemplateAreas) {
+        styles.gridTemplateAreas = gridTemplateAreas;
+      }
+      if (gridTemplateColumns) {
+        styles.gridTemplateColumns = gridTemplateColumns;
+      }
+      if (gridTemplateRows) {
+        styles.gridTemplateRows = gridTemplateRows;
+      }
+      if (gridGap) {
+        styles.gap = gridGap;
+      }
+
+      return styles;
+    };
+
     // Initialize step from URL synchronously if enabled
     const getInitialStep = () => {
       if (enableUrlNavigation && controlledStep === undefined) {
@@ -294,9 +318,17 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
     const StepComponent = steps[currentStep].component;
 
     return (
-      <div className={`multi-step-container ${className}`}>
+      <div
+        className={`multi-step-container ${className}`}
+        style={getGridStyles()}
+      >
         {showAside && (
-          <div className="multi-step-aside-container">
+          <div
+            className="multi-step-aside-container"
+            style={{
+              gridArea: gridTemplateAreas ? "sidebar" : "aside",
+            }}
+          >
             {AsideComponent ? (
               <AsideComponent
                 steps={steps}
@@ -315,9 +347,19 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
           </div>
         )}
 
-        <div className="multi-step-content">
+        <div
+          className="multi-step-content"
+          style={{
+            gridArea: gridTemplateAreas ? "main" : "content",
+          }}
+        >
           {showPagination && (
-            <div className="multi-step-pagination-container">
+            <div
+              className="multi-step-pagination-container"
+              style={{
+                gridArea: gridTemplateAreas ? "header" : "header",
+              }}
+            >
               {PaginationComponent ? (
                 <PaginationComponent steps={steps} currentStep={currentStep} />
               ) : (
@@ -341,7 +383,12 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
           </div>
 
           {showNavigation && (
-            <div className="multi-step-navigation">
+            <div
+              className="multi-step-navigation"
+              style={{
+                gridArea: gridTemplateAreas ? "footer" : "footer",
+              }}
+            >
               {currentStep > 0 ? prevButton || defaultPrevButton : <div />}
               {isLastStep
                 ? submitButton || defaultSubmitButton

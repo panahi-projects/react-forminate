@@ -100,6 +100,17 @@ const steps: StepType[] = [
   },
 ];
 
+const customGridLayout = {
+  gridTemplateAreas: `
+    "header header header sidebar"
+    "main main main sidebar"
+    "footer footer footer sidebar"
+  `,
+  gridTemplateColumns: "1fr 1fr 1fr 280px",
+  gridTemplateRows: "auto 1fr auto",
+  gridGap: "20px",
+};
+
 /**
  * MultiStepField component - Renders a multi-step form with customizable steps
  */
@@ -141,6 +152,7 @@ const MultiStepField: React.FC<MultiStepFieldType> = (props) => {
         showPagination={true}
         enableUrlNavigation={true}
         stepParamName="currentStep" // Optional: custom parameter name
+        {...customGridLayout}
       />
     </div>
   );
