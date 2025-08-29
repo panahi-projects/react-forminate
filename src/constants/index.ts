@@ -140,4 +140,5 @@ export const FIELDS_WITHOUT_LABEL = [
   "button",
   "group",
   "container",
+  "multiStep",
 ] as string[];

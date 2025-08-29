@@ -1,0 +1,295 @@
+/* MultiStep.css */
+.multi-step-container {
+  display: flex;
+  width: 100%;
+  min-height: 500px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.multi-step-aside-container {
+  width: 280px;
+  border-right: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.multi-step-aside-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.multi-step-aside-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+}
+
+.multi-step-aside-items {
+  padding: 8px 0;
+}
+
+.multi-step-aside-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.multi-step-aside-item:hover {
+  background-color: #f0f0f0;
+}
+
+.multi-step-aside-item.active {
+  background-color: #e3f2fd;
+  border-right: 3px solid #2196f3;
+}
+
+.multi-step-aside-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.multi-step-aside-icon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.multi-step-aside-content {
+  flex: 1;
+}
+
+.multi-step-aside-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.multi-step-aside-subtitle {
+  font-size: 0.85em;
+  color: #757575;
+}
+
+.multi-step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.multi-step-pagination-container {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.multi-step-pagination {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+}
+
+.multi-step-pagination-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.multi-step-pagination-item.active {
+  background-color: #e3f2fd;
+  color: #2196f3;
+}
+
+.multi-step-pagination-item.completed {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.multi-step-pagination-indicator {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: white;
+  font-size: 12px;
+}
+
+.multi-step-pagination-item.active .multi-step-pagination-indicator {
+  background-color: #2196f3;
+  color: white;
+}
+
+.multi-step-pagination-item.completed .multi-step-pagination-indicator {
+  background-color: #4caf50;
+  color: white;
+}
+
+.multi-step-pagination-info {
+  overflow: hidden;
+}
+
+.multi-step-pagination-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multi-step-pagination-subtitle {
+  font-size: 0.8em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multi-step-step-container {
+  flex: 1;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.multi-step-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* Animation styles */
+.multi-step-step-container.animation-slide-horizontal {
+  overflow: hidden;
+}
+
+.multi-step-step-container.animation-slide-horizontal > * {
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+
+.multi-step-step-container.animation-slide-horizontal.direction-forward > * {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.multi-step-step-container.animation-slide-horizontal.direction-backward > * {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.multi-step-step-container.animation-slide-horizontal > *.enter-active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.multi-step-step-container.animation-slide-vertical {
+  overflow: hidden;
+}
+
+.multi-step-step-container.animation-slide-vertical > * {
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+
+.multi-step-step-container.animation-slide-vertical.direction-forward > * {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.multi-step-step-container.animation-slide-vertical.direction-backward > * {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.multi-step-step-container.animation-slide-vertical > *.enter-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.multi-step-step-container.animation-fade > * {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.multi-step-step-container.animation-fade > * {
+  opacity: 0;
+}
+
+.multi-step-step-container.animation-fade > *.enter-active {
+  opacity: 1;
+}
+
+.multi-step-navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.multi-step-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.multi-step-btn-prev {
+  background-color: #f5f5f5;
+  color: #424242;
+}
+
+.multi-step-btn-prev:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.multi-step-btn-prev:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.multi-step-btn-next,
+.multi-step-btn-submit {
+  background-color: #2196f3;
+  color: white;
+}
+
+.multi-step-btn-next:hover,
+.multi-step-btn-submit:hover {
+  background-color: #1976d2;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .multi-step-container {
+    flex-direction: column;
+  }
+
+  .multi-step-aside-container {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .multi-step-pagination {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .multi-step-pagination-item {
+    border-radius: 4px;
+  }
+}

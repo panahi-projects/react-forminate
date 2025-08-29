@@ -97,6 +97,7 @@ export type FieldButtonType = "button";
 export type FieldContainerType = "container" | "content";
 export type FieldInputFileType = "file";
 export type FieldContentType = "content";
+export type FieldMultiStepType = "multiStep";
 export type FieldTextareaRowsType = number;
 export type FieldTextareaColsType = number;
 export type FieldAsHTMLContainerTagType =

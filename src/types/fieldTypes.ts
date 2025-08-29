@@ -32,6 +32,7 @@ import {
   FieldInputType,
   FieldLabelType,
   FieldLayout,
+  FieldMultiStepType,
   FieldPlaceholderType,
   FieldRadioType,
   FieldRequiredMessageType,
@@ -103,6 +104,9 @@ export type FieldTypes =
   | "spacer"
   | "textarea"
   | "content"
+  | "button"
+  | "multiSelect"
+  | "multiStep"
   | string;
 
 export type ExtraProps = {
@@ -294,6 +298,62 @@ export interface ButtonFieldType extends BaseField {
   iconSize?: number;
   iconColor?: string;
   iconBackgroundColor?: string;
+}
+
+export interface StepType {
+  id: string;
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  component:
+    | React.LazyExoticComponent<React.ComponentType<any>>
+    | React.ComponentType<any>;
+  fields?: FormFieldType[];
+  order?: number;
+  isActive?: boolean;
+  isCompleted?: boolean;
+  isSkipped?: boolean;
+  isCurrent?: boolean;
+  isNext?: boolean;
+  isPrevious?: boolean;
+  isLast?: boolean;
+}
+
+export interface MultiStepFieldType extends BaseField {
+  type: FieldMultiStepType;
+  steps: StepType[];
+  currentStep?: number;
+  onStepComplete?: (step: number) => void;
+  onStepSkip?: (step: number) => void;
+  onStepChange?: (stepIndex: number) => void;
+  onComplete?: () => void;
+  showNavigation?: boolean;
+  showPagination?: boolean;
+  showAside?: boolean;
+  asideCollapsible?: boolean;
+  animationType?: "slide-horizontal" | "slide-vertical" | "fade" | "none";
+  nextButton?: React.ReactNode;
+  prevButton?: React.ReactNode;
+  submitButton?: React.ReactNode;
+  paginationComponent?: React.ComponentType<{
+    steps: StepType[];
+    currentStep: number;
+  }>;
+  asideComponent?: React.ComponentType<{
+    steps: StepType[];
+    currentStep: number;
+    goToStep: (index: number) => void;
+    disabled?: boolean;
+  }>;
+  validateStep?: (stepIndex: number) => boolean;
+  className?: string;
+}
+
+export interface MultiStepRef {
+  goToNext: () => void;
+  goToPrev: () => void;
+  goToStep: (index: number) => void;
+  currentStep: number;
 }
 
 export interface FileMetadata {

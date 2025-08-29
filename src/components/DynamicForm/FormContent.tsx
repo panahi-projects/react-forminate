@@ -69,7 +69,8 @@ const FormContent: React.FC<FormContentProps> = React.memo(
     // Calculate visible fields count (simplified as per requirements)
     const allFieldsLoaded = useMemo(() => {
       return (
-        loadedFields.size >= formData.fields.filter((f) => !f.visibility).length
+        loadedFields.size >=
+        formData.fields.filter((f) => !f.visibility !== false).length
       );
     }, [loadedFields, formData.fields]);
 
