@@ -102,11 +102,11 @@ const steps: StepType[] = [
 
 const customGridLayout = {
   gridTemplateAreas: `
-    "header header header sidebar"
-    "main main main sidebar"
-    "footer footer footer sidebar"
+    "sidebar header header header"
+    "sidebar main main main"
+    "sidebar footer footer footer"
   `,
-  gridTemplateColumns: "1fr 1fr 1fr 280px",
+  gridTemplateColumns: "280px 1fr 1fr 1fr",
   gridTemplateRows: "auto 1fr auto",
   gridGap: "20px",
 };

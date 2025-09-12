@@ -326,6 +326,56 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
         className={`multi-step-container ${className}`}
         style={getGridStyles()}
       >
+        {showPagination && (
+          <div
+            className="multi-step-pagination-container"
+            style={{
+              gridArea: gridTemplateAreas ? "header" : "header",
+            }}
+          >
+            {PaginationComponent ? (
+              <PaginationComponent steps={steps} currentStep={currentStep} />
+            ) : (
+              <DefaultPagination steps={steps} currentStep={currentStep} />
+            )}
+          </div>
+        )}
+
+        <div
+          className="multi-step-content"
+          style={{
+            gridArea: gridTemplateAreas ? "main" : "content",
+          }}
+        >
+          <div
+            className={`multi-step-step-container animation-${animationType}`}
+          >
+            <Suspense
+              fallback={<div className="multi-step-loading">Loading...</div>}
+            >
+              {React.isValidElement(StepComponent) ? (
+                StepComponent
+              ) : (
+                <StepComponent />
+              )}
+            </Suspense>
+          </div>
+        </div>
+
+        {showNavigation && (
+          <div
+            className="multi-step-navigation"
+            style={{
+              gridArea: gridTemplateAreas ? "footer" : "footer",
+            }}
+          >
+            {currentStep > 0 ? prevButton || defaultPrevButton : <div />}
+            {isLastStep
+              ? submitButton || defaultSubmitButton
+              : nextButton || defaultNextButton}
+          </div>
+        )}
+
         {showAside && (
           <div
             className="multi-step-aside-container"
@@ -350,56 +400,6 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
             )}
           </div>
         )}
-
-        <div
-          className="multi-step-content"
-          style={{
-            gridArea: gridTemplateAreas ? "main" : "content",
-          }}
-        >
-          {showPagination && (
-            <div
-              className="multi-step-pagination-container"
-              style={{
-                gridArea: gridTemplateAreas ? "header" : "header",
-              }}
-            >
-              {PaginationComponent ? (
-                <PaginationComponent steps={steps} currentStep={currentStep} />
-              ) : (
-                <DefaultPagination steps={steps} currentStep={currentStep} />
-              )}
-            </div>
-          )}
-
-          <div
-            className={`multi-step-step-container animation-${animationType}`}
-          >
-            <Suspense
-              fallback={<div className="multi-step-loading">Loading...</div>}
-            >
-              {React.isValidElement(StepComponent) ? (
-                StepComponent
-              ) : (
-                <StepComponent />
-              )}
-            </Suspense>
-          </div>
-
-          {showNavigation && (
-            <div
-              className="multi-step-navigation"
-              style={{
-                gridArea: gridTemplateAreas ? "footer" : "footer",
-              }}
-            >
-              {currentStep > 0 ? prevButton || defaultPrevButton : <div />}
-              {isLastStep
-                ? submitButton || defaultSubmitButton
-                : nextButton || defaultNextButton}
-            </div>
-          )}
-        </div>
       </div>
     );
   }
