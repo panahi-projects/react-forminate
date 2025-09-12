@@ -67,17 +67,17 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
             const stepIndex = parseInt(stepFromUrl, 10);
             if (
               !isNaN(stepIndex) &&
-              stepIndex >= 0 &&
-              stepIndex < steps.length
+              stepIndex >= 1 &&
+              stepIndex <= steps.length
             ) {
-              return stepIndex;
+              return stepIndex - 1; // Convert to 0-based for internal use
             }
           }
         } catch (error) {
           console.warn("Error parsing URL for initial step:", error);
         }
       }
-      return 0;
+      return 0; // This will be step 1 when displayed
     };
 
     const [internalStep, setInternalStep] = useState(getInitialStep);
@@ -142,13 +142,13 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
 
       if (stepFromUrl) {
         const stepIndex = parseInt(stepFromUrl, 10);
-        if (!isNaN(stepIndex) && stepIndex >= 0 && stepIndex < steps.length) {
-          setInternalStep(stepIndex);
-          onStepChange?.(stepIndex);
+        if (!isNaN(stepIndex) && stepIndex >= 1 && stepIndex <= steps.length) {
+          setInternalStep(stepIndex - 1); // Convert to 0-based for internal use
+          onStepChange?.(stepIndex - 1);
         }
       } else {
-        // If no step in URL, ensure step 0 is properly represented
-        url.searchParams.set(stepParamName, "0");
+        // If no step in URL, ensure step 1 is properly represented
+        url.searchParams.set(stepParamName, "1");
         window.history.replaceState({}, "", url.toString());
       }
     }, [
@@ -165,7 +165,7 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
 
       // Update URL when step changes - always include the step parameter for consistency
       const url = new URL(window.location.href);
-      url.searchParams.set(stepParamName, currentStep.toString());
+      url.searchParams.set(stepParamName, (currentStep + 1).toString()); // Convert to 1-based for URL
 
       // Update URL without triggering navigation
       window.history.replaceState({}, "", url.toString());
@@ -181,13 +181,17 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
 
         if (stepFromUrl) {
           const stepIndex = parseInt(stepFromUrl, 10);
-          if (!isNaN(stepIndex) && stepIndex >= 0 && stepIndex < steps.length) {
-            setInternalStep(stepIndex);
-            onStepChange?.(stepIndex);
+          if (
+            !isNaN(stepIndex) &&
+            stepIndex >= 1 &&
+            stepIndex <= steps.length
+          ) {
+            setInternalStep(stepIndex - 1); // Convert to 0-based for internal use
+            onStepChange?.(stepIndex - 1);
           }
         } else {
-          // No step param means step 0
-          setInternalStep(0);
+          // No step param means step 1
+          setInternalStep(0); // This represents step 1 when displayed
           onStepChange?.(0);
         }
       };
