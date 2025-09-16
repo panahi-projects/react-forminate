@@ -1,0 +1,211 @@
+{
+  "MultiStepField JSON Schema Examples": {
+    "description": "Examples of how to use MultiStepField in React-Forminate",
+    "examples": [
+      {
+        "name": "Basic MultiStep Field",
+        "schema": {
+          "fieldId": "registration-form",
+          "label": "Registration Process",
+          "type": "multiStep",
+          "steps": [
+            {
+              "id": "personal-info",
+              "title": "Personal Information",
+              "subtitle": "Your contact details",
+              "component": "PersonalInfoStep"
+            },
+            {
+              "id": "payment",
+              "title": "Payment Details",
+              "subtitle": "Credit card information",
+              "component": "PaymentStep"
+            },
+            {
+              "id": "confirmation",
+              "title": "Confirmation",
+              "subtitle": "Review and submit",
+              "component": "ConfirmationStep"
+            }
+          ],
+          "className": "my-multi-step-form",
+          "showNavigation": true,
+          "showPagination": true,
+          "showAside": true,
+          "animationType": "slide-horizontal"
+        }
+      },
+      {
+        "name": "Advanced MultiStep with Custom Grid Layout",
+        "schema": {
+          "fieldId": "advanced-wizard",
+          "label": "Advanced Setup Wizard",
+          "type": "multiStep",
+          "steps": [
+            {
+              "id": "welcome",
+              "title": "Welcome",
+              "subtitle": "Get started with your setup",
+              "component": "WelcomeStep"
+            },
+            {
+              "id": "configuration",
+              "title": "Configuration",
+              "subtitle": "Configure your preferences",
+              "component": "ConfigStep"
+            },
+            {
+              "id": "integration",
+              "title": "Integration",
+              "subtitle": "Connect your services",
+              "component": "IntegrationStep"
+            },
+            {
+              "id": "review",
+              "title": "Review",
+              "subtitle": "Review your setup",
+              "component": "ReviewStep"
+            }
+          ],
+          "gridTemplateAreas": "\"header header header sidebar\"\n\"main main main sidebar\"\n\"footer footer footer sidebar\"",
+          "gridTemplateColumns": "1fr 1fr 1fr 280px",
+          "gridTemplateRows": "auto 1fr auto",
+          "gridGap": "20px",
+          "className": "custom-wizard-layout",
+          "showNavigation": true,
+          "showPagination": true,
+          "showAside": true,
+          "asideCollapsible": true,
+          "animationType": "slide-vertical",
+          "enableUrlNavigation": true,
+          "stepParamName": "wizard-step"
+        }
+      },
+      {
+        "name": "Minimal MultiStep with Custom Buttons",
+        "schema": {
+          "fieldId": "simple-flow",
+          "label": "Simple Process",
+          "type": "multiStep",
+          "steps": [
+            {
+              "id": "step1",
+              "title": "Step 1",
+              "component": "Step1Component"
+            },
+            {
+              "id": "step2",
+              "title": "Step 2",
+              "component": "Step2Component"
+            }
+          ],
+          "nextButton": "<button class='custom-next'>Continue →</button>",
+          "prevButton": "<button class='custom-prev'>← Back</button>",
+          "submitButton": "<button class='custom-submit'>Finish Setup</button>",
+          "showPagination": false,
+          "showAside": false,
+          "animationType": "fade"
+        }
+      },
+      {
+        "name": "MultiStep with Validation",
+        "schema": {
+          "fieldId": "validated-form",
+          "label": "Validated Multi-Step Form",
+          "type": "multiStep",
+          "steps": [
+            {
+              "id": "user-details",
+              "title": "User Details",
+              "subtitle": "Enter your personal information",
+              "component": "UserDetailsStep"
+            },
+            {
+              "id": "address",
+              "title": "Address",
+              "subtitle": "Your contact address",
+              "component": "AddressStep"
+            },
+            {
+              "id": "preferences",
+              "title": "Preferences",
+              "subtitle": "Set your preferences",
+              "component": "PreferencesStep"
+            }
+          ],
+          "validateStep": "validateCurrentStep",
+          "className": "validated-multi-step",
+          "showNavigation": true,
+          "showPagination": true,
+          "showAside": true,
+          "animationType": "slide-horizontal",
+          "events": {
+            "onStepChange": "handleStepChange",
+            "onComplete": "handleFormComplete",
+            "onStepComplete": "handleStepComplete"
+          }
+        }
+      },
+      {
+        "name": "MultiStep with Custom Components",
+        "schema": {
+          "fieldId": "custom-multistep",
+          "label": "Custom Multi-Step",
+          "type": "multiStep",
+          "steps": [
+            {
+              "id": "intro",
+              "title": "Introduction",
+              "subtitle": "Welcome to our platform",
+              "component": "IntroStep",
+              "icon": "<span>🎯</span>"
+            },
+            {
+              "id": "setup",
+              "title": "Setup",
+              "subtitle": "Configure your account",
+              "component": "SetupStep",
+              "icon": "<span>⚙️</span>"
+            },
+            {
+              "id": "complete",
+              "title": "Complete",
+              "subtitle": "You're all set!",
+              "component": "CompleteStep",
+              "icon": "<span>✅</span>"
+            }
+          ],
+          "paginationComponent": "CustomPagination",
+          "asideComponent": "CustomAside",
+          "gridTemplateAreas": "\"sidebar header\"\n\"sidebar main\"\n\"sidebar footer\"",
+          "gridTemplateColumns": "250px 1fr",
+          "gridTemplateRows": "auto 1fr auto",
+          "gridGap": "16px",
+          "className": "custom-multistep-layout",
+          "showNavigation": true,
+          "showPagination": true,
+          "showAside": true,
+          "asideCollapsible": false,
+          "animationType": "slide-horizontal"
+        }
+      }
+    ],
+    "stepComponentExample": {
+      "description": "Example of how to create step components",
+      "example": "// Step component example\nconst PersonalInfoStep = () => {\n  return (\n    <div className=\"step-content\">\n      <h2>Personal Information</h2>\n      <p>Please provide your personal details below.</p>\n      {/* Your form fields here */}\n    </div>\n  );\n};"
+    },
+    "customHandlersExample": {
+      "description": "Example of custom event handlers",
+      "example": "// Custom handlers example\nconst handleStepChange = (stepIndex, fieldId, values, fieldProps, formSchema) => {\n  console.log(`Changed to step ${stepIndex + 1}`);\n  // Custom logic here\n};\n\nconst handleFormComplete = () => {\n  console.log('Form completed!');\n  // Submit form or navigate to next page\n};\n\nconst validateCurrentStep = (stepIndex) => {\n  // Return true if step is valid, false otherwise\n  return true;\n};"
+    },
+    "notes": [
+      "The 'component' field in steps should reference actual React components",
+      "Grid layout properties (gridTemplateAreas, etc.) are optional and will use defaults if not provided",
+      "All boolean properties (showNavigation, showPagination, etc.) default to true if not specified",
+      "The fieldId will be used to store the current step value in the form state",
+      "Custom event handlers can be provided through the 'events' object",
+      "Step validation can be implemented by providing a 'validateStep' function",
+      "URL navigation can be enabled with 'enableUrlNavigation: true' and custom step parameter names"
+    ]
+  }
+}

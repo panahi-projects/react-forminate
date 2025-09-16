@@ -1,158 +1,139 @@
 import { MultiStep } from "@/components/MultiStep";
 import { useField } from "@/hooks";
-import { MultiStepFieldType, MultiStepRef, StepType } from "@/types";
-import React from "react";
-
-const Step1 = () => {
-  return (
-    <div
-      style={{
-        backgroundColor: "#ffca43",
-        padding: "20px",
-        borderRadius: "10px",
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <h1
-        style={{
-          color: "#f1f1f1",
-          fontSize: "24px",
-          fontWeight: "bold",
-          textAlign: "center",
-          marginTop: "100px",
-        }}
-      >
-        Step 1
-      </h1>
-    </div>
-  );
-};
-const Step2 = () => {
-  return (
-    <div
-      style={{
-        backgroundColor: "#43aaff",
-        padding: "20px",
-        borderRadius: "10px",
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <h1
-        style={{
-          color: "#f1f1f1",
-          fontSize: "24px",
-          fontWeight: "bold",
-          textAlign: "center",
-          marginTop: "100px",
-        }}
-      >
-        Step 2
-      </h1>
-    </div>
-  );
-};
-const Step3 = () => {
-  return (
-    <div
-      style={{
-        backgroundColor: "#ff437f",
-        padding: "20px",
-        borderRadius: "10px",
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <h1
-        style={{
-          color: "#f1f1f1",
-          fontSize: "24px",
-          fontWeight: "bold",
-          textAlign: "center",
-          marginTop: "100px",
-        }}
-      >
-        Step 3
-      </h1>
-    </div>
-  );
-};
-
-const steps: StepType[] = [
-  {
-    id: "personal-info",
-    title: "Personal Information",
-    subtitle: "Your contact details",
-    component: Step1,
-  },
-  {
-    id: "payment",
-    title: "Payment Details",
-    subtitle: "Credit card information",
-    component: Step2,
-  },
-  {
-    id: "confirmation",
-    title: "Confirmation",
-    subtitle: "Review and submit",
-    component: Step3,
-  },
-];
-
-const customGridLayout = {
-  gridTemplateAreas: `
-    "sidebar header header header"
-    "sidebar main main main"
-    "sidebar footer footer footer"
-  `,
-  gridTemplateColumns: "280px 1fr 1fr 1fr",
-  gridTemplateRows: "auto 1fr auto",
-  gridGap: "20px",
-};
+import { MultiStepFieldType, MultiStepRef } from "@/types";
+import React, { useCallback, useMemo } from "react";
 
 /**
  * MultiStepField component - Renders a multi-step form with customizable steps
  */
 const MultiStepField: React.FC<MultiStepFieldType> = (props) => {
-  const { fieldId, fieldParams, fieldValue, processedProps } = useField(props);
+  const {
+    fieldId,
+    fieldParams,
+    fieldValue,
+    processedProps,
+    eventHandlers,
+    setValue,
+  } = useField<MultiStepFieldType>(props);
+
   const multiStepRef = React.useRef<MultiStepRef>(null);
 
-  const handleStepChange = (stepIndex: number) => {
-    console.log(`Changed to step ${stepIndex}`);
-  };
+  // Get current step from field value or default to 0 (which displays as step 1)
+  const currentStep = useMemo(() => {
+    return typeof fieldValue === "number" ? fieldValue : 0;
+  }, [fieldValue]);
 
-  const handleComplete = () => {
-    console.log("Form completed!");
-  };
+  // Handle step changes
+  const handleStepChange = useCallback(
+    (stepIndex: number) => {
+      setValue(fieldId, stepIndex);
 
-  const validateStep = (stepIndex: number) => {
-    // Add validation logic here
-    return true;
-  };
+      // Call custom step change handler if provided
+      if (processedProps.onStepChange) {
+        processedProps.onStepChange(stepIndex);
+      }
 
-  const customNextButton = (
-    <button className="custom-next-btn">
-      Continue <span>→</span>
-    </button>
+      // Call custom event handler if provided
+      if (eventHandlers.customHandlers?.onChangeItems) {
+        eventHandlers.customHandlers.onChangeItems([stepIndex], fieldId);
+      }
+    },
+    [fieldId, setValue, processedProps, eventHandlers, fieldValue]
   );
+
+  // Handle step completion
+  const handleStepComplete = useCallback(
+    (step: number) => {
+      if (processedProps.onStepComplete) {
+        processedProps.onStepComplete(step);
+      }
+    },
+    [processedProps]
+  );
+
+  // Handle step skip
+  const handleStepSkip = useCallback(
+    (step: number) => {
+      if (processedProps.onStepSkip) {
+        processedProps.onStepSkip(step);
+      }
+    },
+    [processedProps]
+  );
+
+  // Handle form completion
+  const handleComplete = useCallback(() => {
+    if (processedProps.onComplete) {
+      processedProps.onComplete();
+    }
+
+    // Call custom event handler if provided
+    if (eventHandlers.customHandlers?.onChangeItems) {
+      eventHandlers.customHandlers.onChangeItems([currentStep], fieldId);
+    }
+  }, [processedProps, eventHandlers, fieldId, fieldValue, currentStep]);
+
+  // Step validation
+  const validateStep = useCallback(
+    (stepIndex: number) => {
+      if (processedProps.validateStep) {
+        return processedProps.validateStep(stepIndex);
+      }
+      return true;
+    },
+    [processedProps]
+  );
+
+  // Memoize grid layout props
+  const gridLayoutProps = useMemo(() => {
+    const layout: any = {};
+
+    if (processedProps.gridTemplateAreas) {
+      layout.gridTemplateAreas = processedProps.gridTemplateAreas;
+    }
+    if (processedProps.gridTemplateColumns) {
+      layout.gridTemplateColumns = processedProps.gridTemplateColumns;
+    }
+    if (processedProps.gridTemplateRows) {
+      layout.gridTemplateRows = processedProps.gridTemplateRows;
+    }
+    if (processedProps.gridGap) {
+      layout.gridGap = processedProps.gridGap;
+    }
+
+    return layout;
+  }, [
+    processedProps.gridTemplateAreas,
+    processedProps.gridTemplateColumns,
+    processedProps.gridTemplateRows,
+    processedProps.gridGap,
+  ]);
 
   return (
     <div id={fieldId} {...fieldParams}>
       <MultiStep
         ref={multiStepRef}
-        steps={steps}
+        steps={processedProps.steps || []}
+        currentStep={currentStep}
         onStepChange={handleStepChange}
         onComplete={handleComplete}
-        animationType="slide-horizontal"
+        onStepComplete={handleStepComplete}
+        onStepSkip={handleStepSkip}
+        showNavigation={processedProps.showNavigation ?? true}
+        showPagination={processedProps.showPagination ?? true}
+        showAside={processedProps.showAside ?? true}
+        asideCollapsible={processedProps.asideCollapsible ?? false}
+        animationType={processedProps.animationType || "slide-horizontal"}
+        nextButton={processedProps.nextButton}
+        prevButton={processedProps.prevButton}
+        submitButton={processedProps.submitButton}
+        paginationComponent={processedProps.paginationComponent}
+        asideComponent={processedProps.asideComponent}
         validateStep={validateStep}
-        className="my-multi-step"
-        fieldId={fieldId}
-        type={fieldParams.type}
-        showPagination={true}
-        enableUrlNavigation={true}
-        stepParamName="currentStep" // Optional: custom parameter name
-        {...customGridLayout}
+        className={processedProps.className || ""}
+        enableUrlNavigation={processedProps.enableUrlNavigation ?? false}
+        stepParamName={processedProps.stepParamName || "step"}
+        {...gridLayoutProps}
       />
     </div>
   );

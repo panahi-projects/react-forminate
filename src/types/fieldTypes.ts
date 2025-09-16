@@ -329,6 +329,7 @@ export interface MultiStepFieldType extends BaseField {
   onComplete?: () => void;
   showNavigation?: boolean;
   showPagination?: boolean;
+  showNumericalPagination?: boolean;
   showAside?: boolean;
   asideCollapsible?: boolean;
   animationType?: "slide-horizontal" | "slide-vertical" | "fade" | "none";
@@ -338,6 +339,12 @@ export interface MultiStepFieldType extends BaseField {
   paginationComponent?: React.ComponentType<{
     steps: StepType[];
     currentStep: number;
+  }>;
+  numericalPaginationComponent?: React.ComponentType<{
+    steps: StepType[];
+    currentStep: number;
+    goToStep: (index: number) => void;
+    disabled?: boolean;
   }>;
   asideComponent?: React.ComponentType<{
     steps: StepType[];
@@ -474,4 +481,5 @@ export type FormFieldType =
   | InputFileType
   | ContentFieldType
   | MultiSelectFieldType
+  | MultiStepFieldType
   | ButtonFieldType;

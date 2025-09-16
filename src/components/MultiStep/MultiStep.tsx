@@ -18,6 +18,7 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       onComplete,
       showNavigation = true,
       showPagination = true,
+      showNumericalPagination = false,
       showAside = true,
       asideCollapsible = false,
       animationType = "slide-horizontal",
@@ -25,6 +26,7 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       prevButton,
       submitButton,
       paginationComponent: PaginationComponent,
+      numericalPaginationComponent: NumericalPaginationComponent,
       asideComponent: AsideComponent,
       validateStep,
       className = "",
@@ -319,6 +321,33 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
       </div>
     );
 
+    // Default numerical pagination
+    const DefaultNumericalPagination = ({
+      steps,
+      currentStep,
+      goToStep,
+      disabled,
+    }: {
+      steps: StepType[];
+      currentStep: number;
+      goToStep: (index: number) => void;
+      disabled?: boolean;
+    }) => (
+      <div className="multi-step-numerical-pagination">
+        {steps.map((_, index) => (
+          <button
+            key={index}
+            className={`multi-step-numerical-page ${index === currentStep ? "active" : ""} ${disabled ? "disabled" : ""}`}
+            onClick={() => !disabled && goToStep(index)}
+            disabled={disabled}
+            aria-label={`Go to step ${index + 1}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+    );
+
     const StepComponent = steps[currentStep].component;
 
     return (
@@ -373,6 +402,31 @@ const MultiStep = React.forwardRef<MultiStepRef, MultiStepFieldType>(
             {isLastStep
               ? submitButton || defaultSubmitButton
               : nextButton || defaultNextButton}
+          </div>
+        )}
+
+        {showNumericalPagination && (
+          <div
+            className="multi-step-numerical-pagination-container"
+            style={{
+              gridArea: gridTemplateAreas ? "numerical" : "numerical",
+            }}
+          >
+            {NumericalPaginationComponent ? (
+              <NumericalPaginationComponent
+                steps={steps}
+                currentStep={currentStep}
+                goToStep={goToStep}
+                disabled={!!validateStep && !validateStep(currentStep)}
+              />
+            ) : (
+              <DefaultNumericalPagination
+                steps={steps}
+                currentStep={currentStep}
+                goToStep={goToStep}
+                disabled={!!validateStep && !validateStep(currentStep)}
+              />
+            )}
           </div>
         )}
 
