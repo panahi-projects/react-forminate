@@ -14,16 +14,19 @@ import {
 export const useFormValues = (
   formId?: string
 ): Record<string, SupportedTypes> => {
+  // Both contexts are read unconditionally so hook order stays stable
+  // regardless of whether `formId` is provided (Rules of Hooks).
+  const registry = useContext(FormRegistryContext);
+  const local = useContext(FormValuesContext);
   if (formId) {
-    const context = useContext(FormRegistryContext);
-    if (!context) {
+    if (!registry) {
       throw new Error(
         "useFormValues must be used within a FormRegistryProvider"
       );
     }
-    return context?.forms?.[formId]?.values || {};
+    return registry?.forms?.[formId]?.values || {};
   }
-  return useContext(FormValuesContext);
+  return local;
 };
 
 export const useFormValue = (
@@ -36,30 +39,32 @@ export const useFormValue = (
 
 // Actions hooks
 export const useFormActions = (formId?: string) => {
+  const registry = useContext(FormRegistryContext);
+  const local = useContext(FormActionsContext);
   if (formId) {
-    const context = useContext(FormRegistryContext);
-    if (!context) {
+    if (!registry) {
       throw new Error(
         "useFormActions must be used within a FormRegistryProvider"
       );
     }
-    return context?.forms?.[formId]?.actions || {};
+    return registry?.forms?.[formId]?.actions || {};
   }
-  return useContext(FormActionsContext);
+  return local;
 };
 
 // Errors hooks
 export const useFormErrors = (formId?: string): Record<string, string> => {
+  const registry = useContext(FormRegistryContext);
+  const local = useContext(FormErrorsContext);
   if (formId) {
-    const context = useContext(FormRegistryContext);
-    if (!context) {
+    if (!registry) {
       throw new Error(
         "useFormErrors must be used within a FormRegistryProvider"
       );
     }
-    return context?.forms?.[formId]?.errors || {};
+    return registry?.forms?.[formId]?.errors || {};
   }
-  return useContext(FormErrorsContext);
+  return local;
 };
 
 export const useFormError = (fieldId: string, formId?: string): string => {
@@ -69,20 +74,22 @@ export const useFormError = (fieldId: string, formId?: string): string => {
 
 // Meta hooks
 export const useFormMeta = (formId?: string) => {
+  const registry = useContext(FormRegistryContext);
+  const local = useContext(FormMetaContext);
   if (formId) {
-    const context = useContext(FormRegistryContext);
-    if (!context) {
+    if (!registry) {
       throw new Error("useFormMeta must be used within a FormRegistryProvider");
     }
-    return context?.forms?.[formId]?.meta || {};
+    return registry?.forms?.[formId]?.meta || {};
   }
-  return useContext(FormMetaContext);
+  return local;
 };
 
 // Legacy hook (backwards compatibility)
 export const useForm = (formId?: string): FormContextType => {
+  const registeredContext = useContext(FormRegistryContext);
+  const context = useContext(FormContext);
   if (formId) {
-    const registeredContext = useContext(FormRegistryContext);
     const ctx = registeredContext?.forms[formId];
     if (ctx) {
       return {
@@ -106,7 +113,6 @@ export const useForm = (formId?: string): FormContextType => {
       };
     }
   }
-  const context = useContext(FormContext);
   if (!context) {
     throw new Error("useForm must be used within a FormProvider");
   }

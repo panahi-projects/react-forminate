@@ -1,4 +1,4 @@
-import { buildFieldEventHandlers, initFieldSetup } from "@/helpers";
+import { useFieldEventHandlers, initFieldSetup } from "@/helpers";
 import { BaseField, SupportedTypes } from "@/types";
 import { fallbackValue } from "@/utils";
 import { useMemo, useState, useCallback } from "react";
@@ -74,7 +74,7 @@ export const useOptimizedField = <
   );
 
   // 4. Build event handlers (ensure this function doesn't use hooks internally!)
-  const eventHandlers = buildFieldEventHandlers<E>({
+  const eventHandlers = useFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,
     type: fieldProps.type,
     value: fieldValue,

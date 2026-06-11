@@ -1,102 +1,54 @@
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
-import { FormContext, FormContextType, FormField } from "../src/components";
-import { DynamicFormField } from "../src/components/DynamicFormComponents/DynamicFormField";
+import { describe, expect, it } from "vitest";
+import { FormProvider } from "../src/context";
+import { DynamicFormField } from "../src/components/DynamicFormField";
+import { FormDataCollectionType, FormFieldType } from "../src";
 
-// Mock field components
-vi.mock("../src/Fields", () => ({
-  InputField: (props: any) => <input data-testid="input-field" {...props} />,
-  DatePickerField: (props: any) => (
-    <input data-testid="date-picker-field" {...props} />
-  ),
-  SelectField: (props: any) => <select data-testid="select-field" {...props} />,
-  RadioField: (props: any) => (
-    <input type="radio" data-testid="radio-field" {...props} />
-  ),
-  CheckboxField: (props: any) => (
-    <input type="checkbox" data-testid="checkbox-field" {...props} />
-  ),
-}));
-
-// Mock FormContext to control conditional visibility
-const mockShouldShowField = vi.fn(() => true);
-const mockContextValue: FormContextType = {
-  shouldShowField: mockShouldShowField,
-  values: {}, // Mock form values
-  errors: {}, // Mock form errors
-  dynamicOptions: {}, // Mock dynamic options
-  setValue: vi.fn(), // Mock function to update form values
-  fetchDynamicOptions(fieldId, value) {
-    // Mock function to fetch dynamic options based on fieldId and value
-    return Promise.resolve([]);
-  },
-  validateField: vi.fn(), // Mock function to validate a field
-  validateForm: vi.fn(), // Mock function to validate the entire form
-};
-
-const renderWithContext = (fieldProps: FormField) => {
+// Render a single field through the real provider, mirroring how the library
+// actually wires fields (split contexts + lazy field registry). The previous
+// version of this test imported a removed `DynamicFormComponents/` path and a
+// renamed `FormField` type, so it never ran.
+const renderField = (field: FormFieldType) => {
+  const schema: FormDataCollectionType = {
+    formId: "field-form",
+    fields: [field],
+  };
   return render(
-    <FormContext.Provider value={mockContextValue}>
-      <DynamicFormField {...fieldProps} />
-    </FormContext.Provider>
+    <FormProvider formSchema={schema}>
+      <DynamicFormField {...field} />
+    </FormProvider>
   );
 };
 
-describe("DynamicFormField Component", () => {
-  it("should render InputField for text type", async () => {
-    renderWithContext({ fieldId: "name", type: "text", label: "Name" });
+describe("DynamicFormField", () => {
+  it("renders a text input for type 'text'", async () => {
+    renderField({ fieldId: "name", type: "text", label: "Name" });
 
     await waitFor(() =>
-      expect(screen.getByTestId("input-field")).toBeInTheDocument()
+      expect(screen.getByLabelText(/Name/i)).toBeInTheDocument()
     );
   });
 
-  it("should render DatePickerField for date type", async () => {
-    renderWithContext({ fieldId: "dob", type: "date", label: "Date of Birth" });
+  it("renders a textarea for type 'textarea'", async () => {
+    renderField({ fieldId: "bio", type: "textarea", label: "Bio" });
 
     await waitFor(() =>
-      expect(screen.getByTestId("date-picker-field")).toBeInTheDocument()
+      expect(screen.getByLabelText(/Bio/i)).toBeInTheDocument()
     );
   });
 
-  it("should render SelectField for select type", async () => {
-    renderWithContext({ fieldId: "country", type: "select", label: "Country" });
-
-    await waitFor(() =>
-      expect(screen.getByTestId("select-field")).toBeInTheDocument()
-    );
-  });
-
-  it("should render RadioField for radio type", async () => {
-    renderWithContext({ fieldId: "gender", type: "radio", label: "Gender" });
-
-    await waitFor(() =>
-      expect(screen.getByTestId("radio-field")).toBeInTheDocument()
-    );
-  });
-
-  it("should render CheckboxField for checkbox type", async () => {
-    renderWithContext({
-      fieldId: "agree",
-      type: "checkbox",
-      label: "Agree to terms",
-    });
-
-    await waitFor(() =>
-      expect(screen.getByTestId("checkbox-field")).toBeInTheDocument()
-    );
-  });
-
-  it("should not render field if shouldShowField returns false", async () => {
-    mockShouldShowField.mockReturnValueOnce(false);
-    renderWithContext({
-      fieldId: "hiddenField",
+  it("does not render a field whose visibility is false", async () => {
+    renderField({
+      fieldId: "secret",
       type: "text",
-      label: "Hidden Field",
+      label: "Secret",
+      visibility: false,
     });
 
-    expect(screen.queryByTestId("input-field")).not.toBeInTheDocument();
+    // Give the lazy component a chance to load if it were going to.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByLabelText(/Secret/i)).not.toBeInTheDocument();
   });
 });

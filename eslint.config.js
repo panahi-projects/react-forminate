@@ -24,6 +24,10 @@ export default [
     },
     rules: {
       "react/react-in-jsx-scope": "off",
+      // Enforce the Rules of Hooks — without these the plugin was registered
+      // but inert, letting hook-order bugs slip through.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "no-unused-vars": [
         "warn",
         { vars: "all", args: "after-used", ignoreRestSiblings: false },

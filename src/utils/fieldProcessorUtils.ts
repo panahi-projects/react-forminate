@@ -12,6 +12,10 @@ import { convertLegacyFieldToNew } from "@/utils";
 export class FieldProcessor {
   private static instance: FieldProcessor;
   private cache: Map<string, ProcessedFieldProps<any>> = new Map();
+  // Bound the cache so a long-lived app processing many distinct
+  // field/value combinations can't grow it without limit. Map preserves
+  // insertion order, so we evict the oldest entry (FIFO) when over capacity.
+  private readonly maxCacheSize = 1000;
   private constructor() {}
 
   public static getInstance(): FieldProcessor {
@@ -33,8 +37,16 @@ export class FieldProcessor {
     }
 
     const processed = this.processField(field, values, formSchema);
-    this.cache.set(cacheKey, processed);
+    this.setCache(cacheKey, processed);
     return processed;
+  }
+
+  private setCache(key: string, value: ProcessedFieldProps<any>): void {
+    if (this.cache.size >= this.maxCacheSize) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey !== undefined) this.cache.delete(oldestKey);
+    }
+    this.cache.set(key, value);
   }
 
   public processAllFields(
@@ -143,6 +155,10 @@ export class FieldProcessor {
     }
 
     return Array.from(dependencies);
+  }
+
+  public get cacheSize(): number {
+    return this.cache.size;
   }
 
   public clearCache(): void {

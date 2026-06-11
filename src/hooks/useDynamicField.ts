@@ -6,8 +6,8 @@ export const useDynamicField = <T extends BaseField>(fieldProps: T) => {
   const fieldErrors = useFormError(fieldProps.fieldId);
   const { shouldShowField } = useFormActions();
 
-  let processedProps: ProcessedFieldProps<T>; // Process props by evaluating functions or using default values
-  processedProps = useFieldProcessor(fieldProps);
+  // Process props by evaluating functions or using default values
+  const processedProps: ProcessedFieldProps<T> = useFieldProcessor(fieldProps);
 
   const isVisible = shouldShowField(processedProps as FormFieldType);
 

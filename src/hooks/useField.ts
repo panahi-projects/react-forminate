@@ -1,5 +1,5 @@
 //Global internal imports
-import { buildFieldEventHandlers, initFieldSetup } from "@/helpers";
+import { useFieldEventHandlers, initFieldSetup } from "@/helpers";
 import { BaseField, FieldIdType } from "@/types";
 import { fallbackValue } from "@/utils";
 
@@ -77,7 +77,7 @@ export const useField = <
     }
   };
 
-  const eventHandlers = buildFieldEventHandlers<E>({
+  const eventHandlers = useFieldEventHandlers<E>({
     fieldId: fieldProps.fieldId,
     type: fieldProps.type,
     value: fieldValue,

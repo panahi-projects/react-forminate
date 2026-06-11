@@ -111,7 +111,8 @@ No app server / no env vars required (it's a library). No secrets in repo.
 
 - **Current checked-out branch is `develop`.** A `feature/multi-step-field` branch exists with in-progress multi-step/wizard work (`enableUrlNavigation`, `currentStep` starting at 1, sidebar repositioning) — **those files are NOT in the working tree on `develop`**, so don't expect a multi-step field component until that branch is checked out/merged.
 - **Tests live in top-level `__test__/`, not in `src/`** — `vite.config.ts` explicitly excludes `src/**` from the test run.
-- `FieldProcessor` cache key is built via `JSON.stringify` of the field minus `REACT_NODE_PROPS` — passing non-serializable props outside that list can bloat/poison the cache; React nodes belong in the excluded list.
-- The legacy combined `FormContext` is kept **only** for backwards compatibility; new code should read the split contexts via the `useForm*` hooks.
-- `FormProvider` has a `useContext`-then-conditional-`return` ordering (`if (existingContext) return children` before some hooks) — be careful editing hook order there.
+- `FieldProcessor` cache key is built via `JSON.stringify` of the field minus `REACT_NODE_PROPS` — passing non-serializable props outside that list can bloat/poison the cache; React nodes belong in the excluded list. The cache is bounded (`maxCacheSize = 1000`, FIFO eviction) and exposes a `cacheSize` getter.
+- The legacy combined `FormContext` is kept **only** for backwards compatibility; new code should read the split contexts via the `useForm*` hooks. The `useForm*` hooks read **both** the registry and the local context unconditionally (Rules of Hooks) and branch on `formId` afterwards — don't reintroduce a `useContext` inside an `if (formId)`.
+- `FormProvider` calls **all** hooks before its `if (existingContext) return children` early-return; the side-effecting effects are individually guarded with `if (existingContext) return`. Keep that ordering when editing.
+- Low-priority work that should run "when idle" must go through `scheduleIdleTask` (`@/utils`), never `requestIdleCallback` directly — the latter is undefined in SSR/jsdom and some browsers.
 - `version` is `-beta`; API may still shift. Bundle size is tracked (compression plugins + `analyze` script) — keep an eye on it when adding deps.

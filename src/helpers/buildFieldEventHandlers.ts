@@ -75,7 +75,9 @@ interface BuildFieldEventHandlersParams<T = HTMLInputElement> {
   ) => void;
 }
 
-export const buildFieldEventHandlers = <T = HTMLInputElement>({
+// This is a custom hook (it calls `useFieldEvents`), hence the `use` prefix —
+// it must be invoked during render, from a component or another hook.
+export const useFieldEventHandlers = <T = HTMLInputElement>({
   fieldId,
   value,
   type,

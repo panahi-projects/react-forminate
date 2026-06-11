@@ -18,6 +18,7 @@ import {
   extractFieldTypes,
   findFieldById,
   isSelectField,
+  scheduleIdleTask,
 } from "@/utils";
 import { preloadFields } from "@/utils/preload";
 import {
@@ -96,16 +97,13 @@ export const FormProvider: React.FC<FormProviderType> = ({
     [formSchema.fields]
   );
 
-  if (existingContext) {
-    return <>{children}</>;
-  }
-
   useEffect(() => {
+    if (existingContext) return;
     const fieldTypes = extractFieldTypes(formSchema);
-    requestIdleCallback(() => {
+    return scheduleIdleTask(() => {
       preloadFields(fieldTypes);
     });
-  }, [formSchema]);
+  }, [formSchema, existingContext]);
 
   const setTouched = useMemo(
     () => (fieldId: string, isTouched: boolean) => {
@@ -236,6 +234,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
 
   // Initialize dynamic options (only once on mount)
   useEffect(() => {
+    if (existingContext) return;
     const traverseAndFetch = async (fields: FormFieldType[]) => {
       for (const field of fields) {
         if (isSelectField(field)) {
@@ -250,7 +249,7 @@ export const FormProvider: React.FC<FormProviderType> = ({
     };
 
     traverseAndFetch(formSchema.fields);
-  }, [formSchema.fields, stableFetchDynamicOptions]);
+  }, [formSchema.fields, stableFetchDynamicOptions, existingContext]);
 
   const contextRef = useRef({});
 
@@ -266,12 +265,20 @@ export const FormProvider: React.FC<FormProviderType> = ({
   );
 
   useEffect(() => {
+    if (existingContext) return;
     registerForm(formSchema.formId, memoizedContext);
 
     return () => {
       unregisterForm(formSchema.formId);
     };
-  }, [values, errors]);
+  }, [values, errors, existingContext]);
+
+  // When already nested inside a form context, render children as-is.
+  // This must come *after* all hooks so hook order stays stable across
+  // renders (Rules of Hooks).
+  if (existingContext) {
+    return <>{children}</>;
+  }
 
   return (
     <FormActionsContext.Provider value={actions}>

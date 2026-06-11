@@ -48,6 +48,8 @@ describe("DynamicForm component", () => {
     );
 
     fireEvent.submit(screen.getByRole("form"));
-    expect(handleSubmit).toHaveBeenCalled();
+
+    // Submission validates asynchronously before calling onSubmit, so wait.
+    await waitFor(() => expect(handleSubmit).toHaveBeenCalled());
   });
 });
